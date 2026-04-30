@@ -1,17 +1,15 @@
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { redirect } from 'next/navigation'
+import { getEmailsGrouped } from '@/lib/db/emails'
+import InboxView from '@/components/inbox/InboxView'
 
 export default async function AppPage() {
   const session = await getServerSession(authOptions)
-  if (!session) redirect('/login')
+  if (!session?.user?.email) redirect('/login')
 
-  return (
-    <main className="p-8">
-      <h1 className="text-xl font-semibold">Inbox</h1>
-      <p className="text-sm text-muted-foreground mt-1">
-        Connesso come {session.user?.email}
-      </p>
-    </main>
-  )
+  const userId = session.user.email
+  const grouped = await getEmailsGrouped(userId)
+
+  return <InboxView initialEmails={grouped} userId={userId} />
 }

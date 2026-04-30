@@ -11,6 +11,7 @@ import {
   upsertEmails,
   saveHistoryId,
   getHistoryId,
+  markHandled,
 } from '@/lib/db/emails'
 import { runClassification } from '@/lib/ai/run-classification'
 
@@ -95,5 +96,19 @@ export async function incrementalSync(): Promise<{
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'
     return { success: false, count: 0, error: message }
+  }
+}
+
+export async function markHandledAction(
+  emailId: string,
+): Promise<{ success: boolean; error?: string }> {
+  const session = await getServerSession(authOptions)
+  if (!session?.user?.email) return { success: false, error: 'Unauthorized' }
+  try {
+    await markHandled(emailId)
+    return { success: true }
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    return { success: false, error: message }
   }
 }

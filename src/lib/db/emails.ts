@@ -1,6 +1,6 @@
 import { createServiceClient } from '@/lib/supabase/service'
 import type { ParsedEmail } from '@/lib/gmail/sync'
-import type { Classification, EmailForClassification } from '@/lib/validations/email'
+import type { Classification, EmailForClassification, EmailRow } from '@/lib/validations/email'
 
 export async function upsertEmails(userId: string, emails: ParsedEmail[]): Promise<void> {
   if (emails.length === 0) return
@@ -96,4 +96,46 @@ export async function updateClassification(
     })
     .eq('id', emailId)
   if (error) throw new Error(`updateClassification: ${error.message}`)
+}
+
+export async function getEmailsGrouped(
+  userId: string,
+): Promise<{ high: EmailRow[]; medium: EmailRow[]; low: EmailRow[] }> {
+  const db = createServiceClient()
+  const { data, error } = await db
+    .from('emails')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('is_handled', false)
+    .eq('is_processed', true)
+    .order('received_at', { ascending: false })
+  if (error) throw new Error(`getEmailsGrouped: ${error.message}`)
+  const rows = (data ?? []) as EmailRow[]
+  return {
+    high: rows.filter(e => e.priority === 'high'),
+    medium: rows.filter(e => e.priority === 'medium'),
+    low: rows.filter(e => e.priority === 'low'),
+  }
+}
+
+export async function markHandled(emailId: string): Promise<void> {
+  const db = createServiceClient()
+  const { error } = await db
+    .from('emails')
+    .update({ is_handled: true })
+    .eq('id', emailId)
+  if (error) throw new Error(`markHandled: ${error.message}`)
+}
+
+export async function searchEmails(userId: string, query: string): Promise<EmailRow[]> {
+  const db = createServiceClient()
+  const { data, error } = await db
+    .from('emails')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('is_handled', false)
+    .or(`from_address.ilike.%${query}%,from_name.ilike.%${query}%,subject.ilike.%${query}%`)
+    .order('received_at', { ascending: false })
+  if (error) throw new Error(`searchEmails: ${error.message}`)
+  return (data ?? []) as EmailRow[]
 }
