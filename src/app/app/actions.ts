@@ -14,6 +14,7 @@ import {
   markHandled,
 } from '@/lib/db/emails'
 import { runClassification } from '@/lib/ai/run-classification'
+import { sendEmail, type SendEmailParams } from '@/lib/gmail/send'
 
 async function batchedMap<T, R>(
   items: T[],
@@ -106,6 +107,20 @@ export async function markHandledAction(
   if (!session?.user?.email) return { success: false, error: 'Unauthorized' }
   try {
     await markHandled(emailId)
+    return { success: true }
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    return { success: false, error: message }
+  }
+}
+
+export async function sendEmailAction(
+  params: SendEmailParams,
+): Promise<{ success: boolean; error?: string }> {
+  const session = await getServerSession(authOptions)
+  if (!session?.accessToken) return { success: false, error: 'Unauthorized' }
+  try {
+    await sendEmail(session.accessToken, params)
     return { success: true }
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'

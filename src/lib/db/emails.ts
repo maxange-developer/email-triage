@@ -139,3 +139,15 @@ export async function searchEmails(userId: string, query: string): Promise<Email
   if (error) throw new Error(`searchEmails: ${error.message}`)
   return (data ?? []) as EmailRow[]
 }
+
+export async function getEmailById(emailId: string): Promise<EmailRow | null> {
+  const db = createServiceClient()
+  const { data, error } = await db
+    .from('emails')
+    .select('*')
+    .eq('id', emailId)
+    .single()
+  if (error && error.code === 'PGRST116') return null
+  if (error) throw new Error(`getEmailById: ${error.message}`)
+  return data as EmailRow
+}
