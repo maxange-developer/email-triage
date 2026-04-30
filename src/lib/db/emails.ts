@@ -1,5 +1,6 @@
 import { createServiceClient } from '@/lib/supabase/service'
 import type { ParsedEmail } from '@/lib/gmail/sync'
+import type { Classification, EmailForClassification } from '@/lib/validations/email'
 
 export async function upsertEmails(userId: string, emails: ParsedEmail[]): Promise<void> {
   if (emails.length === 0) return
@@ -61,4 +62,38 @@ export async function getHistoryId(userId: string): Promise<string | null> {
     .single()
   if (error && error.code !== 'PGRST116') throw new Error(`getHistoryId: ${error.message}`)
   return data?.history_id ?? null
+}
+
+export async function getBatchUnclassified(
+  userId: string,
+  limit = 50,
+): Promise<EmailForClassification[]> {
+  const db = createServiceClient()
+  const { data, error } = await db
+    .from('emails')
+    .select('id, from_address, from_name, subject, body_plain')
+    .eq('user_id', userId)
+    .eq('is_processed', false)
+    .limit(limit)
+  if (error) throw new Error(`getBatchUnclassified: ${error.message}`)
+  return (data ?? []) as EmailForClassification[]
+}
+
+export async function updateClassification(
+  emailId: string,
+  c: Classification,
+): Promise<void> {
+  const db = createServiceClient()
+  const { error } = await db
+    .from('emails')
+    .update({
+      priority: c.priority,
+      category: c.category,
+      urgency_hours: c.urgency_hours,
+      intent: c.intent,
+      ai_summary: c.summary,
+      is_processed: true,
+    })
+    .eq('id', emailId)
+  if (error) throw new Error(`updateClassification: ${error.message}`)
 }

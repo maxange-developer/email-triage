@@ -12,6 +12,7 @@ import {
   saveHistoryId,
   getHistoryId,
 } from '@/lib/db/emails'
+import { runClassification } from '@/lib/ai/run-classification'
 
 async function batchedMap<T, R>(
   items: T[],
@@ -47,6 +48,9 @@ export async function initialSync(): Promise<{ success: boolean; count: number; 
     const latestHistoryId = details[0].historyId
     if (latestHistoryId) await saveHistoryId(userId, latestHistoryId)
 
+    if (parsed.length > 0) {
+      await runClassification(userId)
+    }
     return { success: true, count: parsed.length }
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'
@@ -84,6 +88,9 @@ export async function incrementalSync(): Promise<{
     const latestHistoryId = details[0]?.historyId
     if (latestHistoryId) await saveHistoryId(userId, latestHistoryId)
 
+    if (parsed.length > 0) {
+      await runClassification(userId)
+    }
     return { success: true, count: parsed.length }
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'
