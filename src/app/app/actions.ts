@@ -1,6 +1,8 @@
 'use server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
+import { ClassificationRulesSchema } from '@/lib/validations/settings'
+import { saveClassificationRules } from '@/lib/db/settings'
 import {
   fetchMessages,
   fetchMessageDetail,
@@ -126,4 +128,21 @@ export async function sendEmailAction(
     const message = err instanceof Error ? err.message : 'Unknown error'
     return { success: false, error: message }
   }
+}
+
+export async function saveRulesAction(
+  rulesJson: string,
+): Promise<{ success: boolean; error?: string }> {
+  const session = await getServerSession(authOptions)
+  if (!session?.user?.email) return { success: false, error: 'Unauthorized' }
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(rulesJson)
+  } catch {
+    return { success: false, error: 'JSON non valido' }
+  }
+  const result = ClassificationRulesSchema.safeParse(parsed)
+  if (!result.success) return { success: false, error: 'Struttura regole non valida' }
+  await saveClassificationRules(session.user.email, result.data)
+  return { success: true }
 }
