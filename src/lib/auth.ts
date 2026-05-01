@@ -61,6 +61,18 @@ export const authOptions: NextAuthOptions = {
   ],
   session: { strategy: 'jwt' },
   callbacks: {
+    signIn: async ({ account, profile }) => {
+      if (account?.provider === 'google' && account.refresh_token && profile?.email) {
+        const { createServiceClient } = await import('@/lib/supabase/service')
+        const db = createServiceClient()
+        await db.from('users_settings').upsert({
+          user_id: profile.email,
+          google_refresh_token: account.refresh_token,
+          email_address: profile.email,
+        })
+      }
+      return true
+    },
     jwt: async ({ token, account }) => {
       if (account) {
         return {
