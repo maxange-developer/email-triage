@@ -1,5 +1,6 @@
 'use client'
 
+import { useRef, useState, useEffect } from 'react'
 import Link from 'next/link'
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
@@ -9,8 +10,6 @@ import type { DayCount, CategoryCount, SenderRow, AnalyticsSummary } from '@/lib
 import { useI18n } from '@/i18n/client'
 
 const NEON_COLORS = ['#ff00ff', '#00f0ff', '#00ff41', '#f59e0b', '#a78bfa', '#f472b6', '#34d399', '#60a5fa']
-
-const BAR_WIDTH_MAP: Record<number, number> = { 7: 32, 30: 16, 90: 8 }
 
 interface InsightsViewProps {
   volumeByDay: DayCount[]
@@ -59,8 +58,23 @@ export default function InsightsView({
   const { t } = useI18n()
   const handledPct = summary.total ? Math.round((summary.handled / summary.total) * 100) : 0
 
-  const barWidth = BAR_WIDTH_MAP[days] ?? 16
-  const chartWidth = Math.max(days * (barWidth + 4), 300)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [containerWidth, setContainerWidth] = useState(600)
+
+  useEffect(() => {
+    if (!containerRef.current) return
+    const observer = new ResizeObserver(entries => {
+      setContainerWidth(entries[0].contentRect.width)
+    })
+    observer.observe(containerRef.current)
+    return () => observer.disconnect()
+  }, [])
+
+  const barSize = Math.min(
+    Math.max(Math.floor((containerWidth - 60) / (volumeByDay.length || 1)) - 4, 4),
+    32,
+  )
+
   const isEmpty = volumeByDay.every(d => d.high === 0 && d.medium === 0 && d.low === 0)
 
   return (
@@ -105,32 +119,30 @@ export default function InsightsView({
           {isEmpty ? (
             <p className="text-sm text-white/30 py-8 text-center">{t.insights.noData}</p>
           ) : (
-            <div className="overflow-x-auto scrollbar-hide">
-              <div style={{ width: chartWidth, minWidth: '100%' }}>
-                <ResponsiveContainer width="100%" height={200}>
-                  <BarChart data={volumeByDay} barSize={barWidth}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                    <XAxis
-                      dataKey="date"
-                      tickFormatter={(d) => d.slice(5)}
-                      tick={{ fontSize: 11, fill: 'rgba(255,255,255,0.4)' }}
-                      axisLine={false}
-                      tickLine={false}
-                    />
-                    <YAxis
-                      allowDecimals={false}
-                      tick={{ fontSize: 11, fill: 'rgba(255,255,255,0.4)' }}
-                      axisLine={false}
-                      tickLine={false}
-                      width={28}
-                    />
-                    <Tooltip content={<VolumeTooltip />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
-                    <Bar dataKey="high" stackId="a" fill="#ef4444" name="High" />
-                    <Bar dataKey="medium" stackId="a" fill="#eab308" name="Medium" />
-                    <Bar dataKey="low" stackId="a" fill="rgba(255,255,255,0.2)" name="Low" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+            <div ref={containerRef} className="w-full">
+              <ResponsiveContainer width="100%" height={200}>
+                <BarChart data={volumeByDay} barSize={barSize} barGap={2}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                  <XAxis
+                    dataKey="date"
+                    tickFormatter={(d) => d.slice(5)}
+                    tick={{ fontSize: 11, fill: 'rgba(255,255,255,0.4)' }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    allowDecimals={false}
+                    tick={{ fontSize: 11, fill: 'rgba(255,255,255,0.4)' }}
+                    axisLine={false}
+                    tickLine={false}
+                    width={28}
+                  />
+                  <Tooltip content={<VolumeTooltip />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
+                  <Bar dataKey="high" stackId="a" fill="#ef4444" name="High" />
+                  <Bar dataKey="medium" stackId="a" fill="#eab308" name="Medium" />
+                  <Bar dataKey="low" stackId="a" fill="rgba(255,255,255,0.2)" name="Low" />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           )}
         </div>
