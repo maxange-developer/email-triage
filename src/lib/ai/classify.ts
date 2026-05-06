@@ -1,58 +1,49 @@
-import Anthropic from '@anthropic-ai/sdk'
+import OpenAI from 'openai'
 import { ClassificationSchema } from '@/lib/validations/email'
 import type { Classification, EmailForClassification } from '@/lib/validations/email'
 
-const client = new Anthropic()
-
-const CLASSIFY_TOOL: Anthropic.Tool = {
-  name: 'classify_email',
-  description: 'Classify an email by priority, category, urgency, intent, and summary.',
-  input_schema: {
-    type: 'object' as const,
-    properties: {
-      priority: {
-        type: 'string',
-        enum: ['high', 'medium', 'low', 'spam'],
-      },
-      category: {
-        type: 'string',
-        enum: [
-          'client_request', 'sales_lead', 'internal',
-          'newsletter', 'notification', 'support', 'invoice', 'other',
-        ],
-      },
-      urgency_hours: { type: 'number' },
-      intent: { type: 'string', description: '1 riga: cosa vuole il mittente' },
-      summary: { type: 'string', description: '1 riga: riassunto per inbox view' },
-    },
-    required: ['priority', 'category', 'urgency_hours', 'intent', 'summary'],
-  },
+let _client: OpenAI | null = null
+function getClient() {
+  if (!_client) _client = new OpenAI()
+  return _client
 }
 
+const SYSTEM_PROMPT =
+  'Classify the email. Return JSON with keys: priority (high|medium|low|spam), ' +
+  'category (client_request|sales_lead|internal|newsletter|notification|support|invoice|other), ' +
+  'urgency_hours (number), intent (1 line: what the sender wants), summary (1 line: for inbox view). ' +
+  'No extra keys, no markdown.'
+
 export async function classifyEmail(email: EmailForClassification): Promise<Classification> {
-  const prompt = [
+  const userMessage = [
     `From: ${email.from_name ?? ''} <${email.from_address ?? ''}>`,
     `Subject: ${email.subject ?? ''}`,
     `Body:`,
-    (email.body_plain ?? '').slice(0, 2000),
+    (email.body_plain ?? '').slice(0, 1500),
   ].join('\n')
 
-  const response = await client.messages.create({
-    model: 'claude-haiku-4-5-20251001',
-    max_tokens: 256,
-    tools: [CLASSIFY_TOOL],
-    tool_choice: { type: 'tool', name: 'classify_email' },
-    messages: [{ role: 'user', content: prompt }],
+  const completion = await getClient().chat.completions.create({
+    model: 'gpt-4o-mini',
+    max_tokens: 150,
+    response_format: { type: 'json_object' },
+    messages: [
+      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'user', content: userMessage },
+    ],
   })
 
-  // Find the tool_use block in the response
-  const block = response.content.find(b => b.type === 'tool_use')
-  if (!block || block.type !== 'tool_use') {
-    throw new Error(`classifyEmail: no tool_use block in response for email ${email.id}`)
+  const raw = completion.choices[0].message.content
+  if (!raw) throw new Error(`classifyEmail: empty response for email ${email.id}`)
+
+  const usage = completion.usage
+  if (usage) {
+    console.info(
+      `[classify] email=${email.id} in=${usage.prompt_tokens} out=${usage.completion_tokens} ` +
+      `cost~$${((usage.prompt_tokens * 0.00015 + usage.completion_tokens * 0.0006) / 1000).toFixed(6)}`,
+    )
   }
 
-  // Validate the tool input with Zod — throws ZodError if invalid
-  return ClassificationSchema.parse(block.input)
+  return ClassificationSchema.parse(JSON.parse(raw))
 }
 
 export async function classifyBatch(
