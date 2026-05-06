@@ -19,12 +19,9 @@ interface InboxViewProps {
   userId: string
 }
 
-type PriorityFilter = 'all' | 'high' | 'medium' | 'low'
-
 export default function InboxView({ initialEmails, userId }: InboxViewProps) {
   const [grouped, setGrouped] = useState<GroupedEmails>(initialEmails)
   const [search, setSearch] = useState('')
-  const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>('all')
   const [live, setLive] = useState(false)
   const [syncing, startSyncTransition] = useTransition()
 
@@ -110,19 +107,6 @@ export default function InboxView({ initialEmails, userId }: InboxViewProps) {
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Priority filter */}
-          <select
-            value={priorityFilter}
-            onChange={(e) => setPriorityFilter(e.target.value as PriorityFilter)}
-            className="h-9 bg-black border border-white/20 px-3 text-white text-sm focus:outline-none focus:border-neon-blue transition-colors cursor-pointer"
-            aria-label="Filter by priority"
-          >
-            <option value="all" className="bg-black">All</option>
-            <option value="high" className="bg-black">High</option>
-            <option value="medium" className="bg-black">Medium</option>
-            <option value="low" className="bg-black">Low</option>
-          </select>
-
           {/* Search */}
           <div className="relative">
             <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" aria-hidden />
@@ -168,33 +152,27 @@ export default function InboxView({ initialEmails, userId }: InboxViewProps) {
         </section>
       ) : (
         <div className="space-y-4">
-          {(priorityFilter === 'all' || priorityFilter === 'high') && (
-            <PriorityGroup
-              label="High Priority"
-              emails={grouped.high}
-              defaultOpen
-              priority="high"
-              onHandled={handleHandled}
-            />
-          )}
-          {(priorityFilter === 'all' || priorityFilter === 'medium') && (
-            <PriorityGroup
-              label="Medium Priority"
-              emails={grouped.medium}
-              defaultOpen
-              priority="medium"
-              onHandled={handleHandled}
-            />
-          )}
-          {(priorityFilter === 'all' || priorityFilter === 'low') && (
-            <PriorityGroup
-              label="Low Priority"
-              emails={grouped.low}
-              defaultOpen={priorityFilter === 'low'}
-              priority="low"
-              onHandled={handleHandled}
-            />
-          )}
+          <PriorityGroup
+            label="High Priority"
+            emails={grouped.high}
+            defaultOpen
+            priority="high"
+            onHandled={handleHandled}
+          />
+          <PriorityGroup
+            label="Medium Priority"
+            emails={grouped.medium}
+            defaultOpen
+            priority="medium"
+            onHandled={handleHandled}
+          />
+          <PriorityGroup
+            label="Low Priority"
+            emails={grouped.low}
+            defaultOpen={false}
+            priority="low"
+            onHandled={handleHandled}
+          />
         </div>
       )}
     </div>
