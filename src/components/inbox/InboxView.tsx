@@ -7,6 +7,7 @@ import { initialSync } from '@/app/app/actions'
 import { type EmailRow } from '@/lib/validations/email'
 import PriorityGroup from '@/components/inbox/PriorityGroup'
 import EmailCard from '@/components/inbox/EmailCard'
+import { useI18n } from '@/i18n/client'
 
 interface GroupedEmails {
   high: EmailRow[]
@@ -24,6 +25,7 @@ export default function InboxView({ initialEmails, userId }: InboxViewProps) {
   const [search, setSearch] = useState('')
   const [live, setLive] = useState(false)
   const [syncing, startSyncTransition] = useTransition()
+  const { t } = useI18n()
 
   useEffect(() => {
     const channel = getBrowserClient()
@@ -96,12 +98,12 @@ export default function InboxView({ initialEmails, userId }: InboxViewProps) {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="font-bold text-neon-blue" style={{ fontSize: 'var(--fs-page)' }}>
-            Inbox<span className="text-neon-pink">.</span>
+            {t.inbox.title}<span className="text-neon-pink">.</span>
           </h1>
           {live && (
             <span className="flex items-center gap-1.5 text-neon-green text-xs mt-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-neon-green animate-pulse" />
-              Live
+              {t.inbox.live}
             </span>
           )}
         </div>
@@ -111,11 +113,11 @@ export default function InboxView({ initialEmails, userId }: InboxViewProps) {
           <div className="relative">
             <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" aria-hidden />
             <input
-              placeholder="Search emails..."
+              placeholder={t.inbox.search}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-48 h-9 bg-white/5 border border-white/20 pl-8 pr-3 text-white text-sm placeholder-white/30 focus:outline-none focus:border-neon-blue transition-colors duration-200"
-              aria-label="Search emails"
+              aria-label={t.inbox.search}
             />
           </div>
 
@@ -129,7 +131,7 @@ export default function InboxView({ initialEmails, userId }: InboxViewProps) {
             <span className="absolute inset-0 bg-neon-blue scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
             <span className="relative z-10 flex items-center gap-1.5">
               <RefreshCw size={12} className={syncing ? 'animate-spin' : ''} aria-hidden />
-              {syncing ? 'Syncing...' : 'Sync'}
+              {syncing ? t.inbox.syncing : t.inbox.sync}
             </span>
           </button>
         </div>
@@ -153,21 +155,21 @@ export default function InboxView({ initialEmails, userId }: InboxViewProps) {
       ) : (
         <div className="space-y-4">
           <PriorityGroup
-            label="High Priority"
+            label={t.inbox.highPriority}
             emails={grouped.high}
             defaultOpen
             priority="high"
             onHandled={handleHandled}
           />
           <PriorityGroup
-            label="Medium Priority"
+            label={t.inbox.mediumPriority}
             emails={grouped.medium}
             defaultOpen
             priority="medium"
             onHandled={handleHandled}
           />
           <PriorityGroup
-            label="Low Priority"
+            label={t.inbox.lowPriority}
             emails={grouped.low}
             defaultOpen={false}
             priority="low"
