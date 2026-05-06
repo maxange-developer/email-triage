@@ -25,6 +25,7 @@ const supabase = createClient(
 const USER_ID = 'test@angel1.dev'
 const ACCOUNT_PRIMARY = 'account-001'
 const ACCOUNT_WORK = 'account-002'
+const ACCOUNT_SUPPORT = 'account-003'
 
 const SENDERS = [
   { name: 'Luca Bianchi', address: 'luca@agenziacreativa.it' },
@@ -529,6 +530,27 @@ const SPAM_EMAILS: EmailSpec[] = [
   },
 ]
 
+const SUPPORT_SENDERS = [
+  { name: 'Customer Alice', address: 'alice@customer.io' },
+  { name: 'Bob Support', address: 'bob@helpdesk.com' },
+  { name: 'Zendesk', address: 'noreply@zendesk.com' },
+  { name: 'Diana User', address: 'diana@client-company.com' },
+  { name: 'Eric Complaint', address: 'eric@angry-customer.net' },
+]
+
+const SUPPORT_EMAILS: EmailSpec[] = [
+  { priority: 'high', category: 'support', urgency_hours: 2, intent: 'Cliente segnala impossibilità di accedere all\'account dopo aggiornamento', ai_summary: 'Login bloccato post-aggiornamento — cliente enterprise', ai_suggested_reply: 'Sto guardando il problema adesso. Invio il link di reset manuale entro 5 minuti. Massimiliano', subject: '[Ticket #4821] Impossibile accedere — account bloccato', body_plain: 'Buongiorno, da questa mattina non riesco ad accedere al mio account. La pagina di login rimane in caricamento infinito. Ho provato su Chrome e Firefox. È urgente perché devo completare un ordine.' },
+  { priority: 'high', category: 'support', urgency_hours: 4, intent: 'Bug critico: ordine confermato ma merce non spedita da 5 giorni', ai_summary: 'Ordine #ORD-20241104 confermato ma mai spedito — cliente furibondo', ai_suggested_reply: 'Mi scuso per il disservizio. Ho verificato: l\'ordine è stato confermato ma non processato nel magazzino. Provvedo a spedizione prioritaria oggi stesso con tracking. Massimiliano', subject: '[Ticket #4890] Ordine non spedito dopo 5 giorni', body_plain: 'Ho effettuato un ordine 5 giorni fa (ORD-20241104) e ho ricevuto la conferma ma ancora nessuna spedizione. Ho inviato 3 email senza risposta. Voglio un rimborso o la spedizione immediata.' },
+  { priority: 'high', category: 'support', urgency_hours: 2, intent: 'Doppio addebito su carta di credito — richiesta rimborso urgente', ai_summary: 'Addebito duplicato €89 — rimborso urgente richiesto', ai_suggested_reply: 'Ho verificato: risultano 2 transazioni di €89 il 3/11. Il rimborso di €89 è stato avviato e arriverà entro 3-5 giorni lavorativi. Mi scuso per il disagio. Massimiliano', subject: '[Ticket #4901] Addebito doppio — RIMBORSO URGENTE', body_plain: 'Sono stata addebitata due volte €89 per lo stesso abbonamento mensile. Ho i riferimenti delle transazioni: TXN-0089334 e TXN-0089341 del 3 novembre. Voglio il rimborso immediato.' },
+  { priority: 'medium', category: 'support', urgency_hours: 24, intent: 'Richiesta cambio piano abbonamento da Basic a Pro', ai_summary: 'Upgrade piano: da Basic (€19) a Pro (€49) — da domani', ai_suggested_reply: 'Upgrade effettuato con proratio. Le funzionalità Pro sono già attive. La prossima fattura sarà di €49. Buon lavoro! Massimiliano', subject: '[Ticket #4856] Upgrade piano abbonamento', body_plain: 'Vorrei passare dal piano Basic al piano Pro a partire da questo mese. Come posso procedere? Pagate con carta di credito.' },
+  { priority: 'medium', category: 'support', urgency_hours: 36, intent: 'Funzionalità export PDF non funziona da 3 giorni', ai_summary: 'Export PDF rotto da v3.2.0 — 47 ticket aperti sullo stesso problema', ai_suggested_reply: 'Il problema è confermato su v3.2.0 — il fix è in staging e rilascio previsto per domani mattina. Le invio conferma appena è online. Massimiliano', subject: '[Ticket #4834] Export PDF non funziona', body_plain: 'L\'export PDF smesso di funzionare da quando avete fatto l\'aggiornamento 3 giorni fa. Il bottone "Scarica PDF" non fa nulla. Chrome DevTools mostra un errore 500.' },
+  { priority: 'medium', category: 'support', urgency_hours: 48, intent: 'Richiesta integrazione API con sistema ERP aziendale', ai_summary: 'Documentazione API richiesta per integrazione SAP', ai_suggested_reply: 'La documentazione completa delle API è su docs.angel1.dev/api/v2. Per integrazioni SAP consiglio il webhook /events. Resto disponibile per una call tecnica. Massimiliano', subject: '[Ticket #4812] API integration docs', body_plain: 'Our IT team needs the complete API documentation to integrate your platform with our SAP ERP. Specifically we need webhooks for order events and the authentication flow.' },
+  { priority: 'medium', category: 'support', urgency_hours: 24, intent: 'Password dimenticata — email reset non arriva', ai_summary: 'Email reset password non ricevuta — dominio aziendale blocca', ai_suggested_reply: 'Il suo dominio @bigfirm.eu ha filtri anti-spam aggressivi. Ho aggiunto l\'indirizzo IP di invio alla whitelist — riprovi il reset adesso. Massimiliano', subject: '[Ticket #4867] Reset password — email non ricevuta', body_plain: 'Ho cliccato su "Password dimenticata" 3 volte ma non ricevo nessuna email. Ho controllato spam e cestino. Il mio indirizzo è diana.user@bigfirm.eu' },
+  { priority: 'low', category: 'support', urgency_hours: 72, intent: 'Richiesta fattura in formato XML per contabilità', ai_summary: 'Richiesta fattura XML (formato SDI) — 3 fatture periodo luglio-settembre', ai_suggested_reply: 'Ho generato le 3 fatture in formato XML SDI e le ho allegate. Se ha bisogno di altri periodi, scriva pure. Massimiliano', subject: '[Ticket #4799] Fatture in formato XML', body_plain: 'Per la nostra contabilità abbiamo bisogno delle fatture del periodo luglio-settembre in formato XML (Sistema di Interscambio). Potete inviarle?' },
+  { priority: 'low', category: 'support', urgency_hours: 96, intent: 'Richiesta aggiunta nuovo utente al team aziendale', ai_summary: 'Nuovo utente da aggiungere: carlo.verdi@company.it — ruolo Viewer', ai_suggested_reply: 'Utente carlo.verdi@company.it aggiunto con ruolo Viewer. Riceverà l\'invito via email. Massimiliano', subject: '[Ticket #4778] Aggiunta utente al team', body_plain: 'Dobbiamo aggiungere un nuovo collaboratore al nostro account team: carlo.verdi@company.it — ruolo: sola lettura (Viewer). Può procedere?' },
+  { priority: 'low', category: 'notification', urgency_hours: 168, intent: 'Survey soddisfazione cliente post-risoluzione ticket', ai_summary: 'CSAT survey: cliente ha valutato 5/5 la risoluzione ticket #4756', ai_suggested_reply: '', subject: 'CSAT Survey Completed — Ticket #4756', body_plain: 'A customer has completed the satisfaction survey for Ticket #4756. Rating: 5/5 ⭐. Comment: "Risolto rapidamente e con professionalità. Ottimo supporto!"' },
+]
+
 // Extra emails for work account (account-002) — different senders/subjects
 const WORK_SENDERS = [
   { name: 'Sofia Gallo', address: 'sofia@enterprise-client.com' },
@@ -584,11 +606,18 @@ async function seed() {
       display_name: 'Angel1 Work',
       is_primary: false,
     },
+    {
+      id: ACCOUNT_SUPPORT,
+      user_id: USER_ID,
+      email_address: 'support@angel1.dev',
+      display_name: 'Angel1 Support',
+      is_primary: false,
+    },
   ], { onConflict: 'user_id,email_address' })
   if (accountsError) {
     process.stderr.write(`Warning: could not upsert gmail_accounts: ${accountsError.message}\n`)
   } else {
-    process.stdout.write('gmail_accounts rows upserted (2 accounts)\n')
+    process.stdout.write('gmail_accounts rows upserted (3 accounts)\n')
   }
 
   const { error: settingsError } = await supabase.from('users_settings').upsert({
@@ -636,7 +665,7 @@ async function seed() {
     }
   })
 
-  // Work account emails: 15 total (WORK_EMAILS already 15)
+  // Work account emails: 15 total
   const workRows = WORK_EMAILS.map((spec, i) => {
     const sender = randomFrom(WORK_SENDERS)
     return {
@@ -661,7 +690,32 @@ async function seed() {
     }
   })
 
-  const allRows = [...primaryRows, ...workRows]
+  // Support account emails: 10 total
+  const supportRows = SUPPORT_EMAILS.map((spec, i) => {
+    const sender = randomFrom(SUPPORT_SENDERS)
+    return {
+      user_id: USER_ID,
+      account_id: ACCOUNT_SUPPORT,
+      gmail_message_id: `mock-support-${i + 1}-${Date.now()}`,
+      thread_id: `thread-support-${i + 1}`,
+      from_address: sender.address,
+      from_name: sender.name,
+      subject: spec.subject,
+      snippet: spec.body_plain.slice(0, 100),
+      body_plain: spec.body_plain,
+      received_at: randomDate(14),
+      priority: spec.priority,
+      category: spec.category,
+      urgency_hours: spec.urgency_hours,
+      intent: spec.intent,
+      ai_summary: spec.ai_summary,
+      ai_suggested_reply: spec.ai_suggested_reply,
+      is_processed: true,
+      is_handled: false,
+    }
+  })
+
+  const allRows = [...primaryRows, ...workRows, ...supportRows]
   const { error: emailsError } = await supabase.from('emails').insert(allRows)
   if (emailsError) {
     process.stderr.write(`Failed to insert emails: ${emailsError.message}\n`)
@@ -676,10 +730,15 @@ async function seed() {
   const workMedium = WORK_EMAILS.filter(e => e.priority === 'medium').length
   const workLow = WORK_EMAILS.filter(e => e.priority === 'low').length
   const workSpam = WORK_EMAILS.filter(e => e.priority === 'spam').length
+  const supportHigh = SUPPORT_EMAILS.filter(e => e.priority === 'high').length
+  const supportMedium = SUPPORT_EMAILS.filter(e => e.priority === 'medium').length
+  const supportLow = SUPPORT_EMAILS.filter(e => e.priority === 'low').length
+  const supportSpam = SUPPORT_EMAILS.filter(e => e.priority === 'spam').length
 
   process.stdout.write(`\nInserted ${allRows.length} total emails:\n`)
-  process.stdout.write(`  account-001 (massi@angel1.dev): ${primaryRows.length} emails — ${primaryHigh}H ${primaryMedium}M ${primaryLow}L ${primarySpam}S\n`)
-  process.stdout.write(`  account-002 (work@angel1.dev):  ${workRows.length} emails — ${workHigh}H ${workMedium}M ${workLow}L ${workSpam}S\n`)
+  process.stdout.write(`  account-001 (massi@angel1.dev):    ${primaryRows.length} emails — ${primaryHigh}H ${primaryMedium}M ${primaryLow}L ${primarySpam}S\n`)
+  process.stdout.write(`  account-002 (work@angel1.dev):     ${workRows.length} emails — ${workHigh}H ${workMedium}M ${workLow}L ${workSpam}S\n`)
+  process.stdout.write(`  account-003 (support@angel1.dev):  ${supportRows.length} emails — ${supportHigh}H ${supportMedium}M ${supportLow}L ${supportSpam}S\n`)
   process.stdout.write('\nDone! Open http://localhost:3000/app to test.\n')
 }
 
