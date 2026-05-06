@@ -118,6 +118,26 @@ export async function getEmailsGrouped(
   }
 }
 
+export async function getEmailsGroupedByAccount(
+  accountId: string,
+): Promise<{ high: EmailRow[]; medium: EmailRow[]; low: EmailRow[] }> {
+  const db = createServiceClient()
+  const { data, error } = await db
+    .from('emails')
+    .select('*')
+    .eq('account_id', accountId)
+    .eq('is_handled', false)
+    .eq('is_processed', true)
+    .order('received_at', { ascending: false })
+  if (error) throw new Error(`getEmailsGroupedByAccount: ${error.message}`)
+  const rows = (data ?? []) as EmailRow[]
+  return {
+    high: rows.filter(e => e.priority === 'high'),
+    medium: rows.filter(e => e.priority === 'medium'),
+    low: rows.filter(e => e.priority === 'low'),
+  }
+}
+
 export async function markHandled(emailId: string): Promise<void> {
   const db = createServiceClient()
   const { error } = await db
