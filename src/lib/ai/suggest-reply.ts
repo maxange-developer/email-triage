@@ -13,6 +13,14 @@ export async function* generateReply(
   email: EmailRow,
   tone = 'professional',
 ): AsyncGenerator<string> {
+  if (process.env.USE_MOCK_AI === 'true') {
+    const reply = email.ai_suggested_reply ?? 'Grazie per il messaggio. La contatterò a breve. Cordiali saluti, Massimiliano'
+    for (const word of reply.split(' ')) {
+      yield word + ' '
+      await new Promise(r => setTimeout(r, 50))
+    }
+    return
+  }
   const toneLabel = TONE_MAP[tone] ?? 'professionale e diretto'
   const stream = client.messages.stream({
     model: 'claude-sonnet-4-6',

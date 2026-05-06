@@ -1,11 +1,12 @@
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+export const dynamic = 'force-dynamic'
+
 import { redirect } from 'next/navigation'
+import { getAppSession } from '@/lib/auth/get-session'
 import { getUserSettings } from '@/lib/db/settings'
 import SettingsView from '@/components/settings/SettingsView'
 
 export default async function SettingsPage() {
-  const session = await getServerSession(authOptions)
+  const session = await getAppSession()
   if (!session?.user?.email) redirect('/login')
   const settings = await getUserSettings(session.user.email)
   return (

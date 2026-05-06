@@ -2,9 +2,7 @@
 
 import { useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { CheckCheck } from 'lucide-react'
 import { markHandledAction } from '@/app/app/actions'
 import { type EmailRow } from '@/lib/validations/email'
 import { formatRelative } from '@/lib/utils/time'
@@ -12,39 +10,26 @@ import { formatRelative } from '@/lib/utils/time'
 interface EmailCardProps {
   email: EmailRow
   onHandled: (id: string) => void
+  priority?: 'high' | 'medium' | 'low'
+}
+
+const PRIORITY_BORDER: Record<string, string> = {
+  high: 'border-l-4 border-l-red-500',
+  medium: 'border-l-4 border-l-yellow-500',
+  low: 'border-l-4 border-l-white/20',
 }
 
 function prettifyCategory(category: string | null): string {
   if (!category) return ''
-  return category
-    .replace(/_/g, ' ')
-    .replace(/^\w/, (c) => c.toUpperCase())
+  return category.replace(/_/g, ' ').replace(/^\w/, (c) => c.toUpperCase())
 }
 
-function PriorityBadge({ priority }: { priority: EmailRow['priority'] }) {
-  if (!priority) return null
-  if (priority === 'high') {
-    return <Badge variant="destructive">Alta</Badge>
-  }
-  if (priority === 'medium') {
-    return (
-      <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 border-0">
-        Media
-      </Badge>
-    )
-  }
-  if (priority === 'low') {
-    return <Badge variant="outline">Bassa</Badge>
-  }
-  // spam
-  return <Badge variant="secondary">Spam</Badge>
-}
-
-export default function EmailCard({ email, onHandled }: EmailCardProps) {
+export default function EmailCard({ email, onHandled, priority }: EmailCardProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
 
-  const senderLabel = email.from_name ?? email.from_address ?? 'Sconosciuto'
+  const senderLabel = email.from_name ?? email.from_address ?? 'Unknown'
+  const borderClass = priority ? (PRIORITY_BORDER[priority] ?? '') : ''
 
   function handleCardClick() {
     router.push(`/app/email/${email.id}`)
@@ -61,10 +46,10 @@ export default function EmailCard({ email, onHandled }: EmailCardProps) {
   return (
     <article
       onClick={handleCardClick}
-      className="w-full cursor-pointer rounded-lg border bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className={`w-full cursor-pointer glass rounded-lg hover-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-blue/40 ${borderClass}`}
       role="button"
       tabIndex={0}
-      aria-label={`Email da ${senderLabel}: ${email.subject ?? 'nessun oggetto'}`}
+      aria-label={`Email from ${senderLabel}: ${email.subject ?? 'no subject'}`}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault()
@@ -72,46 +57,41 @@ export default function EmailCard({ email, onHandled }: EmailCardProps) {
         }
       }}
     >
-      <CardContent className="p-3 space-y-1.5">
-        {/* Top row: badges + time */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <PriorityBadge priority={email.priority} />
-          {email.category && (
-            <Badge variant="outline" className="text-xs">
-              {prettifyCategory(email.category)}
-            </Badge>
-          )}
-          <span className="ml-auto text-xs text-muted-foreground shrink-0">
-            {formatRelative(email.received_at)}
-          </span>
+      <div className="p-3 space-y-1.5">
+        {/* Top row: sender + time */}
+        <div className="flex items-center justify-between gap-2">
+          <p className="font-bold text-sm text-white truncate">{senderLabel}</p>
+          <span className="text-xs text-white/30 shrink-0">{formatRelative(email.received_at)}</span>
         </div>
-
-        {/* Sender */}
-        <p className="font-medium text-sm truncate">{senderLabel}</p>
 
         {/* Subject */}
-        <p className="text-sm text-foreground truncate">
-          {email.subject ?? '(nessun oggetto)'}
+        <p className="text-sm text-white/80 truncate">
+          {email.subject ?? '(no subject)'}
         </p>
 
-        {/* Summary */}
-        <p className="text-sm text-muted-foreground line-clamp-1">
-          {email.ai_summary ?? 'Classificazione in corso...'}
+        {/* AI Summary */}
+        <p className="text-xs text-white/40 truncate">
+          {email.ai_summary ?? 'Classification in progress...'}
         </p>
 
-        {/* Bottom row: action button */}
-        <div className="flex justify-end pt-1">
-          <Button
-            variant="ghost"
-            size="sm"
+        {/* Bottom row: category chip + handled button */}
+        <div className="flex items-center gap-2 pt-1 flex-wrap">
+          {email.category && (
+            <span className="text-[10px] px-2 py-0.5 border border-white/10 text-white/40 uppercase tracking-wider">
+              {prettifyCategory(email.category)}
+            </span>
+          )}
+          <button
             onClick={handleHandled}
             disabled={isPending}
-            aria-label="Segna come gestita"
+            aria-label="Mark as handled"
+            className="ml-auto text-xs text-white/30 hover:text-neon-green transition-colors duration-200 flex items-center gap-1 disabled:opacity-50"
           >
-            {isPending ? 'Salvataggio...' : 'Gestita'}
-          </Button>
+            <CheckCheck size={12} aria-hidden />
+            {isPending ? '...' : 'Done'}
+          </button>
         </div>
-      </CardContent>
+      </div>
     </article>
   )
 }
