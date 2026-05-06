@@ -1,6 +1,6 @@
 import { createServiceClient } from '@/lib/supabase/service'
 
-export interface DayCount { date: string; count: number }
+export interface DayCount { date: string; high: number; medium: number; low: number }
 export interface CategoryCount { category: string; count: number }
 export interface SenderRow {
   from_address: string
@@ -25,27 +25,32 @@ export async function getVolumeByDay(userId: string, days = 30): Promise<DayCoun
   const db = createServiceClient()
   const { data, error } = await db
     .from('emails')
-    .select('received_at')
+    .select('received_at, priority')
     .eq('user_id', userId)
     .gte('received_at', sinceDate(days))
   if (error) throw new Error(`getVolumeByDay: ${error.message}`)
 
-  // Build a map of date -> count from fetched rows
-  const countMap = new Map<string, number>()
+  // Aggregate by date + priority
+  const countMap = new Map<string, { high: number; medium: number; low: number }>()
   for (const row of data ?? []) {
     if (!row.received_at) continue
     const date = (row.received_at as string).slice(0, 10)
-    countMap.set(date, (countMap.get(date) ?? 0) + 1)
+    const existing = countMap.get(date) ?? { high: 0, medium: 0, low: 0 }
+    const priority = row.priority as string | null
+    if (priority === 'high') existing.high++
+    else if (priority === 'medium') existing.medium++
+    else if (priority === 'low') existing.low++
+    countMap.set(date, existing)
   }
 
-  // Fill all days in range with 0 if missing so chart has no gaps
+  // Fill all days in range with 0s if missing so chart has no gaps
   const result: DayCount[] = []
   const now = new Date()
   for (let i = days - 1; i >= 0; i--) {
     const d = new Date(now)
     d.setDate(d.getDate() - i)
     const date = d.toISOString().slice(0, 10)
-    result.push({ date, count: countMap.get(date) ?? 0 })
+    result.push({ date, ...(countMap.get(date) ?? { high: 0, medium: 0, low: 0 }) })
   }
 
   return result

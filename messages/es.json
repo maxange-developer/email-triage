@@ -1,0 +1,74 @@
+{
+  "nav": {
+    "inbox": "Bandeja de entrada",
+    "insights": "Análisis",
+    "settings": "Configuración"
+  },
+  "inbox": {
+    "title": "Bandeja de entrada",
+    "live": "En vivo",
+    "search": "Buscar correos...",
+    "sync": "Sincronizar",
+    "syncing": "Sincronizando...",
+    "highPriority": "Prioridad alta",
+    "mediumPriority": "Prioridad media",
+    "lowPriority": "Prioridad baja",
+    "noEmails": "Sin correos",
+    "noResults": "Sin resultados para",
+    "done": "Hecho",
+    "classifying": "Clasificación en curso..."
+  },
+  "insights": {
+    "title": "Análisis",
+    "totalEmails": "Total correos",
+    "handled": "Gestionados",
+    "spam": "Spam",
+    "avgUrgency": "Urgencia media",
+    "volumeByDay": "Volumen por día",
+    "categories": "Categorías",
+    "topSenders": "Principales remitentes",
+    "noData": "Sin datos",
+    "sender": "Remitente",
+    "email": "Correo",
+    "total": "Total",
+    "date": "Fecha"
+  },
+  "settings": {
+    "title": "Configuración",
+    "account": "Cuenta",
+    "connectedEmail": "Correo conectado",
+    "disconnect": "Desconectar",
+    "classificationRules": "Reglas de clasificación",
+    "rulesDescription": "Los correos que coincidan con estas reglas tendrán su prioridad sobreescrita.",
+    "ifFromContains": "Si el remitente contiene",
+    "priority": "Prioridad",
+    "high": "Alta",
+    "medium": "Media",
+    "low": "Baja",
+    "addRule": "Añadir regla",
+    "saveRules": "Guardar reglas",
+    "saving": "Guardando...",
+    "sync": "Sincronización",
+    "syncDescription": "Descarga y clasifica los últimos 100 correos de tu bandeja de Gmail.",
+    "syncNow": "Sincronizar ahora",
+    "syncing": "Sincronizando..."
+  },
+  "email": {
+    "aiReply": "Respuesta AI",
+    "professional": "Profesional",
+    "friendly": "Amigable",
+    "formal": "Formal",
+    "generate": "Generar",
+    "copy": "Copiar",
+    "send": "Enviar por Gmail",
+    "sending": "Enviando...",
+    "aiSummary": "Resumen AI",
+    "back": "Bandeja de entrada"
+  },
+  "auth": {
+    "signOut": "Cerrar sesión",
+    "signIn": "Iniciar sesión con Google",
+    "title": "Email Triage",
+    "subtitle": "Gestión inteligente del correo con IA"
+  }
+}

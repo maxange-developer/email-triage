@@ -1,0 +1,74 @@
+{
+  "nav": {
+    "inbox": "Posta in arrivo",
+    "insights": "Analisi",
+    "settings": "Impostazioni"
+  },
+  "inbox": {
+    "title": "Posta in arrivo",
+    "live": "In diretta",
+    "search": "Cerca email...",
+    "sync": "Sincronizza",
+    "syncing": "Sincronizzazione...",
+    "highPriority": "Alta priorità",
+    "mediumPriority": "Media priorità",
+    "lowPriority": "Bassa priorità",
+    "noEmails": "Nessuna email",
+    "noResults": "Nessun risultato per",
+    "done": "Fatto",
+    "classifying": "Classificazione in corso..."
+  },
+  "insights": {
+    "title": "Analisi",
+    "totalEmails": "Email totali",
+    "handled": "Gestite",
+    "spam": "Spam",
+    "avgUrgency": "Urgenza media",
+    "volumeByDay": "Volume per giorno",
+    "categories": "Categorie",
+    "topSenders": "Mittenti principali",
+    "noData": "Nessun dato",
+    "sender": "Mittente",
+    "email": "Email",
+    "total": "Totale",
+    "date": "Data"
+  },
+  "settings": {
+    "title": "Impostazioni",
+    "account": "Account",
+    "connectedEmail": "Email collegata",
+    "disconnect": "Disconnetti",
+    "classificationRules": "Regole di classificazione",
+    "rulesDescription": "Le email corrispondenti a queste regole avranno la priorità sovrascritta.",
+    "ifFromContains": "Se il mittente contiene",
+    "priority": "Priorità",
+    "high": "Alta",
+    "medium": "Media",
+    "low": "Bassa",
+    "addRule": "Aggiungi regola",
+    "saveRules": "Salva regole",
+    "saving": "Salvataggio...",
+    "sync": "Sincronizzazione",
+    "syncDescription": "Scarica e classifica le ultime 100 email dalla tua casella Gmail.",
+    "syncNow": "Sincronizza ora",
+    "syncing": "Sincronizzazione..."
+  },
+  "email": {
+    "aiReply": "Risposta AI",
+    "professional": "Professionale",
+    "friendly": "Amichevole",
+    "formal": "Formale",
+    "generate": "Genera",
+    "copy": "Copia",
+    "send": "Invia via Gmail",
+    "sending": "Invio...",
+    "aiSummary": "Riepilogo AI",
+    "back": "Posta in arrivo"
+  },
+  "auth": {
+    "signOut": "Esci",
+    "signIn": "Accedi con Google",
+    "title": "Email Triage",
+    "subtitle": "Gestione intelligente della posta con AI"
+  }
+}

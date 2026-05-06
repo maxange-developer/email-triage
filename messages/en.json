@@ -1,0 +1,74 @@
+{
+  "nav": {
+    "inbox": "Inbox",
+    "insights": "Insights",
+    "settings": "Settings"
+  },
+  "inbox": {
+    "title": "Inbox",
+    "live": "Live",
+    "search": "Search emails...",
+    "sync": "Sync",
+    "syncing": "Syncing...",
+    "highPriority": "High Priority",
+    "mediumPriority": "Medium Priority",
+    "lowPriority": "Low Priority",
+    "noEmails": "No emails",
+    "noResults": "No results for",
+    "done": "Done",
+    "classifying": "Classification in progress..."
+  },
+  "insights": {
+    "title": "Insights",
+    "totalEmails": "Total Emails",
+    "handled": "Handled",
+    "spam": "Spam",
+    "avgUrgency": "Avg Urgency",
+    "volumeByDay": "Volume by Day",
+    "categories": "Categories",
+    "topSenders": "Top Senders",
+    "noData": "No data",
+    "sender": "Sender",
+    "email": "Email",
+    "total": "Total",
+    "date": "Date"
+  },
+  "settings": {
+    "title": "Settings",
+    "account": "Account",
+    "connectedEmail": "Connected email",
+    "disconnect": "Disconnect",
+    "classificationRules": "Classification Rules",
+    "rulesDescription": "Emails matching these rules will have their priority overridden.",
+    "ifFromContains": "If from contains",
+    "priority": "Priority",
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low",
+    "addRule": "Add Rule",
+    "saveRules": "Save Rules",
+    "saving": "Saving...",
+    "sync": "Sync",
+    "syncDescription": "Download and classify the latest 100 emails from your Gmail inbox.",
+    "syncNow": "Sync Now",
+    "syncing": "Syncing..."
+  },
+  "email": {
+    "aiReply": "AI Reply",
+    "professional": "Professional",
+    "friendly": "Friendly",
+    "formal": "Formal",
+    "generate": "Generate",
+    "copy": "Copy",
+    "send": "Send via Gmail",
+    "sending": "Sending...",
+    "aiSummary": "AI Summary",
+    "back": "Inbox"
+  },
+  "auth": {
+    "signOut": "Sign out",
+    "signIn": "Sign in with Google",
+    "title": "Email Triage",
+    "subtitle": "AI-powered Gmail inbox triage"
+  }
+}
