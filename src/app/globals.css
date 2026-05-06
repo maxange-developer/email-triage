@@ -6,8 +6,8 @@
 
 @theme inline {
   /* Angel1 neon palette */
-  --color-neon-blue: #00f0ff;
-  --color-neon-pink: #ff00ff;
+  --color-neon-blue: #ff00ff;
+  --color-neon-pink: #00f0ff;
   --color-neon-green: #00ff41;
 
   --color-background: var(--background);
@@ -42,8 +42,8 @@
 
 /* Angel1 brand variables */
 :root {
-  --color-neon-blue: #00f0ff;
-  --color-neon-pink: #ff00ff;
+  --color-neon-blue: #ff00ff;
+  --color-neon-pink: #00f0ff;
   --color-neon-green: #00ff41;
   --fs-hero: clamp(2.5rem, 5vw, 4rem);
   --fs-page: clamp(1.75rem, 4vw, 3.5rem);
@@ -55,18 +55,18 @@
   --card-foreground: #ffffff;
   --popover: #0a0a0a;
   --popover-foreground: #ffffff;
-  --primary: #00f0ff;
+  --primary: #ff00ff;
   --primary-foreground: #000000;
   --secondary: rgba(255 255 255 / 0.08);
   --secondary-foreground: #ffffff;
   --muted: rgba(255 255 255 / 0.06);
   --muted-foreground: rgba(255 255 255 / 0.5);
-  --accent: rgba(0 240 255 / 0.1);
-  --accent-foreground: #00f0ff;
+  --accent: rgba(255 0 255 / 0.1);
+  --accent-foreground: #ff00ff;
   --destructive: #ef4444;
   --border: rgba(255 255 255 / 0.1);
   --input: rgba(255 255 255 / 0.08);
-  --ring: #00f0ff;
+  --ring: #ff00ff;
   --radius: 0.75rem;
 }
 
@@ -83,7 +83,7 @@
     @apply font-sans;
   }
   :focus-visible {
-    outline: 2px solid #00f0ff;
+    outline: 2px solid #ff00ff;
     outline-offset: 3px;
     border-radius: 2px;
   }
@@ -110,7 +110,7 @@
   }
 
   .neon-border {
-    box-shadow: 0 0 10px rgba(0, 240, 255, 0.3), inset 0 0 10px rgba(0, 240, 255, 0.05);
+    box-shadow: 0 0 10px rgba(255, 0, 255, 0.3), inset 0 0 10px rgba(255, 0, 255, 0.05);
   }
 
   .scrollbar-hide::-webkit-scrollbar {

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { ArrowLeft, Copy, Send, RefreshCw } from 'lucide-react'
-import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { type EmailRow } from '@/lib/validations/email'
 import { formatRelative } from '@/lib/utils/time'
@@ -49,6 +49,7 @@ const PRIORITY_CHIP: Record<string, string> = {
 }
 
 export default function EmailDetail({ email }: { email: EmailRow }) {
+  const router = useRouter()
   const [reply, setReply] = useState('')
   const [tone, setTone] = useState('professional')
   const [streaming, setStreaming] = useState(false)
@@ -86,18 +87,18 @@ export default function EmailDetail({ email }: { email: EmailRow }) {
 
   return (
     <div className="space-y-6 animate-fade-up">
-      {/* Back link */}
-      <Link
-        href="/app"
-        className="inline-flex items-center gap-2 text-sm text-white/40 hover:text-neon-blue transition-colors duration-200"
+      {/* Back button — Angel1 style */}
+      <button
+        onClick={() => router.back()}
+        className="flex items-center gap-2 text-white/60 text-sm uppercase tracking-wider hover:text-white transition-colors duration-200 border-b border-transparent hover:border-white/40 pb-0.5"
       >
         <ArrowLeft size={14} aria-hidden />
         Inbox
-      </Link>
+      </button>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* LEFT: email content */}
-        <article className={`glass rounded-lg p-5 border-2 border-white/10 ${priorityBorder}`}>
+        <article className={`glass p-5 border-2 border-white/10 ${priorityBorder}`}>
           <header className="space-y-3 mb-4">
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
               <span className="font-bold text-white">{email.from_name ?? email.from_address}</span>
@@ -137,7 +138,7 @@ export default function EmailDetail({ email }: { email: EmailRow }) {
         </article>
 
         {/* RIGHT: reply generation */}
-        <aside className="glass rounded-lg p-5 border-2 border-white/10 space-y-4">
+        <aside className="glass p-5 border-2 border-white/10 space-y-4">
           <h3 className="text-sm font-bold text-neon-blue uppercase tracking-wider">
             AI Reply
           </h3>
@@ -147,16 +148,16 @@ export default function EmailDetail({ email }: { email: EmailRow }) {
             <select
               value={tone}
               onChange={(e) => setTone(e.target.value)}
-              className="flex-1 h-10 bg-white/5 border border-white/20 px-3 text-white text-sm focus:outline-none focus:border-neon-blue transition-colors duration-200 appearance-none"
+              className="flex-1 h-9 bg-black border border-white/20 px-3 text-white text-sm focus:outline-none focus:border-neon-blue transition-colors duration-200 cursor-pointer"
             >
-              <option value="professional">Professional</option>
-              <option value="friendly">Friendly</option>
-              <option value="formal">Formal</option>
+              <option value="professional" className="bg-black">Professional</option>
+              <option value="friendly" className="bg-black">Friendly</option>
+              <option value="formal" className="bg-black">Formal</option>
             </select>
             <button
               onClick={handleGenerate}
               disabled={streaming}
-              className="h-10 px-4 border-2 border-neon-pink text-white text-xs font-semibold uppercase tracking-wider relative overflow-hidden hover:text-black transition-all duration-300 group disabled:opacity-50 shrink-0"
+              className="h-9 px-4 border-2 border-neon-pink text-white text-xs font-semibold uppercase tracking-wider relative overflow-hidden hover:text-black transition-all duration-300 group disabled:opacity-50 shrink-0"
             >
               <span className="absolute inset-0 bg-neon-pink scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
               <span className="relative z-10 flex items-center gap-1.5">
