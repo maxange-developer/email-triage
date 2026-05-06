@@ -1,13 +1,33 @@
 'use client'
 
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import { signIn } from 'next-auth/react'
+import { Check } from 'lucide-react'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
+import { cn } from '@/lib/utils'
 
 const ThreeBackground = dynamic(() => import('@/components/ThreeBackground'), { ssr: false })
 
+const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK === 'true'
+
 export default function LoginPage() {
+  const router = useRouter()
+  const [rememberMe, setRememberMe] = useState(false)
+
+  function handleSignIn() {
+    if (USE_MOCK) {
+      router.push('/app')
+      return
+    }
+    if (rememberMe) {
+      document.cookie = 'remember_session=true; max-age=31536000; path=/'
+    }
+    signIn('google', { callbackUrl: '/app' })
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <ThreeBackground />
@@ -31,6 +51,7 @@ export default function LoginPage() {
           />
         </div>
 
+        {/* Title */}
         <div className="text-center space-y-2">
           <h1 className="font-bold text-neon-blue" style={{ fontSize: 'var(--fs-page)' }}>
             Email Triage<span className="text-neon-pink">.</span>
@@ -40,18 +61,44 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Google OAuth button */}
-        <button
-          onClick={() => signIn('google')}
-          className="w-full h-12 border-2 border-neon-blue text-white text-sm font-semibold uppercase tracking-wider relative overflow-hidden hover:text-black transition-all duration-300 group"
-        >
-          <span className="absolute inset-0 bg-neon-blue scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
-          <span className="relative z-10">Sign in with Google</span>
-        </button>
-
+        {/* OAuth info */}
         <p className="text-xs text-center text-white/30">
           Read-only Gmail access. Your data is never shared.
         </p>
+
+        {/* Remember me */}
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            role="checkbox"
+            aria-checked={rememberMe}
+            onClick={() => setRememberMe(!rememberMe)}
+            className={cn(
+              'w-4 h-4 border transition-all duration-200',
+              'flex items-center justify-center shrink-0',
+              rememberMe
+                ? 'border-neon-blue bg-neon-blue/20'
+                : 'border-white/30 hover:border-neon-blue/50',
+            )}
+          >
+            {rememberMe && <Check size={10} className="text-neon-blue" />}
+          </button>
+          <label
+            className="text-white/50 text-sm cursor-pointer hover:text-white/70 transition-colors"
+            onClick={() => setRememberMe(!rememberMe)}
+          >
+            Remember me
+          </label>
+        </div>
+
+        {/* Connect button */}
+        <button
+          onClick={handleSignIn}
+          className="w-full h-12 border-2 border-neon-blue text-white text-sm font-semibold uppercase tracking-wider relative overflow-hidden hover:text-black transition-all duration-300 group"
+        >
+          <span className="absolute inset-0 bg-neon-blue scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
+          <span className="relative z-10">Connect with Google</span>
+        </button>
       </div>
     </div>
   )

@@ -179,11 +179,7 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
           </button>
         </div>
 
-        <div className="pt-2 border-t border-white/10 flex items-center justify-between gap-4 flex-wrap">
-          <div>
-            <p className="text-xs text-white/40 mb-0.5 uppercase tracking-wider">Session</p>
-            <p className="text-sm font-medium text-white">{userEmail}</p>
-          </div>
+        <div className="pt-2 border-t border-white/10 flex justify-end">
           <button
             onClick={() => signOut({ callbackUrl: '/login' })}
             className="h-9 px-4 border-2 border-red-500/60 text-red-400 text-xs font-semibold uppercase tracking-wider hover:bg-red-500 hover:text-black transition-all duration-300 flex items-center gap-1.5"
