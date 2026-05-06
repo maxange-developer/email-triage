@@ -29,7 +29,7 @@ export default function AccountSwitcher() {
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
 
-          <div className="absolute right-0 top-full mt-2 z-50 glass border border-white/10 min-w-[260px] animate-fade-up">
+          <div className="absolute right-0 top-full mt-2 z-50 bg-[#0a0a0a] border border-white/15 min-w-[260px] animate-fade-up shadow-[0_20px_60px_rgba(0,0,0,0.8)]">
             <div className="p-2">
               <p className="text-white/30 text-xs uppercase tracking-widest px-3 py-2">Accounts</p>
 
