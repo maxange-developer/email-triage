@@ -1,9 +1,31 @@
+import type { GmailAccount } from '@/lib/types'
+
+export const MOCK_ACCOUNTS: GmailAccount[] = [
+  {
+    id: 'account-001',
+    userId: 'mock-user-001',
+    emailAddress: 'massi@angel1.dev',
+    displayName: 'Massi Angelone',
+    isPrimary: true,
+    createdAt: '2024-01-01T00:00:00.000Z',
+  },
+  {
+    id: 'account-002',
+    userId: 'mock-user-001',
+    emailAddress: 'work@angel1.dev',
+    displayName: 'Angel1 Work',
+    isPrimary: false,
+    createdAt: '2024-01-02T00:00:00.000Z',
+  },
+]
+
 export const MOCK_USER = {
   id: 'mock-user-001',
   email: 'test@angel1.dev',
   name: 'Massi Angelone',
   image: null as string | null,
   accessToken: 'mock-access-token',
+  activeAccountId: 'account-001',
 }
 
 export function getMockSession() {

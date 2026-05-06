@@ -23,6 +23,7 @@ export interface EmailForClassification {
 export interface EmailRow {
   id: string
   user_id: string
+  account_id: string | null
   gmail_message_id: string
   thread_id: string | null
   from_address: string | null

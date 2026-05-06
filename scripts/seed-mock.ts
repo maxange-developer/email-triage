@@ -23,6 +23,8 @@ const supabase = createClient(
 )
 
 const USER_ID = 'test@angel1.dev'
+const ACCOUNT_PRIMARY = 'account-001'
+const ACCOUNT_WORK = 'account-002'
 
 const SENDERS = [
   { name: 'Luca Bianchi', address: 'luca@agenziacreativa.it' },
@@ -527,6 +529,33 @@ const SPAM_EMAILS: EmailSpec[] = [
   },
 ]
 
+// Extra emails for work account (account-002) — different senders/subjects
+const WORK_SENDERS = [
+  { name: 'Sofia Gallo', address: 'sofia@enterprise-client.com' },
+  { name: 'Roberto Ferri', address: 'roberto@bigcorp.com' },
+  { name: 'Valeria Longo', address: 'valeria@investor.vc' },
+  { name: 'Davide Serra', address: 'd.serra@partnerfirm.it' },
+  { name: 'Slack', address: 'feedback@slack.com' },
+]
+
+const WORK_EMAILS: EmailSpec[] = [
+  { priority: 'high', category: 'client_request', urgency_hours: 3, intent: 'Enterprise client richiede SLA firmato entro domani', ai_summary: 'SLA urgente da firmare — enterprise client', ai_suggested_reply: 'Ricevuto. Invio il documento firmato entro questa sera. Massimiliano', subject: 'SLA Agreement — firma urgente', body_plain: 'Massimiliano, il nostro legal team ha bisogno del SLA firmato entro domani per attivare il contratto enterprise. Puoi procedere oggi?' },
+  { priority: 'high', category: 'sales_lead', urgency_hours: 6, intent: 'VC interessato a investire nella piattaforma', ai_summary: 'Investor call richiesta — seed round €500k', ai_suggested_reply: 'Grazie per l\'interesse! Sono disponibile per una call questa settimana. Mi manda i suoi slot disponibili? Massimiliano', subject: 'Interesse investimento — Angel1 Platform', body_plain: 'Salve, abbiamo analizzato la vostra piattaforma e siamo interessati a discutere un possibile investimento seed. Budget indicativo €500k. Possiamo organizzare una call?' },
+  { priority: 'high', category: 'support', urgency_hours: 2, intent: 'API down per enterprise client in produzione', ai_summary: 'API endpoint /v2/classify down — enterprise production', ai_suggested_reply: 'Sto investigando adesso — stimo risoluzione entro 20 minuti. Vi tengo aggiornati ogni 5 minuti. Massimiliano', subject: 'CRITICAL: API down in production', body_plain: 'Your API endpoint /v2/classify is returning 503 since 10 minutes. We have 50k requests queued. Please fix ASAP.' },
+  { priority: 'medium', category: 'client_request', urgency_hours: 48, intent: 'Revisione Q4 roadmap product', ai_summary: 'Review roadmap Q4 con partner — call giovedì', ai_suggested_reply: 'Confermato per giovedì alle 14:00. Ho aggiornato la roadmap con i punti discussi. La condivido prima della call. Massimiliano', subject: 'Q4 Roadmap Review — giovedì 14:00', body_plain: 'Ciao, per la nostra call di giovedì vorrei rivedere la roadmap Q4 e discutere le priorità per il lancio di gennaio.' },
+  { priority: 'medium', category: 'invoice', urgency_hours: 72, intent: 'Richiesta fattura mensile enterprise', ai_summary: 'Fattura mensile enterprise — €8.400', ai_suggested_reply: 'La fattura per novembre è allegata — totale €8.400 per licenze enterprise + supporto dedicato. Buona giornata! Massimiliano', subject: 'Fattura mensile Novembre — Enterprise', body_plain: 'Gentile Massimiliano, potete inviarci la fattura per il mese di novembre? Include licenze e supporto dedicato.' },
+  { priority: 'medium', category: 'sales_lead', urgency_hours: 96, intent: 'Richiesta partnership go-to-market', ai_summary: 'Proposta partnership GTM con firma di consulenza internazionale', ai_suggested_reply: 'Buongiorno, la proposta è interessante. Possiamo fissare una call la prossima settimana per definire i termini? Cordiali saluti, Massimiliano', subject: 'Partnership proposal — Go-to-Market', body_plain: 'Dear Massimiliano, we are interested in a go-to-market partnership for the EMEA region. Could we schedule a call to discuss terms?' },
+  { priority: 'medium', category: 'internal', urgency_hours: 24, intent: 'Onboarding nuovo developer — accessi da configurare', ai_summary: 'Setup accessi per nuovo developer Luca — team Angel1', ai_suggested_reply: 'Fatto! Luca ha accesso a GitHub, Slack, Linear e staging. Ho inviato le credenziali al suo indirizzo work. Massimiliano', subject: 'Onboarding Luca — accessi account', body_plain: 'Ciao, Luca inizia lunedì. Può configurare gli accessi a GitHub, Slack, Linear e l\'ambiente staging prima di allora?' },
+  { priority: 'low', category: 'notification', urgency_hours: 168, intent: 'Report mensile utilizzo piattaforma — ottobre', ai_summary: 'Platform usage report ottobre: 12k API calls, 99.8% uptime', ai_suggested_reply: '', subject: 'Monthly Usage Report — October', body_plain: 'October platform report: 12,450 API calls processed. Average response time: 340ms. Uptime: 99.8%. Top endpoint: /classify (67%).' },
+  { priority: 'low', category: 'newsletter', urgency_hours: 168, intent: 'Newsletter settimanale Y Combinator', ai_summary: 'YC Newsletter: startup trends e fundraising tips', ai_suggested_reply: '', subject: 'YC Weekly — Startup Insights', body_plain: 'This week at YC: how to structure your seed round, the best metrics to track pre-product-market fit, and founder stories from W24 batch.' },
+  { priority: 'low', category: 'other', urgency_hours: 168, intent: 'Congratulazioni per award "Best AI Startup Italy"', ai_summary: 'Award nomination: Best AI Startup Italy 2024', ai_suggested_reply: 'Grazie mille! È un riconoscimento che motiva tutto il team. Massimiliano', subject: 'Congratulazioni — Best AI Startup Italy 2024', body_plain: 'Carissimo Massimiliano, è con grande piacere che le comunichiamo la nomination di Angel1 tra le "Best AI Startup Italy 2024". Complimenti a tutto il team!' },
+  { priority: 'medium', category: 'client_request', urgency_hours: 48, intent: 'White-label richiesta per licenza piattaforma', ai_summary: 'Richiesta white-label licensing per startup francese', ai_suggested_reply: 'Bonjour! Merci pour votre intérêt. Nous proposons des licences white-label à partir de €2.000/mois. Je vous envoie les détails. Massimiliano', subject: 'White-label licensing inquiry', body_plain: 'Bonjour, nous sommes une startup française et nous aimerions utiliser votre plateforme en marque blanche. Quelles sont les conditions?' },
+  { priority: 'medium', category: 'support', urgency_hours: 36, intent: 'Webhook non riceve eventi dopo aggiornamento', ai_summary: 'Webhook events non arrivano dopo deploy v2.3.1', ai_suggested_reply: 'Identificato il problema: il deploy v2.3.1 ha cambiato il formato del payload. Sto rilasciando il fix v2.3.2 entro 30 minuti. Massimiliano', subject: 'Webhook events not received — v2.3.1', body_plain: 'Since the v2.3.1 update, our webhook is not receiving events. We checked our endpoint and it\'s working fine. The issue seems to be on your side.' },
+  { priority: 'high', category: 'client_request', urgency_hours: 4, intent: 'Scadenza demo per board meeting domani', ai_summary: 'Demo enterprise richiesta per board — domani 9:00', ai_suggested_reply: 'Preparerò una demo personalizzata stanotte. Domani alle 9:00 sarò pronto. Mi confermate gli use case prioritari? Massimiliano', subject: 'Board demo tomorrow 9am — URGENT', body_plain: 'Massimiliano, we have a board meeting tomorrow at 9am and need a full product demo ready. Can you prepare a custom demo for our use case?' },
+  { priority: 'low', category: 'notification', urgency_hours: 168, intent: 'Conferma iscrizione conferenza Tech Leaders 2025', ai_summary: 'Iscrizione confermata — Tech Leaders Summit 2025', ai_suggested_reply: '', subject: 'Registration confirmed — Tech Leaders Summit 2025', body_plain: 'Your registration for Tech Leaders Summit 2025 (Milan, March 15-16) is confirmed. Speaker lineup and schedule will be announced in January.' },
+  { priority: 'medium', category: 'client_request', urgency_hours: 72, intent: 'Richiesta caso studio per marketing', ai_summary: 'Case study richiesto — successo implementazione AI triage', ai_suggested_reply: 'Certo! Possiamo pubblicare un case study anonimizzato. Vi mando un questionario di 10 domande così raccogliamo i dati chiave. Massimiliano', subject: 'Case study collaboration', body_plain: 'Dear Massimiliano, we would love to create a case study about our success with your platform. Would you be interested in co-publishing it?' },
+]
+
 async function seed() {
   process.stdout.write('Seeding mock data for test@angel1.dev...\n')
 
@@ -539,31 +568,57 @@ async function seed() {
     process.stderr.write(`Warning: could not delete existing emails: ${deleteError.message}\n`)
   }
 
+  // Upsert gmail_accounts
+  const { error: accountsError } = await supabase.from('gmail_accounts').upsert([
+    {
+      id: ACCOUNT_PRIMARY,
+      user_id: USER_ID,
+      email_address: 'massi@angel1.dev',
+      display_name: 'Massi Angelone',
+      is_primary: true,
+    },
+    {
+      id: ACCOUNT_WORK,
+      user_id: USER_ID,
+      email_address: 'work@angel1.dev',
+      display_name: 'Angel1 Work',
+      is_primary: false,
+    },
+  ], { onConflict: 'user_id,email_address' })
+  if (accountsError) {
+    process.stderr.write(`Warning: could not upsert gmail_accounts: ${accountsError.message}\n`)
+  } else {
+    process.stdout.write('gmail_accounts rows upserted (2 accounts)\n')
+  }
+
   const { error: settingsError } = await supabase.from('users_settings').upsert({
     user_id: USER_ID,
     email_address: USER_ID,
     google_refresh_token: null,
     classification_rules: [],
+    active_account_id: ACCOUNT_PRIMARY,
   })
   if (settingsError) {
     process.stderr.write(`Failed to upsert users_settings: ${settingsError.message}\n`)
     process.exit(1)
   }
-  process.stdout.write('users_settings row created\n')
+  process.stdout.write('users_settings row created (active_account_id = account-001)\n')
 
-  const allEmails = [
+  // Primary account emails: 10 high + 15 medium + 8 low + 2 spam = 35
+  const primaryEmails = [
     ...HIGH_EMAILS,
     ...MEDIUM_EMAILS,
-    ...LOW_EMAILS,
-    ...SPAM_EMAILS,
+    ...LOW_EMAILS.slice(0, 8),
+    ...SPAM_EMAILS.slice(0, 2),
   ]
 
-  const rows = allEmails.map((spec, i) => {
+  const primaryRows = primaryEmails.map((spec, i) => {
     const sender = randomFrom(SENDERS)
     return {
       user_id: USER_ID,
-      gmail_message_id: `mock-${i + 1}-${Date.now()}`,
-      thread_id: `thread-mock-${i + 1}`,
+      account_id: ACCOUNT_PRIMARY,
+      gmail_message_id: `mock-primary-${i + 1}-${Date.now()}`,
+      thread_id: `thread-primary-${i + 1}`,
       from_address: sender.address,
       from_name: sender.name,
       subject: spec.subject,
@@ -581,14 +636,51 @@ async function seed() {
     }
   })
 
-  const { error: emailsError } = await supabase.from('emails').insert(rows)
+  // Work account emails: 15 total (WORK_EMAILS already 15)
+  const workRows = WORK_EMAILS.map((spec, i) => {
+    const sender = randomFrom(WORK_SENDERS)
+    return {
+      user_id: USER_ID,
+      account_id: ACCOUNT_WORK,
+      gmail_message_id: `mock-work-${i + 1}-${Date.now()}`,
+      thread_id: `thread-work-${i + 1}`,
+      from_address: sender.address,
+      from_name: sender.name,
+      subject: spec.subject,
+      snippet: spec.body_plain.slice(0, 100),
+      body_plain: spec.body_plain,
+      received_at: randomDate(30),
+      priority: spec.priority,
+      category: spec.category,
+      urgency_hours: spec.urgency_hours,
+      intent: spec.intent,
+      ai_summary: spec.ai_summary,
+      ai_suggested_reply: spec.ai_suggested_reply,
+      is_processed: true,
+      is_handled: false,
+    }
+  })
+
+  const allRows = [...primaryRows, ...workRows]
+  const { error: emailsError } = await supabase.from('emails').insert(allRows)
   if (emailsError) {
     process.stderr.write(`Failed to insert emails: ${emailsError.message}\n`)
     process.exit(1)
   }
 
-  process.stdout.write(`Inserted ${rows.length} emails (${HIGH_EMAILS.length} high / ${MEDIUM_EMAILS.length} medium / ${LOW_EMAILS.length} low / ${SPAM_EMAILS.length} spam)\n`)
-  process.stdout.write('Done! Open http://localhost:3000/app to test.\n')
+  const primaryHigh = primaryEmails.filter(e => e.priority === 'high').length
+  const primaryMedium = primaryEmails.filter(e => e.priority === 'medium').length
+  const primaryLow = primaryEmails.filter(e => e.priority === 'low').length
+  const primarySpam = primaryEmails.filter(e => e.priority === 'spam').length
+  const workHigh = WORK_EMAILS.filter(e => e.priority === 'high').length
+  const workMedium = WORK_EMAILS.filter(e => e.priority === 'medium').length
+  const workLow = WORK_EMAILS.filter(e => e.priority === 'low').length
+  const workSpam = WORK_EMAILS.filter(e => e.priority === 'spam').length
+
+  process.stdout.write(`\nInserted ${allRows.length} total emails:\n`)
+  process.stdout.write(`  account-001 (massi@angel1.dev): ${primaryRows.length} emails — ${primaryHigh}H ${primaryMedium}M ${primaryLow}L ${primarySpam}S\n`)
+  process.stdout.write(`  account-002 (work@angel1.dev):  ${workRows.length} emails — ${workHigh}H ${workMedium}M ${workLow}L ${workSpam}S\n`)
+  process.stdout.write('\nDone! Open http://localhost:3000/app to test.\n')
 }
 
 seed()

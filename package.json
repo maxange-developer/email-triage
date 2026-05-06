@@ -14,7 +14,6 @@
     "seed:mock": "tsx scripts/seed-mock.ts"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.91.1",
     "@auth/supabase-adapter": "^1.11.2",
     "@base-ui/react": "^1.4.1",
     "@react-three/drei": "^10.7.7",
@@ -28,6 +27,7 @@
     "next": "16.2.4",
     "next-auth": "^4.24.14",
     "next-themes": "^0.4.6",
+    "openai": "^6.36.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "recharts": "^3.8.1",
