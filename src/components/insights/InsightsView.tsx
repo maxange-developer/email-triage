@@ -6,8 +6,11 @@ import {
   PieChart, Pie, Cell, Legend,
 } from 'recharts'
 import type { DayCount, CategoryCount, SenderRow, AnalyticsSummary } from '@/lib/db/analytics'
+import { useI18n } from '@/i18n/client'
 
 const NEON_COLORS = ['#ff00ff', '#00f0ff', '#00ff41', '#f59e0b', '#a78bfa', '#f472b6', '#34d399', '#60a5fa']
+
+const BAR_WIDTH_MAP: Record<number, number> = { 7: 32, 30: 16, 90: 8 }
 
 interface InsightsViewProps {
   volumeByDay: DayCount[]
@@ -53,14 +56,19 @@ export default function InsightsView({
   summary,
   days,
 }: InsightsViewProps) {
+  const { t } = useI18n()
   const handledPct = summary.total ? Math.round((summary.handled / summary.total) * 100) : 0
+
+  const barWidth = BAR_WIDTH_MAP[days] ?? 16
+  const chartWidth = Math.max(days * (barWidth + 4), 300)
+  const isEmpty = volumeByDay.every(d => d.high === 0 && d.medium === 0 && d.low === 0)
 
   return (
     <div className="space-y-6 animate-fade-up">
       {/* Header + day filter */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <h1 className="font-bold text-neon-blue" style={{ fontSize: 'var(--fs-page)' }}>
-          Insights<span className="text-neon-pink">.</span>
+          {t.insights.title}<span className="text-neon-pink">.</span>
         </h1>
         <div className="flex gap-2">
           {[7, 30, 90].map((d) => (
@@ -81,10 +89,10 @@ export default function InsightsView({
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard label="Total Emails" value={summary.total} />
-        <StatCard label="Handled" value={`${handledPct}%`} />
-        <StatCard label="Spam" value={summary.spamCount} />
-        <StatCard label="Avg Urgency" value={`${summary.avgUrgencyHours}h`} />
+        <StatCard label={t.insights.totalEmails} value={summary.total} />
+        <StatCard label={t.insights.handled} value={`${handledPct}%`} />
+        <StatCard label={t.insights.spam} value={summary.spamCount} />
+        <StatCard label={t.insights.avgUrgency} value={`${summary.avgUrgencyHours}h`} />
       </div>
 
       {/* Charts */}
@@ -92,35 +100,37 @@ export default function InsightsView({
         {/* Volume stacked bar chart */}
         <div className="glass p-5 border-2 border-white/10">
           <h3 className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-4">
-            Volume by Day
+            {t.insights.volumeByDay}
           </h3>
-          {volumeByDay.every(d => d.high === 0 && d.medium === 0 && d.low === 0) ? (
-            <p className="text-sm text-white/30 py-8 text-center">No data</p>
+          {isEmpty ? (
+            <p className="text-sm text-white/30 py-8 text-center">{t.insights.noData}</p>
           ) : (
-            <div className="overflow-x-auto">
-              <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={volumeByDay} barSize={8}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                  <XAxis
-                    dataKey="date"
-                    tickFormatter={(d) => d.slice(5)}
-                    tick={{ fontSize: 11, fill: 'rgba(255,255,255,0.4)' }}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <YAxis
-                    allowDecimals={false}
-                    tick={{ fontSize: 11, fill: 'rgba(255,255,255,0.4)' }}
-                    axisLine={false}
-                    tickLine={false}
-                    width={28}
-                  />
-                  <Tooltip content={<VolumeTooltip />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
-                  <Bar dataKey="high" stackId="a" fill="#ef4444" name="High" />
-                  <Bar dataKey="medium" stackId="a" fill="#eab308" name="Medium" />
-                  <Bar dataKey="low" stackId="a" fill="rgba(255,255,255,0.2)" name="Low" />
-                </BarChart>
-              </ResponsiveContainer>
+            <div className="overflow-x-auto scrollbar-hide">
+              <div style={{ width: chartWidth, minWidth: '100%' }}>
+                <ResponsiveContainer width="100%" height={200}>
+                  <BarChart data={volumeByDay} barSize={barWidth}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                    <XAxis
+                      dataKey="date"
+                      tickFormatter={(d) => d.slice(5)}
+                      tick={{ fontSize: 11, fill: 'rgba(255,255,255,0.4)' }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      allowDecimals={false}
+                      tick={{ fontSize: 11, fill: 'rgba(255,255,255,0.4)' }}
+                      axisLine={false}
+                      tickLine={false}
+                      width={28}
+                    />
+                    <Tooltip content={<VolumeTooltip />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
+                    <Bar dataKey="high" stackId="a" fill="#ef4444" name="High" />
+                    <Bar dataKey="medium" stackId="a" fill="#eab308" name="Medium" />
+                    <Bar dataKey="low" stackId="a" fill="rgba(255,255,255,0.2)" name="Low" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           )}
         </div>
@@ -128,10 +138,10 @@ export default function InsightsView({
         {/* Category donut */}
         <div className="glass p-5 border-2 border-white/10">
           <h3 className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-4">
-            Categories
+            {t.insights.categories}
           </h3>
           {categoryBreakdown.length === 0 ? (
-            <p className="text-sm text-white/30 py-8 text-center">No data</p>
+            <p className="text-sm text-white/30 py-8 text-center">{t.insights.noData}</p>
           ) : (
             <ResponsiveContainer width="100%" height={240}>
               <PieChart>
@@ -179,18 +189,18 @@ export default function InsightsView({
       <div className="glass border-2 border-white/10">
         <div className="px-5 py-4 border-b border-white/10">
           <h3 className="text-xs font-semibold text-white/40 uppercase tracking-widest">
-            Top Senders
+            {t.insights.topSenders}
           </h3>
         </div>
         {topSenders.length === 0 ? (
-          <p className="text-sm text-white/30 p-5">No data</p>
+          <p className="text-sm text-white/30 p-5">{t.insights.noData}</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-white/5">
-                  <th className="px-5 py-3 text-left text-xs text-white/30 font-medium uppercase tracking-wider">Sender</th>
-                  <th className="px-5 py-3 text-left text-xs text-white/30 font-medium uppercase tracking-wider hidden sm:table-cell">Email</th>
+                  <th className="px-5 py-3 text-left text-xs text-white/30 font-medium uppercase tracking-wider">{t.insights.sender}</th>
+                  <th className="px-5 py-3 text-left text-xs text-white/30 font-medium uppercase tracking-wider hidden sm:table-cell">{t.insights.email}</th>
                   <th className="px-5 py-3 text-right text-xs text-white/30 font-medium uppercase tracking-wider">#</th>
                   <th className="px-5 py-3 text-right text-xs text-white/30 font-medium uppercase tracking-wider">Priority</th>
                 </tr>

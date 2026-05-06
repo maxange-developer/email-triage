@@ -5,6 +5,7 @@ import { signOut } from 'next-auth/react'
 import { Plus, X, Save, RefreshCw, LogOut } from 'lucide-react'
 import { toast } from 'sonner'
 import { initialSync, saveRulesAction } from '@/app/app/actions'
+import { useI18n } from '@/i18n/client'
 
 interface Rule {
   id: string
@@ -42,6 +43,7 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
   const [rules, setRules] = useState<Rule[]>(() => parseRules(rulesJson))
   const [saving, startSave] = useTransition()
   const [syncing, startSync] = useTransition()
+  const { t } = useI18n()
 
   function addRule() {
     setRules((prev) => [
@@ -83,13 +85,13 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
     <div className="space-y-6 animate-fade-up max-w-2xl">
       <div>
         <h1 className="font-bold text-neon-blue" style={{ fontSize: 'var(--fs-page)' }}>
-          Settings<span className="text-neon-pink">.</span>
+          {t.settings.title}<span className="text-neon-pink">.</span>
         </h1>
       </div>
 
       {/* Account card */}
       <div className="glass p-6 border-2 border-white/10 space-y-4">
-        <h2 className="text-xs font-semibold uppercase tracking-widest text-white/40">Account</h2>
+        <h2 className="text-xs font-semibold uppercase tracking-widest text-white/40">{t.settings.account}</h2>
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div>
             <p className="text-xs text-white/40 mb-0.5 uppercase tracking-wider">Connected email</p>
@@ -108,10 +110,10 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
       {/* Classification rules card */}
       <div className="glass p-6 border-2 border-white/10 space-y-4">
         <h2 className="text-xs font-semibold uppercase tracking-widest text-white/40">
-          Classification Rules
+          {t.settings.classificationRules}
         </h2>
         <p className="text-xs text-white/30">
-          Emails matching these rules will have their priority overridden.
+          {t.settings.rulesDescription}
         </p>
 
         <div className="space-y-2">

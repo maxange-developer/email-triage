@@ -6,12 +6,7 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { Home, BarChart2, Settings } from 'lucide-react'
 import { cn } from '@/lib/utils'
-
-const NAV_ITEMS = [
-  { href: '/app', label: 'Inbox', icon: Home, exact: true },
-  { href: '/app/insights', label: 'Insights', icon: BarChart2, exact: false },
-  { href: '/app/settings', label: 'Settings', icon: Settings, exact: false },
-] as const
+import { useI18n } from '@/i18n/client'
 
 interface SidebarNavProps {
   onNavigate?: () => void
@@ -20,7 +15,14 @@ interface SidebarNavProps {
 export function SidebarNav({ onNavigate }: SidebarNavProps) {
   const pathname = usePathname()
   const [mounted, setMounted] = useState(false)
+  const { t } = useI18n()
   useEffect(() => setMounted(true), [])
+
+  const NAV_ITEMS = [
+    { href: '/app', label: t.nav.inbox, icon: Home, exact: true },
+    { href: '/app/insights', label: t.nav.insights, icon: BarChart2, exact: false },
+    { href: '/app/settings', label: t.nav.settings, icon: Settings, exact: false },
+  ] as const
 
   return (
     <div className="flex h-full flex-col">
