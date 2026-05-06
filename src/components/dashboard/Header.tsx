@@ -14,11 +14,11 @@ export default function Header({ userEmail }: HeaderProps) {
     <header className="glass border-b border-white/10 px-6 py-4 flex items-center justify-between shrink-0">
       <MobileSidebar />
       <div className="flex-1" />
-      <div className="flex items-center gap-3">
-        <LanguageSwitcher />
+      <div className="flex items-center gap-4">
         <span className="hidden sm:block text-xs text-white/40 truncate max-w-[200px]">
           {userEmail}
         </span>
+        <LanguageSwitcher />
         <button
           onClick={() => signOut({ callbackUrl: '/login' })}
           aria-label="Sign out"
