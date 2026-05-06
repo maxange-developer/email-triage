@@ -1,11 +1,16 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { signOut } from 'next-auth/react'
 import { Plus, X, Save, RefreshCw, LogOut } from 'lucide-react'
 import { toast } from 'sonner'
-import { initialSync, saveRulesAction } from '@/app/app/actions'
+import { initialSync, saveRulesAction, deleteAccountAction } from '@/app/app/actions'
 import { useI18n } from '@/i18n/client'
+import { useAccount } from '@/contexts/AccountContext'
+import { cn } from '@/lib/utils'
+
+const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK === 'true'
 
 interface Rule {
   id: string
@@ -40,10 +45,12 @@ function parseRules(json: string): Rule[] {
 }
 
 export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps) {
+  const router = useRouter()
   const [rules, setRules] = useState<Rule[]>(() => parseRules(rulesJson))
   const [saving, startSave] = useTransition()
   const [syncing, startSync] = useTransition()
   const { t } = useI18n()
+  const { accounts, activeAccount, switchAccount, addAccount } = useAccount()
 
   function addRule() {
     setRules((prev) => [
@@ -81,6 +88,20 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
     })
   }
 
+  async function handleDeleteAccount(accountId: string) {
+    if (USE_MOCK) {
+      toast.error('Not available in demo mode')
+      return
+    }
+    const result = await deleteAccountAction(accountId)
+    if (result.error) {
+      toast.error(result.error)
+    } else {
+      toast.success('Account removed')
+      router.refresh()
+    }
+  }
+
   return (
     <div className="space-y-6 animate-fade-up max-w-2xl">
       <div>
@@ -89,12 +110,78 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
         </h1>
       </div>
 
-      {/* Account card */}
+      {/* Connected accounts card */}
       <div className="glass p-6 border-2 border-white/10 space-y-4">
         <h2 className="text-xs font-semibold uppercase tracking-widest text-white/40">{t.settings.account}</h2>
-        <div className="flex items-center justify-between gap-4 flex-wrap">
+
+        <div className="space-y-3">
+          <p className="text-white/40 text-xs uppercase tracking-widest">Connected Accounts</p>
+
+          {accounts.map((account) => (
+            <div
+              key={account.id}
+              className={cn(
+                'glass border-2 p-4 flex items-center gap-4 transition-all duration-200',
+                account.id === activeAccount?.id
+                  ? 'border-neon-blue/60'
+                  : 'border-white/10 hover:border-white/20',
+              )}
+            >
+              <div
+                className={cn(
+                  'w-10 h-10 flex items-center justify-center text-sm font-bold border shrink-0',
+                  account.id === activeAccount?.id
+                    ? 'border-neon-blue text-neon-blue bg-neon-blue/10'
+                    : 'border-white/20 text-white/50 bg-white/5',
+                )}
+              >
+                {account.emailAddress[0].toUpperCase()}
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <p className="text-white text-sm truncate font-medium">{account.emailAddress}</p>
+                <div className="flex items-center gap-2 mt-0.5">
+                  {account.isPrimary && (
+                    <span className="text-neon-green text-xs">Primary</span>
+                  )}
+                  {account.id === activeAccount?.id && (
+                    <span className="text-neon-blue text-xs">● Active</span>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                {account.id !== activeAccount?.id && (
+                  <button
+                    onClick={() => switchAccount(account.id)}
+                    className="h-8 px-3 border border-neon-blue/40 text-neon-blue text-xs hover:bg-neon-blue/10 transition-all duration-200"
+                  >
+                    Switch
+                  </button>
+                )}
+                {!account.isPrimary && (
+                  <button
+                    onClick={() => handleDeleteAccount(account.id)}
+                    className="h-8 px-3 border border-red-500/40 text-red-400 text-xs hover:bg-red-500/10 transition-all duration-200"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+
+          <button
+            onClick={addAccount}
+            className="w-full py-3 border border-dashed border-white/20 text-white/40 text-sm hover:border-neon-blue hover:text-neon-blue transition-all duration-200 flex items-center justify-center gap-2"
+          >
+            <Plus size={14} /> Add Account
+          </button>
+        </div>
+
+        <div className="pt-2 border-t border-white/10 flex items-center justify-between gap-4 flex-wrap">
           <div>
-            <p className="text-xs text-white/40 mb-0.5 uppercase tracking-wider">Connected email</p>
+            <p className="text-xs text-white/40 mb-0.5 uppercase tracking-wider">Session</p>
             <p className="text-sm font-medium text-white">{userEmail}</p>
           </div>
           <button
@@ -112,16 +199,17 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
         <h2 className="text-xs font-semibold uppercase tracking-widest text-white/40">
           {t.settings.classificationRules}
         </h2>
-        <p className="text-xs text-white/30">
-          {t.settings.rulesDescription}
-        </p>
+        <p className="text-xs text-white/30">{t.settings.rulesDescription}</p>
+        {activeAccount && (
+          <p className="text-xs text-white/40">
+            Rules for{' '}
+            <span className="text-neon-blue">{activeAccount.emailAddress}</span>
+          </p>
+        )}
 
         <div className="space-y-2">
           {rules.map((rule) => (
-            <div
-              key={rule.id}
-              className="glass border border-white/10 p-4 flex items-center gap-4"
-            >
+            <div key={rule.id} className="glass border border-white/10 p-4 flex items-center gap-4">
               <div className="flex-1 flex items-center gap-3 flex-wrap min-w-0">
                 <span className="text-white/40 text-xs uppercase tracking-widest shrink-0">
                   If from contains

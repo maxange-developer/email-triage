@@ -2,6 +2,7 @@
 import { getAppSession } from '@/lib/auth/get-session'
 import { ClassificationRulesSchema } from '@/lib/validations/settings'
 import { saveClassificationRules } from '@/lib/db/settings'
+import { deleteAccount } from '@/lib/db/gmail-accounts'
 import {
   fetchMessages,
   fetchMessageDetail,
@@ -146,5 +147,13 @@ export async function saveRulesAction(
   const result = ClassificationRulesSchema.safeParse(parsed)
   if (!result.success) return { success: false, error: 'Struttura regole non valida' }
   await saveClassificationRules(session.user.email, result.data)
+  return { success: true }
+}
+
+export async function deleteAccountAction(accountId: string): Promise<{ success: boolean; error?: string }> {
+  const session = await getAppSession()
+  if (!session?.user?.email) return { success: false, error: 'Unauthorized' }
+  const { error } = await deleteAccount(session.user.email, accountId)
+  if (error) return { success: false, error: error.message }
   return { success: true }
 }

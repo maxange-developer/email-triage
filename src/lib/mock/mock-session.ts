@@ -17,6 +17,14 @@ export const MOCK_ACCOUNTS: GmailAccount[] = [
     isPrimary: false,
     createdAt: '2024-01-02T00:00:00.000Z',
   },
+  {
+    id: 'account-003',
+    userId: 'mock-user-001',
+    emailAddress: 'support@angel1.dev',
+    displayName: 'Angel1 Support',
+    isPrimary: false,
+    createdAt: '2024-01-03T00:00:00.000Z',
+  },
 ]
 
 export const MOCK_USER = {
