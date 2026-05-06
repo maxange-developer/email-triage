@@ -1,6 +1,7 @@
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+export const dynamic = 'force-dynamic'
+
 import { redirect, notFound } from 'next/navigation'
+import { getAppSession } from '@/lib/auth/get-session'
 import { getEmailById } from '@/lib/db/emails'
 import EmailDetail from '@/components/email-detail/EmailDetail'
 
@@ -9,7 +10,7 @@ export default async function EmailPage({
 }: {
   params: Promise<{ id: string }>
 }) {
-  const session = await getServerSession(authOptions)
+  const session = await getAppSession()
   if (!session?.user?.email) redirect('/login')
 
   const { id } = await params

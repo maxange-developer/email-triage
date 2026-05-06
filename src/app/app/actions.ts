@@ -1,6 +1,5 @@
 'use server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { getAppSession } from '@/lib/auth/get-session'
 import { ClassificationRulesSchema } from '@/lib/validations/settings'
 import { saveClassificationRules } from '@/lib/db/settings'
 import {
@@ -32,10 +31,11 @@ async function batchedMap<T, R>(
 }
 
 export async function initialSync(): Promise<{ success: boolean; count: number; error?: string }> {
-  const session = await getServerSession(authOptions)
+  const session = await getAppSession()
   if (!session?.accessToken || !session.user?.email) {
     return { success: false, count: 0, error: 'Unauthorized' }
   }
+  if (process.env.USE_MOCK_AUTH === 'true') return { success: true, count: 0 }
   const { accessToken } = session
   const userId = session.user.email
 
@@ -67,10 +67,11 @@ export async function incrementalSync(): Promise<{
   count: number
   error?: string
 }> {
-  const session = await getServerSession(authOptions)
+  const session = await getAppSession()
   if (!session?.accessToken || !session.user?.email) {
     return { success: false, count: 0, error: 'Unauthorized' }
   }
+  if (process.env.USE_MOCK_AUTH === 'true') return { success: true, count: 0 }
   const { accessToken } = session
   const userId = session.user.email
 
@@ -105,7 +106,7 @@ export async function incrementalSync(): Promise<{
 export async function markHandledAction(
   emailId: string,
 ): Promise<{ success: boolean; error?: string }> {
-  const session = await getServerSession(authOptions)
+  const session = await getAppSession()
   if (!session?.user?.email) return { success: false, error: 'Unauthorized' }
   try {
     await markHandled(emailId)
@@ -119,8 +120,9 @@ export async function markHandledAction(
 export async function sendEmailAction(
   params: SendEmailParams,
 ): Promise<{ success: boolean; error?: string }> {
-  const session = await getServerSession(authOptions)
+  const session = await getAppSession()
   if (!session?.accessToken) return { success: false, error: 'Unauthorized' }
+  if (process.env.USE_MOCK_AUTH === 'true') return { success: true }
   try {
     await sendEmail(session.accessToken, params)
     return { success: true }
@@ -133,7 +135,7 @@ export async function sendEmailAction(
 export async function saveRulesAction(
   rulesJson: string,
 ): Promise<{ success: boolean; error?: string }> {
-  const session = await getServerSession(authOptions)
+  const session = await getAppSession()
   if (!session?.user?.email) return { success: false, error: 'Unauthorized' }
   let parsed: unknown
   try {

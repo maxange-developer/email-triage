@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { getAppSession } from '@/lib/auth/get-session'
 import { runClassification } from '@/lib/ai/run-classification'
 
 export async function POST() {
-  const session = await getServerSession(authOptions)
+  const session = await getAppSession()
   if (!session?.user?.email) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }

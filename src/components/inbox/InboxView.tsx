@@ -1,10 +1,9 @@
 'use client'
 
 import { useState, useEffect, useMemo, useTransition } from 'react'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
+import { Search, RefreshCw } from 'lucide-react'
 import { getBrowserClient } from '@/lib/supabase/client'
-import { initialSync, markHandledAction } from '@/app/app/actions'
+import { initialSync } from '@/app/app/actions'
 import { type EmailRow } from '@/lib/validations/email'
 import PriorityGroup from '@/components/inbox/PriorityGroup'
 import EmailCard from '@/components/inbox/EmailCard'
@@ -23,24 +22,19 @@ interface InboxViewProps {
 export default function InboxView({ initialEmails, userId }: InboxViewProps) {
   const [grouped, setGrouped] = useState<GroupedEmails>(initialEmails)
   const [search, setSearch] = useState('')
+  const [live, setLive] = useState(false)
   const [syncing, startSyncTransition] = useTransition()
 
-  // Realtime subscription
   useEffect(() => {
     const channel = getBrowserClient()
       .channel('emails-inbox')
       .on(
         'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'emails',
-          filter: `user_id=eq.${userId}`,
-        },
+        { event: '*', schema: 'public', table: 'emails', filter: `user_id=eq.${userId}` },
         (payload) => {
+          setLive(true)
           const row = payload.new as EmailRow
           if (!row || row.is_handled) {
-            // Remove from all groups
             setGrouped((prev) => ({
               high: prev.high.filter((e) => e.id !== row?.id),
               medium: prev.medium.filter((e) => e.id !== row?.id),
@@ -49,13 +43,11 @@ export default function InboxView({ initialEmails, userId }: InboxViewProps) {
             return
           }
           setGrouped((prev) => {
-            // Remove from all groups first (handles priority change on UPDATE)
             const without: GroupedEmails = {
               high: prev.high.filter((e) => e.id !== row.id),
               medium: prev.medium.filter((e) => e.id !== row.id),
               low: prev.low.filter((e) => e.id !== row.id),
             }
-            // Add to correct group if priority is set and not spam
             if (row.priority === 'high') return { ...without, high: [row, ...without.high] }
             if (row.priority === 'medium') return { ...without, medium: [row, ...without.medium] }
             if (row.priority === 'low') return { ...without, low: [row, ...without.low] }
@@ -84,7 +76,6 @@ export default function InboxView({ initialEmails, userId }: InboxViewProps) {
     })
   }
 
-  // Flat filtered list for search
   const filteredEmails = useMemo<EmailRow[]>(() => {
     if (!search.trim()) return []
     const term = search.toLowerCase()
@@ -100,75 +91,90 @@ export default function InboxView({ initialEmails, userId }: InboxViewProps) {
   }, [search, grouped])
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-10 bg-background/80 backdrop-blur border-b px-4 py-3 flex items-center gap-3">
-        <h1 className="text-lg font-semibold shrink-0">Inbox</h1>
-        <Input
-          placeholder="Cerca..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="max-w-xs"
-          aria-label="Cerca email"
-        />
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleSync}
-          disabled={syncing}
-          aria-label={syncing ? 'Sincronizzazione in corso' : 'Sincronizza email'}
-        >
-          {syncing ? 'Sincronizzazione...' : 'Sync'}
-        </Button>
-      </header>
+    <div className="space-y-6 animate-fade-up">
+      {/* Page header */}
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h1 className="font-bold text-neon-blue" style={{ fontSize: 'var(--fs-page)' }}>
+            Inbox<span className="text-neon-pink">.</span>
+          </h1>
+          {live && (
+            <span className="flex items-center gap-1.5 text-neon-green text-xs mt-0.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-neon-green animate-pulse" />
+              Live
+            </span>
+          )}
+        </div>
 
-      {/* Body */}
-      <main className="px-4 py-4 max-w-2xl mx-auto space-y-2">
-        {search.trim() ? (
-          // Flat filtered search results
-          <section aria-label="Risultati ricerca">
-            {filteredEmails.length === 0 ? (
-              <p className="text-sm text-muted-foreground py-8 text-center">
-                Nessun risultato per &ldquo;{search}&rdquo;
-              </p>
-            ) : (
-              <div className="space-y-2">
-                {filteredEmails.map((email) => (
-                  <EmailCard
-                    key={email.id}
-                    email={email}
-                    onHandled={handleHandled}
-                  />
-                ))}
-              </div>
-            )}
-          </section>
-        ) : (
-          <>
-            <PriorityGroup
-              label="Alta priorità"
-              emails={grouped.high}
-              defaultOpen
-              accentClass="text-destructive"
-              onHandled={handleHandled}
+        <div className="flex items-center gap-2">
+          {/* Search */}
+          <div className="relative">
+            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" aria-hidden />
+            <input
+              placeholder="Search emails..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-48 h-9 bg-white/5 border border-white/20 pl-8 pr-3 text-white text-sm placeholder-white/30 focus:outline-none focus:border-neon-blue transition-colors duration-200"
+              aria-label="Search emails"
             />
-            <PriorityGroup
-              label="Media priorità"
-              emails={grouped.medium}
-              defaultOpen
-              accentClass="text-amber-600 dark:text-amber-400"
-              onHandled={handleHandled}
-            />
-            <PriorityGroup
-              label="Bassa priorità"
-              emails={grouped.low}
-              defaultOpen={false}
-              accentClass="text-muted-foreground"
-              onHandled={handleHandled}
-            />
-          </>
-        )}
-      </main>
+          </div>
+
+          {/* Sync button */}
+          <button
+            onClick={handleSync}
+            disabled={syncing}
+            aria-label={syncing ? 'Syncing...' : 'Sync emails'}
+            className="h-9 px-4 border-2 border-neon-blue text-white text-xs font-semibold uppercase tracking-wider relative overflow-hidden hover:text-black transition-all duration-300 group disabled:opacity-50"
+          >
+            <span className="absolute inset-0 bg-neon-blue scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
+            <span className="relative z-10 flex items-center gap-1.5">
+              <RefreshCw size={12} className={syncing ? 'animate-spin' : ''} aria-hidden />
+              {syncing ? 'Syncing...' : 'Sync'}
+            </span>
+          </button>
+        </div>
+      </div>
+
+      {/* Email list */}
+      {search.trim() ? (
+        <section aria-label="Search results">
+          {filteredEmails.length === 0 ? (
+            <p className="text-sm text-white/40 py-8 text-center">
+              No results for &ldquo;{search}&rdquo;
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {filteredEmails.map((email) => (
+                <EmailCard key={email.id} email={email} onHandled={handleHandled} />
+              ))}
+            </div>
+          )}
+        </section>
+      ) : (
+        <div className="space-y-4">
+          <PriorityGroup
+            label="High Priority"
+            emails={grouped.high}
+            defaultOpen
+            priority="high"
+            onHandled={handleHandled}
+          />
+          <PriorityGroup
+            label="Medium Priority"
+            emails={grouped.medium}
+            defaultOpen
+            priority="medium"
+            onHandled={handleHandled}
+          />
+          <PriorityGroup
+            label="Low Priority"
+            emails={grouped.low}
+            defaultOpen={false}
+            priority="low"
+            onHandled={handleHandled}
+          />
+        </div>
+      )}
     </div>
   )
 }

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { getAppSession } from '@/lib/auth/get-session'
 import { getEmailById } from '@/lib/db/emails'
 import { generateReply } from '@/lib/ai/suggest-reply'
 
@@ -8,7 +7,7 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await getServerSession(authOptions)
+  const session = await getAppSession()
   if (!session?.accessToken) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
