@@ -17,7 +17,7 @@ export default function Header() {
         <button
           onClick={() => signOut({ callbackUrl: '/login' })}
           aria-label="Sign out"
-          className="p-2 text-white/40 hover:text-neon-gold hover:bg-neon-gold/8 transition-all duration-200"
+          className="p-2 text-white/40 hover:text-neon-green hover:bg-neon-green/8 transition-all duration-200"
         >
           <LogOut size={15} />
         </button>

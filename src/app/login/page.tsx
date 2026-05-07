@@ -38,7 +38,7 @@ export default function LoginPage() {
       </div>
 
       {/* Login card */}
-      <div className="glass rounded-lg p-8 border border-neon-gold/30 w-full max-w-sm space-y-6 animate-fade-up">
+      <div className="glass rounded-lg p-8 border border-neon-green/30 w-full max-w-sm space-y-6 animate-fade-up">
         {/* Logo */}
         <div className="flex justify-center">
           <Image
@@ -53,8 +53,8 @@ export default function LoginPage() {
 
         {/* Title */}
         <div className="text-center space-y-2">
-          <h1 className="font-bold text-neon-gold" style={{ fontSize: 'var(--fs-page)' }}>
-            Email Triage<span className="text-neon-gold">.</span>
+          <h1 className="font-bold text-neon-green" style={{ fontSize: 'var(--fs-page)' }}>
+            Email Triage<span className="text-white">.</span>
           </h1>
           <p className="text-white/60 text-sm">
             Connect your Gmail inbox to get started.
@@ -77,11 +77,11 @@ export default function LoginPage() {
               'w-4 h-4 border transition-all duration-200',
               'flex items-center justify-center shrink-0',
               rememberMe
-                ? 'border-neon-gold bg-neon-gold/20'
-                : 'border-white/30 hover:border-neon-gold/50',
+                ? 'border-neon-green bg-neon-green/20'
+                : 'border-white/30 hover:border-neon-green/50',
             )}
           >
-            {rememberMe && <Check size={10} className="text-neon-gold" />}
+            {rememberMe && <Check size={10} className="text-neon-green" />}
           </button>
           <label
             className="text-white/50 text-sm cursor-pointer hover:text-white/70 transition-colors"
@@ -94,9 +94,9 @@ export default function LoginPage() {
         {/* Connect button */}
         <button
           onClick={handleSignIn}
-          className="w-full h-12 border-2 border-neon-gold text-white text-sm font-semibold uppercase tracking-wider relative overflow-hidden hover:text-black transition-all duration-300 group"
+          className="w-full h-12 border-2 border-neon-green text-white text-sm font-semibold uppercase tracking-wider relative overflow-hidden hover:text-black transition-all duration-300 group"
         >
-          <span className="absolute inset-0 bg-neon-gold scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
+          <span className="absolute inset-0 bg-neon-green scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
           <span className="relative z-10">Connect with Google</span>
         </button>
       </div>

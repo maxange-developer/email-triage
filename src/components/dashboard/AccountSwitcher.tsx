@@ -13,7 +13,7 @@ export default function AccountSwitcher() {
     <div className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 px-3 py-1.5 glass border border-white/10 hover:border-neon-gold/50 transition-all duration-200 group"
+        className="flex items-center gap-2 px-3 py-1.5 glass border border-white/10 hover:border-neon-green/50 transition-all duration-200 group"
       >
         <span className="w-1.5 h-1.5 rounded-full bg-neon-green animate-pulse shrink-0" />
         <span className="text-white/70 text-sm max-w-[180px] truncate">
@@ -46,7 +46,7 @@ export default function AccountSwitcher() {
                     className={cn(
                       'w-8 h-8 flex items-center justify-center text-xs font-bold shrink-0 border',
                       account.id === activeAccount?.id
-                        ? 'border-neon-gold text-neon-gold bg-neon-gold/10'
+                        ? 'border-neon-green text-neon-green bg-neon-green/10'
                         : 'border-white/20 text-white/50 bg-white/5',
                     )}
                   >
@@ -68,7 +68,7 @@ export default function AccountSwitcher() {
                   </div>
 
                   {account.id === activeAccount?.id && (
-                    <Check size={14} className="text-neon-gold shrink-0" />
+                    <Check size={14} className="text-neon-green shrink-0" />
                   )}
                 </button>
               ))}
@@ -80,9 +80,9 @@ export default function AccountSwitcher() {
                   setOpen(false)
                   addAccount()
                 }}
-                className="w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-white/5 transition-colors duration-150 text-neon-gold/70 hover:text-neon-gold"
+                className="w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-white/5 transition-colors duration-150 text-neon-green/70 hover:text-neon-green"
               >
-                <div className="w-8 h-8 flex items-center justify-center border border-dashed border-neon-gold/40">
+                <div className="w-8 h-8 flex items-center justify-center border border-dashed border-neon-green/40">
                   <Plus size={14} />
                 </div>
                 <span className="text-sm">Add account</span>

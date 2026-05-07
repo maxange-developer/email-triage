@@ -97,8 +97,8 @@ export default function InboxView({ initialEmails, userId }: InboxViewProps) {
       {/* Page header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="font-bold text-neon-gold" style={{ fontSize: 'var(--fs-page)' }}>
-            {t.inbox.title}<span className="text-neon-gold">.</span>
+          <h1 className="font-bold text-neon-green" style={{ fontSize: 'var(--fs-page)' }}>
+            {t.inbox.title}<span className="text-white">.</span>
           </h1>
           {live && (
             <span className="flex items-center gap-1.5 text-neon-green text-xs mt-0.5">
@@ -116,7 +116,7 @@ export default function InboxView({ initialEmails, userId }: InboxViewProps) {
               placeholder={t.inbox.search}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-48 h-9 bg-white/5 border border-white/20 pl-8 pr-3 text-white text-sm placeholder-white/30 focus:outline-none focus:border-neon-gold transition-colors duration-200"
+              className="w-48 h-9 bg-white/5 border border-white/20 pl-8 pr-3 text-white text-sm placeholder-white/30 focus:outline-none focus:border-neon-green transition-colors duration-200"
               aria-label={t.inbox.search}
             />
           </div>
@@ -126,9 +126,9 @@ export default function InboxView({ initialEmails, userId }: InboxViewProps) {
             onClick={handleSync}
             disabled={syncing}
             aria-label={syncing ? 'Syncing...' : 'Sync emails'}
-            className="h-9 px-4 border-2 border-neon-gold text-white text-xs font-semibold uppercase tracking-wider relative overflow-hidden hover:text-black transition-all duration-300 group disabled:opacity-50"
+            className="h-9 px-4 border-2 border-neon-green text-white text-xs font-semibold uppercase tracking-wider relative overflow-hidden hover:text-black transition-all duration-300 group disabled:opacity-50"
           >
-            <span className="absolute inset-0 bg-neon-gold scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
+            <span className="absolute inset-0 bg-neon-green scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
             <span className="relative z-10 flex items-center gap-1.5">
               <RefreshCw size={12} className={syncing ? 'animate-spin' : ''} aria-hidden />
               {syncing ? t.inbox.syncing : t.inbox.sync}

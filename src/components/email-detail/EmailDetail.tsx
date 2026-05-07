@@ -90,7 +90,7 @@ export default function EmailDetail({ email }: { email: EmailRow }) {
       {/* Back button — Angel1 style */}
       <button
         onClick={() => router.back()}
-        className="flex items-center gap-2 text-white/60 text-sm uppercase tracking-wider hover:text-white transition-colors duration-200 border-b border-transparent hover:border-white/40 pb-0.5"
+        className="flex items-center gap-2 text-white/60 text-sm uppercase tracking-wider px-3 py-1.5 border border-transparent hover:border-white/40 hover:text-white transition-all duration-200"
       >
         <ArrowLeft size={14} aria-hidden />
         Inbox
@@ -123,7 +123,7 @@ export default function EmailDetail({ email }: { email: EmailRow }) {
                 </span>
               )}
               {email.urgency_hours != null && (
-                <span className="text-[10px] px-2 py-0.5 border border-neon-gold/20 text-neon-gold/60 uppercase tracking-wider">
+                <span className="text-[10px] px-2 py-0.5 border border-neon-green/20 text-neon-green/60 uppercase tracking-wider">
                   {email.urgency_hours}h
                 </span>
               )}
@@ -139,7 +139,7 @@ export default function EmailDetail({ email }: { email: EmailRow }) {
 
         {/* RIGHT: reply generation */}
         <aside className="glass p-5 border-2 border-white/10 space-y-4">
-          <h3 className="text-sm font-bold text-neon-gold uppercase tracking-wider">
+          <h3 className="text-sm font-bold text-neon-green uppercase tracking-wider">
             AI Reply
           </h3>
 
@@ -148,7 +148,7 @@ export default function EmailDetail({ email }: { email: EmailRow }) {
             <select
               value={tone}
               onChange={(e) => setTone(e.target.value)}
-              className="flex-1 h-9 bg-black border border-white/20 px-3 text-white text-sm focus:outline-none focus:border-neon-gold transition-colors duration-200 cursor-pointer"
+              className="flex-1 h-9 bg-black border border-white/20 px-3 text-white text-sm focus:outline-none focus:border-neon-green transition-colors duration-200 cursor-pointer"
             >
               <option value="professional" className="bg-black">Professional</option>
               <option value="friendly" className="bg-black">Friendly</option>
@@ -157,9 +157,9 @@ export default function EmailDetail({ email }: { email: EmailRow }) {
             <button
               onClick={handleGenerate}
               disabled={streaming}
-              className="h-9 px-4 border-2 border-neon-gold text-white text-xs font-semibold uppercase tracking-wider relative overflow-hidden hover:text-black transition-all duration-300 group disabled:opacity-50 shrink-0"
+              className="h-9 px-4 border-2 border-neon-green text-white text-xs font-semibold uppercase tracking-wider relative overflow-hidden hover:text-black transition-all duration-300 group disabled:opacity-50 shrink-0"
             >
-              <span className="absolute inset-0 bg-neon-gold scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
+              <span className="absolute inset-0 bg-neon-green scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
               <span className="relative z-10 flex items-center gap-1.5">
                 <RefreshCw size={11} className={streaming ? 'animate-spin' : ''} aria-hidden />
                 Generate
@@ -174,14 +174,14 @@ export default function EmailDetail({ email }: { email: EmailRow }) {
               onChange={(e) => setReply(e.target.value)}
               rows={8}
               placeholder="Generated reply will appear here..."
-              className="w-full bg-white/5 border border-white/10 p-3 text-white text-sm placeholder-white/20 focus:outline-none focus:border-neon-gold transition-colors duration-200 resize-none scrollbar-hide min-h-32"
+              className="w-full bg-white/5 border border-white/10 p-3 text-white text-sm placeholder-white/20 focus:outline-none focus:border-neon-green transition-colors duration-200 resize-none scrollbar-hide min-h-32"
             />
             {streaming && (
               <div className="absolute bottom-3 right-3 flex gap-1">
                 {[0, 1, 2].map((i) => (
                   <span
                     key={i}
-                    className="w-1.5 h-1.5 rounded-full bg-neon-gold animate-pulse"
+                    className="w-1.5 h-1.5 rounded-full bg-neon-green animate-pulse"
                     style={{ animationDelay: `${i * 150}ms` }}
                   />
                 ))}
@@ -197,7 +197,7 @@ export default function EmailDetail({ email }: { email: EmailRow }) {
                 navigator.clipboard.writeText(reply)
                 toast.success('Copied!')
               }}
-              className="h-9 px-3 border border-neon-gold/40 text-white/60 text-xs uppercase tracking-wider hover:bg-neon-gold/10 hover:text-neon-gold transition-all duration-200 disabled:opacity-30 flex items-center gap-1.5"
+              className="h-9 px-3 border border-neon-green/40 text-white/60 text-xs uppercase tracking-wider hover:bg-neon-green/10 hover:text-neon-green transition-all duration-200 disabled:opacity-30 flex items-center gap-1.5"
             >
               <Copy size={11} aria-hidden />
               Copy
@@ -205,9 +205,9 @@ export default function EmailDetail({ email }: { email: EmailRow }) {
             <button
               disabled={sending || !reply || streaming}
               onClick={handleSend}
-              className="h-9 px-3 border-2 border-neon-green text-white text-xs font-semibold uppercase tracking-wider relative overflow-hidden hover:text-black transition-all duration-300 group disabled:opacity-30 flex items-center gap-1.5"
+              className="h-9 px-3 border-2 border-neon-pink text-white text-xs font-semibold uppercase tracking-wider relative overflow-hidden hover:text-black transition-all duration-300 group disabled:opacity-30 flex items-center gap-1.5"
             >
-              <span className="absolute inset-0 bg-neon-green scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
+              <span className="absolute inset-0 bg-neon-pink scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
               <span className="relative z-10 flex items-center gap-1.5">
                 <Send size={11} aria-hidden />
                 {sending ? 'Sending...' : 'Send via Gmail'}

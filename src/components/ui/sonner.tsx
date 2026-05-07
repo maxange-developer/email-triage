@@ -12,7 +12,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
           toast: "glass border border-white/15 bg-black/80 backdrop-blur-xl text-white text-sm",
           error: "!border-red-500/40 !text-red-400",
           success: "!border-neon-green/40 !text-neon-green",
-          info: "!border-neon-gold/40 !text-neon-gold",
+          info: "!border-neon-blue/40 !text-neon-blue",
         },
       }}
       {...props}
