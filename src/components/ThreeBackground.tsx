@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useMemo } from 'react'
+import { useRef, useMemo, useEffect } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 
@@ -40,6 +40,15 @@ function StarField() {
 }
 
 export default function ThreeBackground() {
+  useEffect(() => {
+    const originalWarn = console.warn
+    console.warn = (...args: unknown[]) => {
+      if (typeof args[0] === 'string' && args[0].includes('THREE.Clock')) return
+      originalWarn(...args)
+    }
+    return () => { console.warn = originalWarn }
+  }, [])
+
   return (
     <div
       style={{

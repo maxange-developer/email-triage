@@ -10,7 +10,7 @@ const LANGS: { code: Locale; label: string }[] = [
   { code: 'es', label: 'Spanish' },
 ]
 
-export default function LanguageSwitcher() {
+export default function LanguageSwitcher({ flagPriority }: { flagPriority?: boolean }) {
   const { locale, setLocale } = useI18n()
 
   return (
@@ -34,6 +34,7 @@ export default function LanguageSwitcher() {
             height={28}
             className="w-full h-full object-cover"
             unoptimized
+            priority={flagPriority && locale === code}
           />
         </button>
       ))}
