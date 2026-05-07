@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -54,7 +54,7 @@ export default function LoginPage() {
         {/* Title */}
         <div className="text-center space-y-2">
           <h1 className="font-bold text-neon-blue" style={{ fontSize: 'var(--fs-page)' }}>
-            Email Triage<span className="text-neon-pink">.</span>
+            Email Triage<span className="text-neon-gold">.</span>
           </h1>
           <p className="text-white/60 text-sm">
             Connect your Gmail inbox to get started.

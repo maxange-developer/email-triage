@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useRef, useState, useEffect } from 'react'
 import Link from 'next/link'
@@ -82,7 +82,7 @@ export default function InsightsView({
       {/* Header + day filter */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <h1 className="font-bold text-neon-blue" style={{ fontSize: 'var(--fs-page)' }}>
-          {t.insights.title}<span className="text-neon-pink">.</span>
+          {t.insights.title}<span className="text-neon-gold">.</span>
         </h1>
         <div className="flex gap-2">
           {[7, 30, 90].map((d) => (

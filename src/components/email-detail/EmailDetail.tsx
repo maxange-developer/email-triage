@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useTransition } from 'react'
 import { ArrowLeft, Copy, Send, RefreshCw } from 'lucide-react'
@@ -157,9 +157,9 @@ export default function EmailDetail({ email }: { email: EmailRow }) {
             <button
               onClick={handleGenerate}
               disabled={streaming}
-              className="h-9 px-4 border-2 border-neon-pink text-white text-xs font-semibold uppercase tracking-wider relative overflow-hidden hover:text-black transition-all duration-300 group disabled:opacity-50 shrink-0"
+              className="h-9 px-4 border-2 border-neon-gold text-white text-xs font-semibold uppercase tracking-wider relative overflow-hidden hover:text-black transition-all duration-300 group disabled:opacity-50 shrink-0"
             >
-              <span className="absolute inset-0 bg-neon-pink scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
+              <span className="absolute inset-0 bg-neon-gold scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
               <span className="relative z-10 flex items-center gap-1.5">
                 <RefreshCw size={11} className={streaming ? 'animate-spin' : ''} aria-hidden />
                 Generate

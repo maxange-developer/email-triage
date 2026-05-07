@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { X, Mail, Shield } from 'lucide-react'
@@ -33,7 +33,7 @@ export default function AddAccountModal() {
       <div className="glass border border-neon-blue/30 w-full max-w-md animate-fade-up">
         <div className="flex items-center justify-between p-6 border-b border-white/10">
           <h2 className="font-bold text-white text-lg">
-            Add Gmail Account<span className="text-neon-pink">.</span>
+            Add Gmail Account<span className="text-neon-gold">.</span>
           </h2>
           <button
             onClick={() => setOpen(false)}
