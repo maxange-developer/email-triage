@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import { signIn } from 'next-auth/react'
-import { Check } from 'lucide-react'
+import { Check, Eye } from 'lucide-react'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import { cn } from '@/lib/utils'
 
@@ -99,6 +99,28 @@ export default function LoginPage() {
           <span className="absolute inset-0 bg-neon-green scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
           <span className="relative z-10">Connect with Google</span>
         </button>
+
+        {/* Demo bypass — only in mock mode */}
+        {USE_MOCK && (
+          <div className="border-t border-white/10 pt-4">
+            <p className="text-white/30 text-xs text-center mb-3 uppercase tracking-widest">
+              or
+            </p>
+            <button
+              onClick={() => {
+                document.cookie = 'mock_bypass=true; path=/'
+                window.location.href = '/app'
+              }}
+              className="w-full py-2.5 border border-dashed border-white/20 text-white/40 text-sm hover:border-neon-green hover:text-neon-green transition-all duration-200 flex items-center justify-center gap-2"
+            >
+              <Eye size={14} />
+              Enter Demo (no login required)
+            </button>
+            <p className="text-white/20 text-xs text-center mt-2">
+              Preview only — no real data
+            </p>
+          </div>
+        )}
       </div>
     </div>
   )
