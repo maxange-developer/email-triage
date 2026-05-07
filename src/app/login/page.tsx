@@ -42,7 +42,7 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="flex justify-center">
           <Image
-            src="/images/logo-white-v2.webp"
+            src="/images/logo-white.webp"
             alt="Angel1"
             width={80}
             height={32}
