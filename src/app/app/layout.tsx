@@ -1,3 +1,4 @@
+import { cookies } from 'next/headers'
 import { getAppSession } from '@/lib/auth/get-session'
 import { getActiveAccountId } from '@/lib/db/gmail-accounts'
 import Sidebar from '@/components/dashboard/Sidebar'
@@ -11,7 +12,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   let initialAccountId: string | null = null
   if (process.env.NEXT_PUBLIC_USE_MOCK === 'true') {
-    initialAccountId = 'account-001'
+    const cookieStore = await cookies()
+    initialAccountId = cookieStore.get('mock_account_id')?.value ?? 'account-001'
   } else if (userEmail) {
     initialAccountId = await getActiveAccountId(userEmail)
   }

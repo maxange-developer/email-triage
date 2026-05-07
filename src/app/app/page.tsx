@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic'
 
+import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getAppSession } from '@/lib/auth/get-session'
 import { getActiveAccountId } from '@/lib/db/gmail-accounts'
@@ -15,7 +16,9 @@ export default async function AppPage() {
   let grouped: { high: import('@/lib/validations/email').EmailRow[]; medium: import('@/lib/validations/email').EmailRow[]; low: import('@/lib/validations/email').EmailRow[] }
 
   if (process.env.NEXT_PUBLIC_USE_MOCK === 'true') {
-    grouped = await getEmailsGroupedByAccount('account-001')
+    const cookieStore = await cookies()
+    const accountId = cookieStore.get('mock_account_id')?.value ?? 'account-001'
+    grouped = await getEmailsGroupedByAccount(accountId)
   } else {
     const activeAccountId = await getActiveAccountId(userId)
     grouped = activeAccountId
