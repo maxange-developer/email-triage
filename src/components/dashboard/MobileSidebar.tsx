@@ -10,7 +10,7 @@ export default function MobileSidebar() {
   return (
     <>
       <button
-        className="md:hidden p-2 rounded-lg text-white/40 hover:text-neon-gold hover:bg-neon-gold/8 transition-all duration-200"
+        className="md:hidden p-2 rounded-lg text-white/40 hover:text-neon-green hover:bg-neon-green/8 transition-all duration-200"
         onClick={() => setOpen(true)}
         aria-label="Open menu"
       >

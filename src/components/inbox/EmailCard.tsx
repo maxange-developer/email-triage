@@ -46,7 +46,7 @@ export default function EmailCard({ email, onHandled, priority }: EmailCardProps
   return (
     <article
       onClick={handleCardClick}
-      className={`w-full cursor-pointer glass hover-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-gold/40 ${borderClass}`}
+      className={`w-full cursor-pointer glass hover-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-green/40 ${borderClass}`}
       role="button"
       tabIndex={0}
       aria-label={`Email from ${senderLabel}: ${email.subject ?? 'no subject'}`}
