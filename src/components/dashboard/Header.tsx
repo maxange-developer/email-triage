@@ -8,7 +8,7 @@ import AccountSwitcher from './AccountSwitcher'
 
 export default function Header() {
   return (
-    <header className="glass border-b border-white/10 px-6 py-4 flex items-center justify-between shrink-0">
+    <header className="glass border-b border-white/10 px-6 h-16 flex items-center justify-between shrink-0">
       <MobileSidebar />
       <div className="flex-1" />
       <div className="flex items-center gap-4">
