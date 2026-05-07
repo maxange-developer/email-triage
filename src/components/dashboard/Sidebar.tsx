@@ -29,11 +29,11 @@ export function SidebarNav({ onNavigate }: SidebarNavProps) {
       {/* Logo */}
       <div className="flex h-16 items-center px-4 border-b border-white/10 shrink-0">
         <Image
-          src="/images/logo-white.webp"
+          src="/images/logo-white-v2.webp"
+          alt="Angel1"
           width={56}
           height={22}
-          alt="Angel1"
-          className="object-contain"
+          className="object-contain w-auto"
           priority
         />
       </div>
