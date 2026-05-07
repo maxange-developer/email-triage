@@ -2,6 +2,7 @@
 
 import { useRef, useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
   PieChart, Pie, Cell, Legend,
@@ -56,6 +57,7 @@ export default function InsightsView({
   days,
 }: InsightsViewProps) {
   const { t } = useI18n()
+  const router = useRouter()
   const handledPct = summary.total ? Math.round((summary.handled / summary.total) * 100) : 0
 
   const containerRef = useRef<HTMLDivElement>(null)
@@ -119,7 +121,7 @@ export default function InsightsView({
           {isEmpty ? (
             <p className="text-sm text-white/30 py-8 text-center">{t.insights.noData}</p>
           ) : (
-            <div ref={containerRef} className="w-full">
+            <div ref={containerRef} className="w-full outline-none focus:outline-none [&_*]:outline-none [&_*]:focus:outline-none">
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={volumeByDay} barSize={barSize} barGap={2}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
@@ -155,6 +157,7 @@ export default function InsightsView({
           {categoryBreakdown.length === 0 ? (
             <p className="text-sm text-white/30 py-8 text-center">{t.insights.noData}</p>
           ) : (
+            <div className="outline-none focus:outline-none [&_*]:outline-none [&_*]:focus:outline-none">
             <ResponsiveContainer width="100%" height={240}>
               <PieChart>
                 <Pie
@@ -193,6 +196,7 @@ export default function InsightsView({
                 />
               </PieChart>
             </ResponsiveContainer>
+            </div>
           )}
         </div>
       </div>
@@ -219,7 +223,11 @@ export default function InsightsView({
               </thead>
               <tbody>
                 {topSenders.map((s) => (
-                  <tr key={s.from_address} className="border-b border-white/5 last:border-0 hover:bg-white/2 transition-colors">
+                  <tr
+                    key={s.from_address}
+                    onClick={() => router.push(`/app/insights/senders/${encodeURIComponent(s.from_address)}`)}
+                    className="border-b border-white/5 last:border-0 hover:bg-white/5 hover:border-neon-green/20 transition-colors cursor-pointer"
+                  >
                     <td className="px-5 py-3 font-medium text-white">{s.from_name ?? '—'}</td>
                     <td className="px-5 py-3 text-white/40 truncate max-w-[200px] hidden sm:table-cell">{s.from_address}</td>
                     <td className="px-5 py-3 text-right text-neon-green font-mono">{s.count}</td>

@@ -169,3 +169,11 @@
     animation: fadeUp 0.5s ease-out both;
   }
 }
+
+/* Recharts — remove click outline */
+.recharts-wrapper,
+.recharts-wrapper *,
+.recharts-surface {
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent;
+}
