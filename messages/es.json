@@ -70,5 +70,23 @@
     "signIn": "Iniciar sesión con Google",
     "title": "Email Triage",
     "subtitle": "Gestión inteligente del correo con IA"
+  },
+  "login": {
+    "title": "Email Triage",
+    "subtitle": "Gestión inteligente de tu bandeja de entrada",
+    "security_title": "Conexión OAuth segura",
+    "security_desc": "Solicitamos acceso de lectura y envío a tu Gmail. Puedes revocar el acceso en cualquier momento.",
+    "permissions_label": "Permisos solicitados",
+    "permissions": [
+      "Leer tus correos",
+      "Enviar correos en tu nombre",
+      "Acceder a las etiquetas de Gmail"
+    ],
+    "cta": "Conectar con Google",
+    "remember": "Recuérdame",
+    "demo_label": "o",
+    "demo_cta": "Entrar a la Demo (sin login)",
+    "demo_note": "Solo vista previa — sin datos reales",
+    "privacy": "Solo accedemos a tus correos. No se comparte ningún dato."
   }
 }

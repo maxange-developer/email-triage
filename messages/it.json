@@ -70,5 +70,23 @@
     "signIn": "Accedi con Google",
     "title": "Email Triage",
     "subtitle": "Gestione intelligente della posta con AI"
+  },
+  "login": {
+    "title": "Email Triage",
+    "subtitle": "Gestione intelligente della tua inbox",
+    "security_title": "Connessione OAuth sicura",
+    "security_desc": "Richiediamo accesso in lettura e invio alla tua Gmail. Puoi revocare l'accesso in qualsiasi momento.",
+    "permissions_label": "Permessi richiesti",
+    "permissions": [
+      "Leggi le tue email",
+      "Invia email per tuo conto",
+      "Accedi alle etichette Gmail"
+    ],
+    "cta": "Connetti con Google",
+    "remember": "Ricordami",
+    "demo_label": "oppure",
+    "demo_cta": "Accedi alla Demo (senza login)",
+    "demo_note": "Solo anteprima — nessun dato reale",
+    "privacy": "Accediamo solo alle tue email. Nessun dato viene condiviso."
   }
 }
