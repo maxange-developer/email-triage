@@ -6,8 +6,9 @@
 
 @theme inline {
   /* Angel1 neon palette */
-  --color-neon-blue: #ff00ff;
-  --color-neon-gold: #ffd700;
+  --color-neon-gold:  #ffd700;
+  --color-neon-pink:  #ff00ff;
+  --color-neon-blue:  #00f0ff;
   --color-neon-green: #00ff41;
 
   --color-background: var(--background);
@@ -42,8 +43,9 @@
 
 /* Angel1 brand variables */
 :root {
-  --color-neon-blue: #ff00ff;
-  --color-neon-gold: #ffd700;
+  --color-neon-gold:  #ffd700;
+  --color-neon-pink:  #ff00ff;
+  --color-neon-blue:  #00f0ff;
   --color-neon-green: #00ff41;
   --fs-hero: clamp(2.5rem, 5vw, 4rem);
   --fs-page: clamp(1.75rem, 4vw, 3.5rem);

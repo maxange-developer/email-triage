@@ -21,9 +21,9 @@ interface InsightsViewProps {
 
 function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="glass p-5 border-2 border-white/10 hover:border-neon-blue/50 transition-colors duration-300 hover-lift">
+    <div className="glass p-5 border-2 border-white/10 hover:border-neon-gold/50 transition-colors duration-300 hover-lift">
       <p className="text-xs uppercase tracking-widest text-white/40 mb-2">{label}</p>
-      <p className="text-4xl font-bold text-neon-blue">{value}</p>
+      <p className="text-4xl font-bold text-neon-gold">{value}</p>
     </div>
   )
 }
@@ -81,7 +81,7 @@ export default function InsightsView({
     <div className="space-y-6 animate-fade-up">
       {/* Header + day filter */}
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="font-bold text-neon-blue" style={{ fontSize: 'var(--fs-page)' }}>
+        <h1 className="font-bold text-neon-gold" style={{ fontSize: 'var(--fs-page)' }}>
           {t.insights.title}<span className="text-neon-gold">.</span>
         </h1>
         <div className="flex gap-2">
@@ -91,8 +91,8 @@ export default function InsightsView({
               href={`/app/insights?days=${d}`}
               className={`h-9 px-4 text-xs font-semibold uppercase tracking-wider border transition-all duration-200 flex items-center ${
                 days === d
-                  ? 'border-neon-blue bg-neon-blue text-black'
-                  : 'border-white/20 text-white/60 hover:border-neon-blue hover:text-white'
+                  ? 'border-neon-gold bg-neon-gold text-black'
+                  : 'border-white/20 text-white/60 hover:border-neon-gold hover:text-white'
               }`}
             >
               {d}d
@@ -222,7 +222,7 @@ export default function InsightsView({
                   <tr key={s.from_address} className="border-b border-white/5 last:border-0 hover:bg-white/2 transition-colors">
                     <td className="px-5 py-3 font-medium text-white">{s.from_name ?? '—'}</td>
                     <td className="px-5 py-3 text-white/40 truncate max-w-[200px] hidden sm:table-cell">{s.from_address}</td>
-                    <td className="px-5 py-3 text-right text-neon-blue font-mono">{s.count}</td>
+                    <td className="px-5 py-3 text-right text-neon-gold font-mono">{s.count}</td>
                     <td className="px-5 py-3 text-right">
                       {s.top_priority && (
                         <span className={`text-[10px] px-2 py-0.5 uppercase tracking-wider ${

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
@@ -50,8 +50,8 @@ export function SidebarNav({ onNavigate }: SidebarNavProps) {
               className={cn(
                 'flex items-center gap-3 py-2.5 text-sm uppercase tracking-wider font-medium transition-all duration-200',
                 isActive
-                  ? 'text-neon-blue opacity-100 bg-neon-blue/10 border-l-2 border-neon-blue pl-[calc(1.25rem-2px)] pr-4 rounded-r-lg'
-                  : 'text-neon-blue opacity-40 hover:opacity-70 px-5',
+                  ? 'text-neon-gold opacity-100 bg-neon-gold/10 border-l-2 border-neon-gold pl-[calc(1.25rem-2px)] pr-4 rounded-r-lg'
+                  : 'text-neon-gold opacity-40 hover:opacity-70 px-5',
               )}
             >
               <Icon size={15} aria-hidden className="shrink-0" />

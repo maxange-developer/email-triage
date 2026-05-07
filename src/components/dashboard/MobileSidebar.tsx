@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { Menu, X } from 'lucide-react'
@@ -10,7 +10,7 @@ export default function MobileSidebar() {
   return (
     <>
       <button
-        className="md:hidden p-2 rounded-lg text-white/40 hover:text-neon-blue hover:bg-neon-blue/8 transition-all duration-200"
+        className="md:hidden p-2 rounded-lg text-white/40 hover:text-neon-gold hover:bg-neon-gold/8 transition-all duration-200"
         onClick={() => setOpen(true)}
         aria-label="Open menu"
       >

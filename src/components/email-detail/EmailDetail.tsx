@@ -123,7 +123,7 @@ export default function EmailDetail({ email }: { email: EmailRow }) {
                 </span>
               )}
               {email.urgency_hours != null && (
-                <span className="text-[10px] px-2 py-0.5 border border-neon-blue/20 text-neon-blue/60 uppercase tracking-wider">
+                <span className="text-[10px] px-2 py-0.5 border border-neon-gold/20 text-neon-gold/60 uppercase tracking-wider">
                   {email.urgency_hours}h
                 </span>
               )}
@@ -139,7 +139,7 @@ export default function EmailDetail({ email }: { email: EmailRow }) {
 
         {/* RIGHT: reply generation */}
         <aside className="glass p-5 border-2 border-white/10 space-y-4">
-          <h3 className="text-sm font-bold text-neon-blue uppercase tracking-wider">
+          <h3 className="text-sm font-bold text-neon-gold uppercase tracking-wider">
             AI Reply
           </h3>
 
@@ -148,7 +148,7 @@ export default function EmailDetail({ email }: { email: EmailRow }) {
             <select
               value={tone}
               onChange={(e) => setTone(e.target.value)}
-              className="flex-1 h-9 bg-black border border-white/20 px-3 text-white text-sm focus:outline-none focus:border-neon-blue transition-colors duration-200 cursor-pointer"
+              className="flex-1 h-9 bg-black border border-white/20 px-3 text-white text-sm focus:outline-none focus:border-neon-gold transition-colors duration-200 cursor-pointer"
             >
               <option value="professional" className="bg-black">Professional</option>
               <option value="friendly" className="bg-black">Friendly</option>
@@ -174,14 +174,14 @@ export default function EmailDetail({ email }: { email: EmailRow }) {
               onChange={(e) => setReply(e.target.value)}
               rows={8}
               placeholder="Generated reply will appear here..."
-              className="w-full bg-white/5 border border-white/10 p-3 text-white text-sm placeholder-white/20 focus:outline-none focus:border-neon-blue transition-colors duration-200 resize-none scrollbar-hide min-h-32"
+              className="w-full bg-white/5 border border-white/10 p-3 text-white text-sm placeholder-white/20 focus:outline-none focus:border-neon-gold transition-colors duration-200 resize-none scrollbar-hide min-h-32"
             />
             {streaming && (
               <div className="absolute bottom-3 right-3 flex gap-1">
                 {[0, 1, 2].map((i) => (
                   <span
                     key={i}
-                    className="w-1.5 h-1.5 rounded-full bg-neon-blue animate-pulse"
+                    className="w-1.5 h-1.5 rounded-full bg-neon-gold animate-pulse"
                     style={{ animationDelay: `${i * 150}ms` }}
                   />
                 ))}
@@ -197,7 +197,7 @@ export default function EmailDetail({ email }: { email: EmailRow }) {
                 navigator.clipboard.writeText(reply)
                 toast.success('Copied!')
               }}
-              className="h-9 px-3 border border-neon-blue/40 text-white/60 text-xs uppercase tracking-wider hover:bg-neon-blue/10 hover:text-neon-blue transition-all duration-200 disabled:opacity-30 flex items-center gap-1.5"
+              className="h-9 px-3 border border-neon-gold/40 text-white/60 text-xs uppercase tracking-wider hover:bg-neon-gold/10 hover:text-neon-gold transition-all duration-200 disabled:opacity-30 flex items-center gap-1.5"
             >
               <Copy size={11} aria-hidden />
               Copy
