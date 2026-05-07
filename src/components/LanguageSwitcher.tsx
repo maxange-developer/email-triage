@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
@@ -23,7 +23,7 @@ export default function LanguageSwitcher() {
           className={cn(
             'w-7 h-7 rounded-full overflow-hidden border-2 transition-all duration-200',
             locale === code
-              ? 'border-neon-blue opacity-100'
+              ? 'border-neon-gold opacity-100'
               : 'border-white/20 opacity-50 hover:opacity-80',
           )}
         >

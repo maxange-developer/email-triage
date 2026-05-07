@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { ChevronDown } from 'lucide-react'
@@ -40,7 +40,7 @@ export default function PriorityGroup({
       <button
         id={headingId}
         onClick={() => setOpen((prev) => !prev)}
-        className="flex items-center gap-2 w-full text-left py-2 px-1 hover:opacity-80 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-blue/40 rounded"
+        className="flex items-center gap-2 w-full text-left py-2 px-1 hover:opacity-80 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-gold/40 rounded"
         aria-expanded={open}
         type="button"
       >

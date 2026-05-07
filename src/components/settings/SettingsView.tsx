@@ -105,7 +105,7 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
   return (
     <div className="space-y-6 animate-fade-up max-w-2xl">
       <div>
-        <h1 className="font-bold text-neon-blue" style={{ fontSize: 'var(--fs-page)' }}>
+        <h1 className="font-bold text-neon-gold" style={{ fontSize: 'var(--fs-page)' }}>
           {t.settings.title}<span className="text-neon-gold">.</span>
         </h1>
       </div>
@@ -123,7 +123,7 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
               className={cn(
                 'glass border-2 p-4 flex items-center gap-4 transition-all duration-200',
                 account.id === activeAccount?.id
-                  ? 'border-neon-blue/60'
+                  ? 'border-neon-gold/60'
                   : 'border-white/10 hover:border-white/20',
               )}
             >
@@ -131,7 +131,7 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
                 className={cn(
                   'w-10 h-10 flex items-center justify-center text-sm font-bold border shrink-0',
                   account.id === activeAccount?.id
-                    ? 'border-neon-blue text-neon-blue bg-neon-blue/10'
+                    ? 'border-neon-gold text-neon-gold bg-neon-gold/10'
                     : 'border-white/20 text-white/50 bg-white/5',
                 )}
               >
@@ -145,7 +145,7 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
                     <span className="text-neon-green text-xs">Primary</span>
                   )}
                   {account.id === activeAccount?.id && (
-                    <span className="text-neon-blue text-xs">● Active</span>
+                    <span className="text-neon-gold text-xs">● Active</span>
                   )}
                 </div>
               </div>
@@ -154,7 +154,7 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
                 {account.id !== activeAccount?.id && (
                   <button
                     onClick={() => switchAccount(account.id)}
-                    className="h-8 px-3 border border-neon-blue/40 text-neon-blue text-xs hover:bg-neon-blue/10 transition-all duration-200"
+                    className="h-8 px-3 border border-neon-gold/40 text-neon-gold text-xs hover:bg-neon-gold/10 transition-all duration-200"
                   >
                     Switch
                   </button>
@@ -173,7 +173,7 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
 
           <button
             onClick={addAccount}
-            className="w-full py-3 border border-dashed border-white/20 text-white/40 text-sm hover:border-neon-blue hover:text-neon-blue transition-all duration-200 flex items-center justify-center gap-2"
+            className="w-full py-3 border border-dashed border-white/20 text-white/40 text-sm hover:border-neon-gold hover:text-neon-gold transition-all duration-200 flex items-center justify-center gap-2"
           >
             <Plus size={14} /> Add Account
           </button>
@@ -199,7 +199,7 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
         {activeAccount && (
           <p className="text-xs text-white/40">
             Rules for{' '}
-            <span className="text-neon-blue">{activeAccount.emailAddress}</span>
+            <span className="text-neon-gold">{activeAccount.emailAddress}</span>
           </p>
         )}
 
@@ -213,7 +213,7 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
                 <input
                   value={rule.from_contains}
                   onChange={(e) => updateRule(rule.id, 'from_contains', e.target.value)}
-                  className="flex-1 min-w-0 h-8 bg-white/5 border border-white/20 px-3 text-white text-sm focus:outline-none focus:border-neon-blue transition-colors"
+                  className="flex-1 min-w-0 h-8 bg-white/5 border border-white/20 px-3 text-white text-sm focus:outline-none focus:border-neon-gold transition-colors"
                   placeholder="boss@company.com"
                 />
                 <span className="text-white/40 text-xs uppercase tracking-widest shrink-0">
@@ -222,7 +222,7 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
                 <select
                   value={rule.force_priority}
                   onChange={(e) => updateRule(rule.id, 'force_priority', e.target.value as Rule['force_priority'])}
-                  className="h-8 bg-black border border-white/20 px-3 text-white text-sm focus:outline-none focus:border-neon-blue transition-colors cursor-pointer"
+                  className="h-8 bg-black border border-white/20 px-3 text-white text-sm focus:outline-none focus:border-neon-gold transition-colors cursor-pointer"
                 >
                   <option value="high" className="bg-black">High</option>
                   <option value="medium" className="bg-black">Medium</option>
@@ -242,7 +242,7 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
 
         <button
           onClick={addRule}
-          className="w-full py-2.5 border border-dashed border-white/20 text-white/40 text-sm hover:border-neon-blue hover:text-neon-blue transition-all duration-200 flex items-center justify-center gap-2"
+          className="w-full py-2.5 border border-dashed border-white/20 text-white/40 text-sm hover:border-neon-gold hover:text-neon-gold transition-all duration-200 flex items-center justify-center gap-2"
         >
           <Plus size={14} />
           Add Rule
@@ -251,9 +251,9 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
         <button
           disabled={saving}
           onClick={handleSave}
-          className="w-full h-10 border-2 border-neon-blue text-white text-xs font-semibold uppercase tracking-wider relative overflow-hidden hover:text-black transition-all duration-300 group disabled:opacity-40 flex items-center justify-center gap-2"
+          className="w-full h-10 border-2 border-neon-gold text-white text-xs font-semibold uppercase tracking-wider relative overflow-hidden hover:text-black transition-all duration-300 group disabled:opacity-40 flex items-center justify-center gap-2"
         >
-          <span className="absolute inset-0 bg-neon-blue scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
+          <span className="absolute inset-0 bg-neon-gold scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
           <span className="relative z-10 flex items-center gap-2">
             <Save size={12} aria-hidden />
             {saving ? 'Saving...' : 'Save Rules'}
@@ -270,9 +270,9 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
         <button
           disabled={syncing}
           onClick={handleSync}
-          className="h-10 px-6 border-2 border-neon-blue text-white text-xs font-semibold uppercase tracking-wider relative overflow-hidden hover:text-black transition-all duration-300 group disabled:opacity-40 flex items-center gap-2"
+          className="h-10 px-6 border-2 border-neon-gold text-white text-xs font-semibold uppercase tracking-wider relative overflow-hidden hover:text-black transition-all duration-300 group disabled:opacity-40 flex items-center gap-2"
         >
-          <span className="absolute inset-0 bg-neon-blue scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
+          <span className="absolute inset-0 bg-neon-gold scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
           <span className="relative z-10 flex items-center gap-2">
             <RefreshCw size={12} className={syncing ? 'animate-spin' : ''} aria-hidden />
             {syncing ? 'Syncing...' : 'Sync Now'}
