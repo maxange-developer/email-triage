@@ -9,6 +9,7 @@ import { initialSync, saveRulesAction, deleteAccountAction } from '@/app/app/act
 import { useI18n } from '@/i18n/client'
 import { useAccount } from '@/contexts/AccountContext'
 import { cn } from '@/lib/utils'
+import { CustomSelect } from '@/components/ui/custom-select'
 
 const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK === 'true'
 
@@ -76,7 +77,7 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
       )
       const result = await saveRulesAction(payload)
       if (result?.error) toast.error(result.error)
-      else toast.success('Rules saved')
+      else toast.success(t.settings.rulesSaved)
     })
   }
 
@@ -84,20 +85,20 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
     startSync(async () => {
       const result = await initialSync()
       if (result?.error) toast.error(result.error)
-      else toast.success('Sync complete')
+      else toast.success(t.settings.syncComplete)
     })
   }
 
   async function handleDeleteAccount(accountId: string) {
     if (USE_MOCK) {
-      toast.error('Not available in demo mode')
+      toast.error(t.settings.demoNotAvailable)
       return
     }
     const result = await deleteAccountAction(accountId)
     if (result.error) {
       toast.error(result.error)
     } else {
-      toast.success('Account removed')
+      toast.success(t.settings.accountRemoved)
       router.refresh()
     }
   }
@@ -115,7 +116,7 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
         <h2 className="text-xs font-semibold uppercase tracking-widest text-white/40">{t.settings.account}</h2>
 
         <div className="space-y-3">
-          <p className="text-white/40 text-xs uppercase tracking-widest">Connected Accounts</p>
+          <p className="text-white/40 text-xs uppercase tracking-widest">{t.settings.connectedAccounts}</p>
 
           {accounts.map((account) => (
             <div
@@ -142,10 +143,10 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
                 <p className="text-white text-sm truncate font-medium">{account.emailAddress}</p>
                 <div className="flex items-center gap-2 mt-0.5">
                   {account.isPrimary && (
-                    <span className="text-neon-green text-xs">Primary</span>
+                    <span className="text-neon-green text-xs">{t.settings.primary}</span>
                   )}
                   {account.id === activeAccount?.id && (
-                    <span className="text-neon-green text-xs">● Active</span>
+                    <span className="text-neon-green text-xs">● {t.settings.active}</span>
                   )}
                 </div>
               </div>
@@ -156,7 +157,7 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
                     onClick={() => switchAccount(account.id)}
                     className="h-8 px-3 border border-neon-green/40 text-neon-green text-xs hover:bg-neon-green/10 transition-all duration-200"
                   >
-                    Switch
+                    {t.settings.switchAccount}
                   </button>
                 )}
                 {!account.isPrimary && (
@@ -164,7 +165,7 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
                     onClick={() => handleDeleteAccount(account.id)}
                     className="h-8 px-3 border border-red-500/40 text-red-400 text-xs hover:bg-red-500/10 transition-all duration-200"
                   >
-                    Remove
+                    {t.settings.removeAccount}
                   </button>
                 )}
               </div>
@@ -175,7 +176,7 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
             onClick={addAccount}
             className="w-full py-3 border border-dashed border-white/20 text-white/40 text-sm hover:border-neon-green hover:text-neon-green transition-all duration-200 flex items-center justify-center gap-2"
           >
-            <Plus size={14} /> Add Account
+            <Plus size={14} /> {t.settings.addAccount}
           </button>
         </div>
 
@@ -185,7 +186,7 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
             className="h-9 px-4 border-2 border-red-500/60 text-red-400 text-xs font-semibold uppercase tracking-wider hover:bg-red-500 hover:text-black transition-all duration-300 flex items-center gap-1.5"
           >
             <LogOut size={12} aria-hidden />
-            Disconnect
+            {t.settings.disconnect}
           </button>
         </div>
       </div>
@@ -198,7 +199,7 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
         <p className="text-xs text-white/30">{t.settings.rulesDescription}</p>
         {activeAccount && (
           <p className="text-xs text-white/40">
-            Rules for{' '}
+            {t.settings.rulesFor}{' '}
             <span className="text-neon-green">{activeAccount.emailAddress}</span>
           </p>
         )}
@@ -208,7 +209,7 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
             <div key={rule.id} className="glass border border-white/10 p-4 flex items-center gap-4">
               <div className="flex-1 flex items-center gap-3 flex-wrap min-w-0">
                 <span className="text-white/40 text-xs uppercase tracking-widest shrink-0">
-                  If from contains
+                  {t.settings.ifFromContains}
                 </span>
                 <input
                   value={rule.from_contains}
@@ -217,17 +218,17 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
                   placeholder="boss@company.com"
                 />
                 <span className="text-white/40 text-xs uppercase tracking-widest shrink-0">
-                  → Priority
+                  → {t.settings.priority}
                 </span>
-                <select
+                <CustomSelect
                   value={rule.force_priority}
-                  onChange={(e) => updateRule(rule.id, 'force_priority', e.target.value as Rule['force_priority'])}
-                  className="h-8 bg-black border border-white/20 px-3 text-white text-sm focus:outline-none focus:border-neon-green transition-colors cursor-pointer"
-                >
-                  <option value="high" className="bg-black">High</option>
-                  <option value="medium" className="bg-black">Medium</option>
-                  <option value="low" className="bg-black">Low</option>
-                </select>
+                  onChange={(v) => updateRule(rule.id, 'force_priority', v as Rule['force_priority'])}
+                  options={[
+                    { value: 'high', label: t.settings.high },
+                    { value: 'medium', label: t.settings.medium },
+                    { value: 'low', label: t.settings.low },
+                  ]}
+                />
               </div>
               <button
                 onClick={() => removeRule(rule.id)}
@@ -245,7 +246,7 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
           className="w-full py-2.5 border border-dashed border-white/20 text-white/40 text-sm hover:border-neon-green hover:text-neon-green transition-all duration-200 flex items-center justify-center gap-2"
         >
           <Plus size={14} />
-          Add Rule
+          {t.settings.addRule}
         </button>
 
         <button
@@ -256,16 +257,16 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
           <span className="absolute inset-0 bg-neon-green scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
           <span className="relative z-10 flex items-center gap-2">
             <Save size={12} aria-hidden />
-            {saving ? 'Saving...' : 'Save Rules'}
+            {saving ? t.settings.saving : t.settings.saveRules}
           </span>
         </button>
       </div>
 
       {/* Sync card */}
       <div className="glass p-6 border-2 border-white/10 space-y-4">
-        <h2 className="text-xs font-semibold uppercase tracking-widest text-white/40">Sync</h2>
+        <h2 className="text-xs font-semibold uppercase tracking-widest text-white/40">{t.settings.sync}</h2>
         <p className="text-xs text-white/40">
-          Download and classify the latest 100 emails from your Gmail inbox.
+          {t.settings.syncDescription}
         </p>
         <button
           disabled={syncing}
@@ -275,7 +276,7 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
           <span className="absolute inset-0 bg-neon-green scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
           <span className="relative z-10 flex items-center gap-2">
             <RefreshCw size={12} className={syncing ? 'animate-spin' : ''} aria-hidden />
-            {syncing ? 'Syncing...' : 'Sync Now'}
+            {syncing ? t.settings.syncing : t.settings.syncNow}
           </span>
         </button>
       </div>
