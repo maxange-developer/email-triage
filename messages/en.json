@@ -70,5 +70,23 @@
     "signIn": "Sign in with Google",
     "title": "Email Triage",
     "subtitle": "AI-powered Gmail inbox triage"
+  },
+  "login": {
+    "title": "Email Triage",
+    "subtitle": "AI-powered inbox management",
+    "security_title": "Secure OAuth connection",
+    "security_desc": "We request read + send access to your Gmail. You can revoke access anytime.",
+    "permissions_label": "Permissions requested",
+    "permissions": [
+      "Read your emails",
+      "Send emails on your behalf",
+      "Access Gmail labels"
+    ],
+    "cta": "Connect with Google",
+    "remember": "Remember me",
+    "demo_label": "or",
+    "demo_cta": "Enter Demo (no login required)",
+    "demo_note": "Preview only — no real data",
+    "privacy": "Only your emails are accessed. No data is shared."
   }
 }
