@@ -246,6 +246,67 @@ export async function getAnalyticsSummaryByAccount(accountId: string, days = 30)
   return { total, handled, spamCount, avgUrgencyHours }
 }
 
+export interface SenderEmail {
+  id: string
+  subject: string | null
+  ai_summary: string | null
+  priority: string | null
+  category: string | null
+  received_at: string | null
+  from_name: string | null
+  from_address: string | null
+}
+
+export interface SenderStats {
+  total: number
+  highCount: number
+  topCategory: string | null
+  avgUrgencyHours: number
+}
+
+export async function getSenderStatsByAccount(accountId: string, fromAddress: string): Promise<SenderStats> {
+  const db = createServiceClient()
+  const { data, error } = await db
+    .from('emails')
+    .select('priority, category, urgency_hours')
+    .eq('account_id', accountId)
+    .eq('from_address', fromAddress)
+  if (error) throw new Error(`getSenderStatsByAccount: ${error.message}`)
+
+  const rows = data ?? []
+  const total = rows.length
+  const highCount = rows.filter(e => e.priority === 'high').length
+  const urgencyValues = rows.map(e => e.urgency_hours as number | null).filter((v): v is number => v !== null)
+  const avgUrgencyHours = urgencyValues.length > 0
+    ? Math.round((urgencyValues.reduce((s, v) => s + v, 0) / urgencyValues.length) * 10) / 10
+    : 0
+
+  const catMap = new Map<string, number>()
+  for (const row of rows) {
+    const cat = row.category as string | null
+    if (cat) catMap.set(cat, (catMap.get(cat) ?? 0) + 1)
+  }
+  let topCategory: string | null = null
+  let maxCat = 0
+  for (const [cat, cnt] of catMap) {
+    if (cnt > maxCat) { maxCat = cnt; topCategory = cat }
+  }
+
+  return { total, highCount, topCategory, avgUrgencyHours }
+}
+
+export async function getSenderDetailByAccount(accountId: string, fromAddress: string): Promise<SenderEmail[]> {
+  const db = createServiceClient()
+  const { data, error } = await db
+    .from('emails')
+    .select('id, subject, ai_summary, priority, category, received_at, from_name, from_address')
+    .eq('account_id', accountId)
+    .eq('from_address', fromAddress)
+    .order('received_at', { ascending: false })
+  if (error) throw new Error(`getSenderDetailByAccount: ${error.message}`)
+  return (data ?? []) as SenderEmail[]
+}
+
 export async function getAnalyticsSummary(userId: string, days = 30): Promise<AnalyticsSummary> {
   const db = createServiceClient()
   const { data, error } = await db
