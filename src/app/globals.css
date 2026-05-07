@@ -7,7 +7,7 @@
 @theme inline {
   /* Angel1 neon palette */
   --color-neon-blue: #ff00ff;
-  --color-neon-pink: #00f0ff;
+  --color-neon-gold: #ffd700;
   --color-neon-green: #00ff41;
 
   --color-background: var(--background);
@@ -43,7 +43,7 @@
 /* Angel1 brand variables */
 :root {
   --color-neon-blue: #ff00ff;
-  --color-neon-pink: #00f0ff;
+  --color-neon-gold: #ffd700;
   --color-neon-green: #00ff41;
   --fs-hero: clamp(2.5rem, 5vw, 4rem);
   --fs-page: clamp(1.75rem, 4vw, 3.5rem);
@@ -130,7 +130,7 @@
     border-radius: 10px;
   }
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, var(--color-neon-blue), var(--color-neon-pink));
+    background: linear-gradient(180deg, var(--color-neon-blue), var(--color-neon-gold));
     border-radius: 10px;
   }
 

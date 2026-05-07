@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
@@ -106,7 +106,7 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
     <div className="space-y-6 animate-fade-up max-w-2xl">
       <div>
         <h1 className="font-bold text-neon-blue" style={{ fontSize: 'var(--fs-page)' }}>
-          {t.settings.title}<span className="text-neon-pink">.</span>
+          {t.settings.title}<span className="text-neon-gold">.</span>
         </h1>
       </div>
 

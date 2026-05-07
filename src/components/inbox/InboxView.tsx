@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useMemo, useTransition } from 'react'
 import { Search, RefreshCw } from 'lucide-react'
@@ -98,7 +98,7 @@ export default function InboxView({ initialEmails, userId }: InboxViewProps) {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="font-bold text-neon-blue" style={{ fontSize: 'var(--fs-page)' }}>
-            {t.inbox.title}<span className="text-neon-pink">.</span>
+            {t.inbox.title}<span className="text-neon-gold">.</span>
           </h1>
           {live && (
             <span className="flex items-center gap-1.5 text-neon-green text-xs mt-0.5">
