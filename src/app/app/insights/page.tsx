@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic'
 
+import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getAppSession } from '@/lib/auth/get-session'
 import { getActiveAccountId } from '@/lib/db/gmail-accounts'
@@ -26,11 +27,13 @@ export default async function InsightsPage({
   let volumeByDay, categoryBreakdown, topSenders, summary
 
   if (process.env.NEXT_PUBLIC_USE_MOCK === 'true') {
+    const cookieStore = await cookies()
+    const accountId = cookieStore.get('mock_account_id')?.value ?? 'account-001'
     ;[volumeByDay, categoryBreakdown, topSenders, summary] = await Promise.all([
-      getVolumeByDayByAccount('account-001', days),
-      getCategoryBreakdownByAccount('account-001', days),
-      getTopSendersByAccount('account-001', days),
-      getAnalyticsSummaryByAccount('account-001', days),
+      getVolumeByDayByAccount(accountId, days),
+      getCategoryBreakdownByAccount(accountId, days),
+      getTopSendersByAccount(accountId, days),
+      getAnalyticsSummaryByAccount(accountId, days),
     ])
   } else {
     const activeAccountId = await getActiveAccountId(userId)

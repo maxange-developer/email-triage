@@ -39,8 +39,11 @@ export function AccountProvider({ children, initialAccountId }: { children: Reac
 
   async function switchAccount(accountId: string) {
     setActiveAccountId(accountId)
-    if (!USE_MOCK) {
-      // Persist to DB — fire and forget, no await needed here
+    if (USE_MOCK) {
+      // Persist active account via cookie so Server Components can read it on refresh
+      document.cookie = `mock_account_id=${accountId}; path=/; max-age=86400`
+    } else {
+      // Persist to DB — fire and forget
       fetch('/api/accounts/set-active', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
