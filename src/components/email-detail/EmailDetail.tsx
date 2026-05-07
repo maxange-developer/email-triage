@@ -7,6 +7,9 @@ import { toast } from 'sonner'
 import { type EmailRow } from '@/lib/validations/email'
 import { formatRelative } from '@/lib/utils/time'
 import { sendEmailAction } from '@/app/app/actions'
+import { useI18n } from '@/i18n/client'
+import { getLocalizedEmail } from '@/lib/utils/email-locale'
+import { CustomSelect } from '@/components/ui/custom-select'
 
 async function streamReply(
   emailId: string,
@@ -48,8 +51,10 @@ const PRIORITY_CHIP: Record<string, string> = {
   spam: 'bg-white/5 text-white/40 border border-white/10',
 }
 
-export default function EmailDetail({ email }: { email: EmailRow }) {
+export default function EmailDetail({ email: rawEmail }: { email: EmailRow }) {
   const router = useRouter()
+  const { t, locale } = useI18n()
+  const email = getLocalizedEmail(rawEmail, locale)
   const [reply, setReply] = useState('')
   const [tone, setTone] = useState('professional')
   const [streaming, setStreaming] = useState(false)
@@ -64,7 +69,7 @@ export default function EmailDetail({ email }: { email: EmailRow }) {
     try {
       await streamReply(email.id, tone, (chunk) => setReply((prev) => prev + chunk))
     } catch {
-      toast.error('Error generating reply')
+      toast.error(t.email.generateError)
     } finally {
       setStreaming(false)
     }
@@ -80,8 +85,8 @@ export default function EmailDetail({ email }: { email: EmailRow }) {
         threadId: email.thread_id ?? undefined,
       })
       setSending(false)
-      if (result.success) toast.success('Email sent')
-      else toast.error(result.error ?? 'Send failed')
+      if (result.success) toast.success(t.email.sent)
+      else toast.error(result.error ?? t.email.sendFailed)
     })
   }
 
@@ -93,7 +98,7 @@ export default function EmailDetail({ email }: { email: EmailRow }) {
         className="flex items-center gap-2 text-white/60 text-sm uppercase tracking-wider px-3 py-1.5 border border-transparent hover:border-white/40 hover:text-white transition-all duration-200"
       >
         <ArrowLeft size={14} aria-hidden />
-        Inbox
+        {t.email.back}
       </button>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -140,20 +145,21 @@ export default function EmailDetail({ email }: { email: EmailRow }) {
         {/* RIGHT: reply generation */}
         <aside className="glass p-5 border-2 border-white/10 space-y-4">
           <h3 className="text-sm font-bold text-neon-green uppercase tracking-wider">
-            AI Reply
+            {t.email.aiReply}
           </h3>
 
           {/* Tone selector + generate button */}
           <div className="flex items-center gap-2">
-            <select
+            <CustomSelect
               value={tone}
-              onChange={(e) => setTone(e.target.value)}
-              className="flex-1 h-9 bg-black border border-white/20 px-3 text-white text-sm focus:outline-none focus:border-neon-green transition-colors duration-200 cursor-pointer"
-            >
-              <option value="professional" className="bg-black">Professional</option>
-              <option value="friendly" className="bg-black">Friendly</option>
-              <option value="formal" className="bg-black">Formal</option>
-            </select>
+              onChange={setTone}
+              options={[
+                { value: 'professional', label: t.email.professional },
+                { value: 'friendly', label: t.email.friendly },
+                { value: 'formal', label: t.email.formal },
+              ]}
+              className="flex-1"
+            />
             <button
               onClick={handleGenerate}
               disabled={streaming}
@@ -162,7 +168,7 @@ export default function EmailDetail({ email }: { email: EmailRow }) {
               <span className="absolute inset-0 bg-neon-green scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
               <span className="relative z-10 flex items-center gap-1.5">
                 <RefreshCw size={11} className={streaming ? 'animate-spin' : ''} aria-hidden />
-                Generate
+                {t.email.generate}
               </span>
             </button>
           </div>
@@ -173,7 +179,7 @@ export default function EmailDetail({ email }: { email: EmailRow }) {
               value={reply}
               onChange={(e) => setReply(e.target.value)}
               rows={8}
-              placeholder="Generated reply will appear here..."
+              placeholder={t.email.replyPlaceholder}
               className="w-full bg-white/5 border border-white/10 p-3 text-white text-sm placeholder-white/20 focus:outline-none focus:border-neon-green transition-colors duration-200 resize-none scrollbar-hide min-h-32"
             />
             {streaming && (
@@ -195,12 +201,12 @@ export default function EmailDetail({ email }: { email: EmailRow }) {
               disabled={!reply}
               onClick={() => {
                 navigator.clipboard.writeText(reply)
-                toast.success('Copied!')
+                toast.success(t.email.copied)
               }}
               className="h-9 px-3 border border-neon-green/40 text-white/60 text-xs uppercase tracking-wider hover:bg-neon-green/10 hover:text-neon-green transition-all duration-200 disabled:opacity-30 flex items-center gap-1.5"
             >
               <Copy size={11} aria-hidden />
-              Copy
+              {t.email.copy}
             </button>
             <button
               disabled={sending || !reply || streaming}
@@ -210,7 +216,7 @@ export default function EmailDetail({ email }: { email: EmailRow }) {
               <span className="absolute inset-0 bg-neon-pink scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
               <span className="relative z-10 flex items-center gap-1.5">
                 <Send size={11} aria-hidden />
-                {sending ? 'Sending...' : 'Send via Gmail'}
+                {sending ? t.email.sending : t.email.send}
               </span>
             </button>
           </div>
@@ -218,7 +224,7 @@ export default function EmailDetail({ email }: { email: EmailRow }) {
           {email.ai_summary && (
             <div className="border-t border-white/10 pt-3">
               <p className="text-xs text-white/30">
-                <span className="font-medium text-white/50">AI Summary:</span>{' '}
+                <span className="font-medium text-white/50">{t.email.aiSummaryLabel}</span>{' '}
                 {email.ai_summary}
               </p>
             </div>

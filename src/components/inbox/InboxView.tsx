@@ -8,6 +8,7 @@ import { type EmailRow } from '@/lib/validations/email'
 import PriorityGroup from '@/components/inbox/PriorityGroup'
 import EmailCard from '@/components/inbox/EmailCard'
 import { useI18n } from '@/i18n/client'
+import { getLocalizedEmail } from '@/lib/utils/email-locale'
 
 interface GroupedEmails {
   high: EmailRow[]
@@ -25,7 +26,12 @@ export default function InboxView({ initialEmails, userId }: InboxViewProps) {
   const [search, setSearch] = useState('')
   const [live, setLive] = useState(false)
   const [syncing, startSyncTransition] = useTransition()
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
+
+  // Sync state when server re-renders with new account's emails after router.refresh()
+  useEffect(() => {
+    setGrouped(initialEmails)
+  }, [initialEmails])
 
   useEffect(() => {
     const channel = getBrowserClient()
@@ -142,12 +148,12 @@ export default function InboxView({ initialEmails, userId }: InboxViewProps) {
         <section aria-label="Search results">
           {filteredEmails.length === 0 ? (
             <p className="text-sm text-white/40 py-8 text-center">
-              No results for &ldquo;{search}&rdquo;
+              {t.inbox.noResults} &ldquo;{search}&rdquo;
             </p>
           ) : (
             <div className="space-y-2">
               {filteredEmails.map((email) => (
-                <EmailCard key={email.id} email={email} onHandled={handleHandled} />
+                <EmailCard key={email.id} email={getLocalizedEmail(email, locale)} onHandled={handleHandled} />
               ))}
             </div>
           )}
@@ -156,21 +162,21 @@ export default function InboxView({ initialEmails, userId }: InboxViewProps) {
         <div className="space-y-4">
           <PriorityGroup
             label={t.inbox.highPriority}
-            emails={grouped.high}
+            emails={grouped.high.map((e) => getLocalizedEmail(e, locale))}
             defaultOpen
             priority="high"
             onHandled={handleHandled}
           />
           <PriorityGroup
             label={t.inbox.mediumPriority}
-            emails={grouped.medium}
+            emails={grouped.medium.map((e) => getLocalizedEmail(e, locale))}
             defaultOpen
             priority="medium"
             onHandled={handleHandled}
           />
           <PriorityGroup
             label={t.inbox.lowPriority}
-            emails={grouped.low}
+            emails={grouped.low.map((e) => getLocalizedEmail(e, locale))}
             defaultOpen={false}
             priority="low"
             onHandled={handleHandled}

@@ -36,7 +36,7 @@ export default function LoginPage() {
     <>
       <ThreeBackground />
 
-      <div className="relative z-10 min-h-screen flex items-center justify-center px-4">
+      <div className="min-h-screen flex items-center justify-center px-4">
         {/* Login card */}
         <div className="glass border border-neon-green/30 w-full max-w-md p-8 animate-fade-up space-y-6">
           {/* Logo */}
@@ -126,7 +126,7 @@ export default function LoginPage() {
 
           {/* Language switcher — inside card, centered */}
           <div className="border-t border-white/10 pt-4 flex items-center justify-center">
-            <LanguageSwitcher flagPriority />
+            <LanguageSwitcher />
           </div>
         </div>
       </div>
