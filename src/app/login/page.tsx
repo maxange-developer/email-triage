@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import { signIn } from "next-auth/react";
 import { Check, Eye } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/i18n/client";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
@@ -20,6 +21,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [rememberMe, setRememberMe] = useState(false);
   const { t } = useI18n();
+  const prefersReduced = useReducedMotion();
 
   function handleSignIn() {
     if (USE_MOCK) {
@@ -38,96 +40,125 @@ export default function LoginPage() {
 
       <div className="min-h-screen flex items-center justify-center px-4">
         {/* Login card */}
-        <div className="glass border border-neon-green/30 w-full max-w-md p-8 animate-fade-up space-y-6">
-          {/* Logo */}
-          <Image
-            src="/images/logo-a1-w.webp"
-            alt="Angel1"
-            width={180}
-            height={72}
-            className="object-contain w-auto mx-auto mb-6 mt-3"
-            priority
-          />
-
-          {/* Title */}
-          <div className="text-center space-y-2">
-            <h1 className="text-5xl font-bold text-neon-green whitespace-nowrap">
-              {t.login.title}
-              <span className="text-white">.</span>
-            </h1>
-            <p className="text-white/60 text-sm">{t.login.subtitle}</p>
-          </div>
-
-          {/* Security info */}
-          <div className="space-y-1">
-            <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">
-              {t.login.security_title}
-            </p>
-            <p className="text-xs text-white/30 leading-relaxed">
-              {t.login.security_desc}
-            </p>
-          </div>
-
-          {/* Remember me */}
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              role="checkbox"
-              aria-checked={rememberMe}
-              onClick={() => setRememberMe(!rememberMe)}
-              className={cn(
-                "w-4 h-4 border transition-all duration-200",
-                "flex items-center justify-center shrink-0",
-                rememberMe
-                  ? "border-neon-green bg-neon-green/20"
-                  : "border-white/30 hover:border-neon-green/50",
-              )}
-            >
-              {rememberMe && <Check size={10} className="text-neon-green" />}
-            </button>
-            <label
-              className="text-white/50 text-sm cursor-pointer hover:text-white/70 transition-colors"
-              onClick={() => setRememberMe(!rememberMe)}
-            >
-              {t.login.remember}
-            </label>
-          </div>
-
-          {/* Connect button */}
-          <button
-            onClick={handleSignIn}
-            className="w-full h-12 border-2 border-neon-green text-white text-sm font-semibold uppercase tracking-wider relative overflow-hidden hover:text-black transition-all duration-300 group"
+        <div className="glass border border-neon-green/30 w-full max-w-md p-8 space-y-6">
+          {/* Logo — flip+scale intro */}
+          <motion.div
+            initial={prefersReduced ? false : {
+              rotateY: -180,
+              scale: 0.3,
+              opacity: 0,
+            }}
+            animate={{
+              rotateY: 0,
+              scale: 1,
+              opacity: 1,
+            }}
+            transition={{
+              duration: 0.9,
+              ease: [0.16, 1, 0.3, 1],
+              rotateY: { duration: 0.8, ease: "easeOut" },
+              scale: { duration: 0.9, ease: [0.34, 1.56, 0.64, 1] },
+              opacity: { duration: 0.4 },
+            }}
+            style={{ perspective: 800 }}
+            className="flex justify-center mb-6"
           >
-            <span className="absolute inset-0 bg-neon-green scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
-            <span className="relative z-10">{t.login.cta}</span>
-          </button>
+            <Image
+              src="/images/logo-a1-w.webp"
+              alt="Angel1"
+              width={180}
+              height={72}
+              className="object-contain w-auto"
+              priority
+            />
+          </motion.div>
 
-          {/* Demo bypass — only in mock mode */}
-          {USE_MOCK && (
-            <div className="border-t border-white/10 pt-4">
-              <p className="text-white/30 text-xs text-center mb-3 uppercase tracking-widest">
-                {t.login.demo_label}
+          {/* Card content — staggered fade-up after logo settles */}
+          <motion.div
+            initial={prefersReduced ? false : { opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.5, ease: "easeOut" }}
+          >
+            {/* Title */}
+            <div className="text-center space-y-2">
+              <h1 className="text-5xl font-bold text-neon-green whitespace-nowrap">
+                {t.login.title}
+                <span className="text-white">.</span>
+              </h1>
+              <p className="text-white/60 text-sm">{t.login.subtitle}</p>
+            </div>
+
+            {/* Security info */}
+            <div className="space-y-1 mt-6">
+              <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">
+                {t.login.security_title}
               </p>
-              <button
-                onClick={() => {
-                  document.cookie = "mock_bypass=true; path=/";
-                  window.location.href = "/app";
-                }}
-                className="w-full py-2.5 border border-dashed border-white/20 text-white/40 text-sm hover:border-neon-green hover:text-neon-green transition-all duration-200 flex items-center justify-center gap-2"
-              >
-                <Eye size={14} />
-                {t.login.demo_cta}
-              </button>
-              <p className="text-white/20 text-xs text-center mt-2">
-                {t.login.demo_note}
+              <p className="text-xs text-white/30 leading-relaxed">
+                {t.login.security_desc}
               </p>
             </div>
-          )}
 
-          {/* Language switcher — inside card, centered */}
-          <div className="border-t border-white/10 pt-4 flex items-center justify-center">
-            <LanguageSwitcher />
-          </div>
+            {/* Remember me */}
+            <div className="flex items-center gap-3 mt-6">
+              <button
+                type="button"
+                role="checkbox"
+                aria-checked={rememberMe}
+                onClick={() => setRememberMe(!rememberMe)}
+                className={cn(
+                  "w-4 h-4 border transition-all duration-200",
+                  "flex items-center justify-center shrink-0",
+                  rememberMe
+                    ? "border-neon-green bg-neon-green/20"
+                    : "border-white/30 hover:border-neon-green/50",
+                )}
+              >
+                {rememberMe && <Check size={10} className="text-neon-green" />}
+              </button>
+              <label
+                className="text-white/50 text-sm cursor-pointer hover:text-white/70 transition-colors"
+                onClick={() => setRememberMe(!rememberMe)}
+              >
+                {t.login.remember}
+              </label>
+            </div>
+
+            {/* Connect button */}
+            <button
+              onClick={handleSignIn}
+              className="w-full h-12 border-2 border-neon-green text-white text-sm font-semibold uppercase tracking-wider relative overflow-hidden hover:text-black transition-all duration-300 group mt-6"
+            >
+              <span className="absolute inset-0 bg-neon-green scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
+              <span className="relative z-10">{t.login.cta}</span>
+            </button>
+
+            {/* Demo bypass — only in mock mode */}
+            {USE_MOCK && (
+              <div className="border-t border-white/10 pt-4 mt-6">
+                <p className="text-white/30 text-xs text-center mb-3 uppercase tracking-widest">
+                  {t.login.demo_label}
+                </p>
+                <button
+                  onClick={() => {
+                    document.cookie = "mock_bypass=true; path=/";
+                    window.location.href = "/app";
+                  }}
+                  className="w-full py-2.5 border border-dashed border-white/20 text-white/40 text-sm hover:border-neon-green hover:text-neon-green transition-all duration-200 flex items-center justify-center gap-2"
+                >
+                  <Eye size={14} />
+                  {t.login.demo_cta}
+                </button>
+                <p className="text-white/20 text-xs text-center mt-2">
+                  {t.login.demo_note}
+                </p>
+              </div>
+            )}
+
+            {/* Language switcher — inside card, centered */}
+            <div className="border-t border-white/10 pt-4 mt-6 flex items-center justify-center">
+              <LanguageSwitcher />
+            </div>
+          </motion.div>
         </div>
       </div>
     </>
