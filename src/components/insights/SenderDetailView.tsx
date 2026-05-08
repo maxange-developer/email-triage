@@ -13,8 +13,8 @@ const PRIORITY_BORDER: Record<string, string> = {
 }
 
 const PRIORITY_BADGE: Record<string, string> = {
-  high: 'bg-red-500/20 text-red-400 border border-red-500/30',
-  medium: 'bg-amber-500/20 text-amber-400 border border-amber-500/30',
+  high: 'bg-red-500/10 text-red-400 border border-red-500/30',
+  medium: 'bg-amber-500/10 text-amber-400 border border-amber-500/30',
   low: 'bg-white/5 text-white/40 border border-white/10',
   spam: 'bg-white/5 text-white/30 border border-white/10',
 }
