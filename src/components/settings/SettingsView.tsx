@@ -271,7 +271,7 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
         <button
           disabled={saving}
           onClick={handleSave}
-          className="w-full h-10 border-2 border-neon-green text-white text-xs font-semibold uppercase tracking-wider relative overflow-hidden hover:text-black transition-all duration-300 group disabled:opacity-40 flex items-center justify-center gap-2"
+          className="w-full h-10 border-2 border-neon-green text-white text-xs font-semibold uppercase tracking-wider relative overflow-hidden hover:text-white transition-all duration-300 group disabled:opacity-40 flex items-center justify-center gap-2"
         >
           <span className="absolute inset-0 bg-neon-green scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
           <span className="relative z-10 flex items-center gap-2">
@@ -290,7 +290,7 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
         <button
           disabled={syncing}
           onClick={handleSync}
-          className="h-10 px-6 border-2 border-neon-green text-white text-xs font-semibold uppercase tracking-wider relative overflow-hidden hover:text-black transition-all duration-300 group disabled:opacity-40 flex items-center gap-2"
+          className="h-10 px-6 border-2 border-neon-green text-white text-xs font-semibold uppercase tracking-wider relative overflow-hidden hover:text-white transition-all duration-300 group disabled:opacity-40 flex items-center gap-2"
         >
           <span className="absolute inset-0 bg-neon-green scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
           <span className="relative z-10 flex items-center gap-2">
