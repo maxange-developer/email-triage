@@ -41,7 +41,7 @@ export default function LoginPage() {
         <div className="glass border border-neon-green/30 w-full max-w-md p-8 animate-fade-up space-y-6">
           {/* Logo */}
           <Image
-            src="/images/logo.webp"
+            src="/images/logo-angel1-white.webp"
             alt="Angel1"
             width={180}
             height={72}
