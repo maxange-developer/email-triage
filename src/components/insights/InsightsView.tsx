@@ -12,6 +12,13 @@ import { useI18n } from '@/i18n/client'
 
 const NEON_COLORS = ['#ff00ff', '#00f0ff', '#00ff41', '#f59e0b', '#a78bfa', '#f472b6', '#34d399', '#60a5fa']
 
+const PRIORITY_CHIP: Record<string, string> = {
+  high: 'bg-red-500/10 text-red-400 border border-red-500/30',
+  medium: 'bg-amber-500/10 text-amber-400 border border-amber-500/30',
+  low: 'bg-white/5 text-white/40 border border-white/10',
+  spam: 'bg-white/5 text-white/30 border border-white/10',
+}
+
 interface InsightsViewProps {
   volumeByDay: DayCount[]
   categoryBreakdown: CategoryCount[]
@@ -233,11 +240,7 @@ export default function InsightsView({
                     <td className="px-5 py-3 text-right text-neon-green font-mono">{s.count}</td>
                     <td className="px-5 py-3 text-right">
                       {s.top_priority && (
-                        <span className={`text-[10px] px-2 py-0.5 uppercase tracking-wider ${
-                          s.top_priority === 'high'
-                            ? 'bg-red-500/20 text-red-400 border border-red-500/30'
-                            : 'bg-white/5 text-white/40 border border-white/10'
-                        }`}>
+                        <span className={`text-[10px] px-2 py-0.5 uppercase tracking-wider ${PRIORITY_CHIP[s.top_priority] ?? ''}`}>
                           {s.top_priority}
                         </span>
                       )}
