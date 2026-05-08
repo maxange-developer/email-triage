@@ -7,3 +7,6 @@ export const ClassificationRuleSchema = z.object({
 })
 export const ClassificationRulesSchema = z.array(ClassificationRuleSchema)
 export type ClassificationRule = z.infer<typeof ClassificationRuleSchema>
+
+export const ClassificationRulesMapSchema = z.record(z.string(), ClassificationRulesSchema)
+export type ClassificationRulesMap = z.infer<typeof ClassificationRulesMapSchema>

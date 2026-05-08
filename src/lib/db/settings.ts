@@ -1,9 +1,12 @@
 import { createServiceClient } from '@/lib/supabase/service'
-import { ClassificationRulesSchema, type ClassificationRule } from '@/lib/validations/settings'
+import {
+  ClassificationRulesMapSchema,
+  type ClassificationRulesMap,
+} from '@/lib/validations/settings'
 
 export async function getUserSettings(userId: string): Promise<{
   email_address: string | null
-  classification_rules: ClassificationRule[]
+  classification_rules: ClassificationRulesMap
 }> {
   const db = createServiceClient()
   const { data, error } = await db
@@ -12,19 +15,19 @@ export async function getUserSettings(userId: string): Promise<{
     .eq('user_id', userId)
     .single()
   if (error && error.code === 'PGRST116') {
-    return { email_address: null, classification_rules: [] }
+    return { email_address: null, classification_rules: {} }
   }
   if (error) throw new Error(`getUserSettings: ${error.message}`)
-  const parsed = ClassificationRulesSchema.safeParse(data?.classification_rules ?? [])
+  const parsed = ClassificationRulesMapSchema.safeParse(data?.classification_rules ?? {})
   return {
     email_address: data?.email_address ?? null,
-    classification_rules: parsed.success ? parsed.data : [],
+    classification_rules: parsed.success ? parsed.data : {},
   }
 }
 
 export async function saveClassificationRules(
   userId: string,
-  rules: ClassificationRule[],
+  rules: ClassificationRulesMap,
 ): Promise<void> {
   const db = createServiceClient()
   const { error } = await db
