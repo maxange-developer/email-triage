@@ -1,6 +1,6 @@
-﻿'use client'
+'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useEffect, useRef, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { signOut } from 'next-auth/react'
 import { Plus, X, Save, RefreshCw, LogOut } from 'lucide-react'
@@ -19,39 +19,53 @@ interface Rule {
   force_priority: 'high' | 'medium' | 'low'
 }
 
+type RulesMap = Record<string, Rule[]>
+
 interface SettingsViewProps {
   userEmail: string
   rulesJson: string
 }
 
-function parseRules(json: string): Rule[] {
+function parseRulesMap(json: string): RulesMap {
   try {
     const parsed = JSON.parse(json)
-    if (!Array.isArray(parsed)) return []
-    return parsed
-      .filter(
-        (r): r is { from_contains: string; force_priority: string } =>
-          typeof r?.from_contains === 'string' && typeof r?.force_priority === 'string',
-      )
-      .map((r, i) => ({
-        id: String(i),
-        from_contains: r.from_contains,
-        force_priority: (['high', 'medium', 'low'].includes(r.force_priority)
-          ? r.force_priority
-          : 'medium') as 'high' | 'medium' | 'low',
-      }))
+    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) return {}
+    const result: RulesMap = {}
+    for (const [accountId, rawRules] of Object.entries(parsed)) {
+      if (!Array.isArray(rawRules)) continue
+      result[accountId] = rawRules
+        .filter(
+          (r): r is { from_contains: string; force_priority: string } =>
+            typeof r?.from_contains === 'string' && typeof r?.force_priority === 'string',
+        )
+        .map((r, i) => ({
+          id: String(i),
+          from_contains: r.from_contains,
+          force_priority: (['high', 'medium', 'low'].includes(r.force_priority)
+            ? r.force_priority
+            : 'medium') as 'high' | 'medium' | 'low',
+        }))
+    }
+    return result
   } catch {
-    return []
+    return {}
   }
 }
 
 export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps) {
   const router = useRouter()
-  const [rules, setRules] = useState<Rule[]>(() => parseRules(rulesJson))
+  const { accounts, activeAccount, switchAccount, addAccount } = useAccount()
+  const rulesMapRef = useRef<RulesMap>(parseRulesMap(rulesJson))
+  const [rules, setRules] = useState<Rule[]>(
+    () => rulesMapRef.current[activeAccount?.id ?? ''] ?? [],
+  )
   const [saving, startSave] = useTransition()
   const [syncing, startSync] = useTransition()
   const { t } = useI18n()
-  const { accounts, activeAccount, switchAccount, addAccount } = useAccount()
+
+  useEffect(() => {
+    setRules(rulesMapRef.current[activeAccount?.id ?? ''] ?? [])
+  }, [activeAccount?.id])
 
   function addRule() {
     setRules((prev) => [
@@ -71,13 +85,18 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
   }
 
   function handleSave() {
+    if (!activeAccount) return
     startSave(async () => {
       const payload = JSON.stringify(
         rules.map(({ from_contains, force_priority }) => ({ from_contains, force_priority })),
       )
-      const result = await saveRulesAction(payload)
+      const result = await saveRulesAction(activeAccount.id, payload)
       if (result?.error) toast.error(result.error)
-      else toast.success(t.settings.rulesSaved)
+      else {
+        // Update local ref so account switch after save shows correct rules
+        rulesMapRef.current = { ...rulesMapRef.current, [activeAccount.id]: rules }
+        toast.success(t.settings.rulesSaved)
+      }
     })
   }
 

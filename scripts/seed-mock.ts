@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import { randomUUID } from 'node:crypto'
 import { createClient } from '@supabase/supabase-js'
 
 function loadEnv(): Record<string, string> {
@@ -37,10 +38,25 @@ interface EmailSpec {
   category: Category
   urgency_hours: number
   intent: string
+  intent_it?: string
+  intent_en?: string
+  intent_es?: string
   ai_summary: string
+  ai_summary_it?: string
+  ai_summary_en?: string
+  ai_summary_es?: string
   ai_suggested_reply: string
+  ai_suggested_reply_it?: string
+  ai_suggested_reply_en?: string
+  ai_suggested_reply_es?: string
   subject: string
+  subject_it?: string
+  subject_en?: string
+  subject_es?: string
   body_plain: string
+  body_it?: string
+  body_en?: string
+  body_es?: string
 }
 
 function randomDate(daysAgo: number): string {
@@ -66,7 +82,17 @@ const PRIMARY_HIGH: EmailSpec[] = [
     ai_summary: 'Bug critico checkout, perdita €800/h, budget €500-1000',
     ai_suggested_reply: 'Ciao Marco, ho ricevuto il tuo messaggio e capisco l\'urgenza della situazione. Sono disponibile ad analizzare il problema immediatamente. Puoi condividere l\'accesso al repository e i log degli errori? Stima preliminare: 2-4 ore di lavoro per identificare e risolvere il problema. Ti ricontatto entro 30 minuti. Massimiliano',
     subject: 'Bug critico in produzione — checkout non funziona',
+    subject_en: 'Critical production bug — checkout not working',
+    subject_es: 'Bug crítico en producción — checkout no funciona',
     body_plain: 'Ciao Massimiliano, stiamo avendo un problema serio sul nostro e-commerce. Il processo di checkout si blocca dopo l\'inserimento della carta. Perdiamo circa €800/ora di vendite. Hai disponibilità immediata? Budget disponibile per fix urgente: €500-1000.',
+    body_en: 'Hi Massimiliano, we have a serious problem on our e-commerce. The checkout process freezes after the card is entered. We\'re losing around €800/hour in sales. Are you available immediately? Budget for urgent fix: €500-1000.',
+    body_es: 'Hola Massimiliano, tenemos un problema serio en nuestro e-commerce. El proceso de checkout se bloquea tras introducir la tarjeta. Perdemos unos €800/hora en ventas. ¿Tienes disponibilidad inmediata? Presupuesto para fix urgente: €500-1000.',
+    intent_en: 'Client requests urgent e-commerce checkout bug fix, losing €800/h',
+    intent_es: 'Cliente solicita fix urgente de bug en checkout e-commerce, perdiendo €800/h',
+    ai_summary_en: 'Critical checkout bug, losing €800/h, budget €500-1000',
+    ai_summary_es: 'Bug crítico en checkout, pérdida €800/h, presupuesto €500-1000',
+    ai_suggested_reply_en: 'Hi Marco, I received your message and understand the urgency. I\'m available to analyze the problem immediately. Can you share repository access and error logs? Preliminary estimate: 2-4 hours to identify and fix. I\'ll contact you within 30 minutes. Massimiliano',
+    ai_suggested_reply_es: 'Hola Marco, recibí tu mensaje y entiendo la urgencia. Estoy disponible para analizar el problema de inmediato. ¿Puedes compartir acceso al repositorio y los logs de error? Estimación preliminar: 2-4 horas para identificar y resolver. Te contacto en 30 minutos. Massimiliano',
   },
   {
     from_name: 'Giulia Marchetti',
@@ -78,7 +104,17 @@ const PRIMARY_HIGH: EmailSpec[] = [
     ai_summary: 'Proposta integrazione AI documenti, €8k budget, 6 settimane',
     ai_suggested_reply: 'Buongiorno Giulia, grazie per avermi contattato. Il progetto che descrive è esattamente il tipo di lavoro in cui mi specializzo — classificazione documenti con AI è uno dei miei core service. Sono disponibile per una call giovedì o venerdì pomeriggio. Nel frattempo, può condividere qualche dettaglio in più sul tipo di documenti e sul volume atteso? Cordiali saluti, Massimiliano',
     subject: 'Proposta collaborazione — AI integration €8k budget',
+    subject_en: 'Collaboration proposal — AI integration €8k budget',
+    subject_es: 'Propuesta de colaboración — integración AI €8k presupuesto',
     body_plain: 'Buongiorno Massimiliano, ho trovato il suo profilo su LinkedIn e sono rimasta colpita dai suoi progetti AI. Stiamo cercando uno sviluppatore per integrare un sistema di classificazione automatica documenti nella nostra piattaforma SaaS B2B. Budget: €8.000, timeline: 6 settimane. È disponibile per una call questa settimana?',
+    body_en: 'Good morning Massimiliano, I found your profile on LinkedIn and was impressed by your AI projects. We are looking for a developer to integrate an automatic document classification system into our B2B SaaS platform. Budget: €8,000, timeline: 6 weeks. Are you available for a call this week?',
+    body_es: 'Buenos días Massimiliano, encontré su perfil en LinkedIn y me impresionaron sus proyectos de AI. Buscamos un desarrollador para integrar un sistema de clasificación automática de documentos en nuestra plataforma SaaS B2B. Presupuesto: €8.000, plazo: 6 semanas. ¿Disponible para una llamada esta semana?',
+    intent_en: 'Warm lead with defined budget for AI integration on B2B SaaS',
+    intent_es: 'Lead caliente con presupuesto definido para integración AI en SaaS B2B',
+    ai_summary_en: 'AI document integration proposal, €8k budget, 6 weeks',
+    ai_summary_es: 'Propuesta integración AI documentos, €8k presupuesto, 6 semanas',
+    ai_suggested_reply_en: 'Good morning Giulia, thank you for contacting me. The project you describe is exactly the type of work I specialize in. I\'m available for a call Thursday or Friday afternoon. Could you share more details on the document types and expected volume? Best regards, Massimiliano',
+    ai_suggested_reply_es: 'Buenos días Giulia, gracias por contactarme. El proyecto que describe es exactamente el tipo de trabajo en que me especializo. Estoy disponible para una llamada el jueves o viernes por la tarde. ¿Puede compartir más detalles sobre el tipo de documentos y el volumen esperado? Saludos, Massimiliano',
   },
   {
     from_name: 'Luca Conti',
@@ -90,7 +126,17 @@ const PRIMARY_HIGH: EmailSpec[] = [
     ai_summary: 'Sito offline post-deploy, problema ricorrente',
     ai_suggested_reply: 'Luca, sto guardando subito. Puoi inviarmi le credenziali Vercel o il link ai log di deployment? Recupero il sito e poi analizziamo la causa radice per evitare che si ripeta. Massimiliano',
     subject: 'URGENTE: sito down dopo deploy',
+    subject_en: 'URGENT: site down after deploy',
+    subject_es: 'URGENTE: sitio caído después del deploy',
     body_plain: 'Massimiliano, il sito è offline dopo il deploy di stamattina. I clienti non riescono ad accedere. Puoi guardare subito? È la terza volta questo mese.',
+    body_en: 'Massimiliano, the site is offline after this morning\'s deploy. Customers can\'t access it. Can you check immediately? This is the third time this month.',
+    body_es: 'Massimiliano, el sitio está offline después del deploy de esta mañana. Los clientes no pueden acceder. ¿Puedes mirarlo ahora? Es la tercera vez este mes.',
+    intent_en: 'Site offline after deploy, recurring issue third time this month',
+    intent_es: 'Sitio offline tras deploy, problema recurrente tercera vez este mes',
+    ai_summary_en: 'Site offline post-deploy, recurring issue',
+    ai_summary_es: 'Sitio offline post-deploy, problema recurrente',
+    ai_suggested_reply_en: 'Luca, looking at it now. Can you send the Vercel credentials or deployment log link? I\'ll recover the site and then analyze the root cause to avoid recurrence. Massimiliano',
+    ai_suggested_reply_es: 'Luca, lo miro ahora. ¿Puedes enviarme las credenciales de Vercel o el enlace a los logs del deployment? Recupero el sitio y luego analizamos la causa raíz para evitar que se repita. Massimiliano',
   },
   {
     from_name: 'Antonio Russo',
@@ -102,7 +148,17 @@ const PRIMARY_HIGH: EmailSpec[] = [
     ai_summary: 'Review Q2 con CTO Fileni, 15-16 del mese',
     ai_suggested_reply: 'Ciao Antonio, confermo la disponibilità per il 15, preferibilmente nel pomeriggio dalle 14 alle 16. Preparo una presentazione con i KPI del trimestre e le prossime milestone. Serve qualcosa di specifico da includere nell\'agenda? Cordiali saluti, Massimiliano',
     subject: 'Riunione review Q2 — conferma disponibilità',
+    subject_en: 'Q2 review meeting — availability confirmation',
+    subject_es: 'Reunión de revisión Q2 — confirmación de disponibilidad',
     body_plain: 'Ciao Massimiliano, come da accordi volevamo organizzare la review trimestrale del progetto. Sei disponibile il 15 o il 16 per una call di 2 ore? Parteciperanno il CTO e il responsabile IT.',
+    body_en: 'Hi Massimiliano, as agreed we would like to organize the quarterly project review. Are you available on the 15th or 16th for a 2-hour call? The CTO and IT manager will attend.',
+    body_es: 'Hola Massimiliano, como acordamos queremos organizar la revisión trimestral del proyecto. ¿Estás disponible el 15 o el 16 para una call de 2 horas? Participarán el CTO y el responsable de IT.',
+    intent_en: 'Q2 review with Fileni CTO, requesting availability confirmation',
+    intent_es: 'Revisión Q2 con CTO de Fileni, solicita confirmación de disponibilidad',
+    ai_summary_en: 'Q2 review with Fileni CTO, 15th-16th of the month',
+    ai_summary_es: 'Revisión Q2 con CTO de Fileni, días 15-16 del mes',
+    ai_suggested_reply_en: 'Hi Antonio, I confirm availability for the 15th, preferably afternoon 2-4 PM. I\'ll prepare a presentation with the quarter\'s KPIs and next milestones. Anything specific to include in the agenda? Best regards, Massimiliano',
+    ai_suggested_reply_es: 'Hola Antonio, confirmo disponibilidad para el día 15, preferiblemente por la tarde de 14 a 16h. Preparo una presentación con los KPIs del trimestre y las próximas milestones. ¿Algo específico que incluir en el orden del día? Saludos, Massimiliano',
   },
   {
     from_name: 'Sara Bianchi',
@@ -114,7 +170,17 @@ const PRIMARY_HIGH: EmailSpec[] = [
     ai_summary: 'Lead app mobile React Native, €12k budget',
     ai_suggested_reply: 'Salve Sara, grazie per avermi contattato. Sviluppo React Native con dashboard analytics è esattamente il mio stack principale. Potrei iniziare la prossima settimana. Possiamo fare una call di 30 minuti per definire i requisiti? Cordiali saluti, Massimiliano',
     subject: 'Interesse progetto React Native — timeline?',
+    subject_en: 'React Native project interest — timeline?',
+    subject_es: 'Interés en proyecto React Native — ¿cuándo puede empezar?',
     body_plain: 'Salve, abbiamo bisogno di sviluppare un\'app mobile per il nostro gestionale. React Native, iOS e Android, con dashboard analytics. Budget €12k. Quando potrebbe iniziare?',
+    body_en: 'Hello, we need to develop a mobile app for our management system. React Native, iOS and Android, with analytics dashboard. Budget €12k. When could you start?',
+    body_es: 'Hola, necesitamos desarrollar una app móvil para nuestro sistema de gestión. React Native, iOS y Android, con dashboard de analíticas. Presupuesto €12k. ¿Cuándo podría empezar?',
+    intent_en: 'Mobile app lead React Native with €12k budget and immediate start',
+    intent_es: 'Lead app móvil React Native con presupuesto €12k e inicio inmediato',
+    ai_summary_en: 'React Native mobile app lead, €12k budget',
+    ai_summary_es: 'Lead app móvil React Native, presupuesto €12k',
+    ai_suggested_reply_en: 'Hello Sara, thank you for contacting me. React Native with analytics dashboard is my main stack. I could start next week. Can we have a 30-minute call to define the requirements? Best regards, Massimiliano',
+    ai_suggested_reply_es: 'Hola Sara, gracias por contactarme. React Native con dashboard analítico es mi stack principal. Podría empezar la próxima semana. ¿Podemos hacer una llamada de 30 minutos para definir los requisitos? Saludos, Massimiliano',
   },
   {
     from_name: 'Paolo Rinaldi',
@@ -126,7 +192,17 @@ const PRIMARY_HIGH: EmailSpec[] = [
     ai_summary: 'Preventivo landing page pizzeria, budget €2k, avvio entro 2 settimane',
     ai_suggested_reply: 'Salve Paolo, per una landing page professionale con form prenotazioni e menu digitale stimo €1.800-€2.200, consegna in 10 giorni lavorativi. Posso inviarle un mockup gratuito entro domani per farle vedere la direzione stilistica. La chiamo questo pomeriggio? Massimiliano',
     subject: 'Preventivo sito web — landing page ristorante',
+    subject_en: 'Website quote — restaurant landing page',
+    subject_es: 'Presupuesto sitio web — landing page restaurante',
     body_plain: 'Salve, ho una pizzeria a Napoli e voglio finalmente avere un sito web professionale. Ho bisogno di una landing page con il menu, la galleria foto e un form per le prenotazioni. Budget: circa €2000. Quando potrebbe farmi un preventivo?',
+    body_en: 'Hello, I have a pizzeria in Naples and I finally want a professional website. I need a landing page with the menu, photo gallery, and a reservation form. Budget: around €2000. When could you give me a quote?',
+    body_es: 'Hola, tengo una pizzería en Nápoles y quiero tener finalmente un sitio web profesional. Necesito una landing page con el menú, galería de fotos y formulario de reservas. Presupuesto: unos €2000. ¿Cuándo podría hacerme un presupuesto?',
+    intent_en: 'Quote request for pizzeria landing page with €2k budget',
+    intent_es: 'Solicitud de presupuesto para landing page de pizzería con €2k de presupuesto',
+    ai_summary_en: 'Landing page quote for pizzeria, €2k budget, start within 2 weeks',
+    ai_summary_es: 'Presupuesto landing page pizzería, €2k, inicio en 2 semanas',
+    ai_suggested_reply_en: 'Hello Paolo, for a professional landing page with reservation form and digital menu I estimate €1,800-€2,200, delivery in 10 business days. I can send a free mockup tomorrow. Shall I call you this afternoon? Massimiliano',
+    ai_suggested_reply_es: 'Hola Paolo, para una landing page profesional con formulario de reservas y menú digital estimo €1.800-€2.200, entrega en 10 días laborables. Puedo enviarle un mockup gratuito mañana. ¿Le llamo esta tarde? Massimiliano',
   },
   {
     from_name: 'Elena Costa',
@@ -138,7 +214,17 @@ const PRIMARY_HIGH: EmailSpec[] = [
     ai_summary: 'Bug inventario taglie: ordini su stock esaurito, perdita €400',
     ai_suggested_reply: 'Elena, identificato il problema: il webhook Shopify non aggiornava lo stock dopo gli ordini. Ho applicato il fix e riallineato l\'inventario. Verifica che le taglie esaurite siano ora bloccate. Massimiliano',
     subject: 'BUG: clienti ordinano taglie esaurite',
+    subject_en: 'BUG: customers ordering out-of-stock sizes',
+    subject_es: 'BUG: clientes ordenan tallas agotadas',
     body_plain: 'Massimiliano, grave problema sul nostro shop: i clienti riescono a ordinare taglie che abbiamo esaurito. Abbiamo già 8 ordini impossibili da evadere e clienti arrabbiati. Dobbiamo risolvere subito!',
+    body_en: 'Massimiliano, serious problem on our shop: customers can order sizes we have run out of. We already have 8 impossible orders and angry customers. We need to fix this immediately!',
+    body_es: 'Massimiliano, grave problema en nuestra tienda: los clientes pueden pedir tallas que hemos agotado. Ya tenemos 8 pedidos imposibles de atender y clientes enfadados. ¡Hay que resolverlo ya!',
+    intent_en: 'E-commerce bug: size update not saved, customers ordering out-of-stock items',
+    intent_es: 'Bug e-commerce: actualización de tallas no guardada, clientes pidiendo stock agotado',
+    ai_summary_en: 'Inventory size bug: orders on out-of-stock items, €400 loss',
+    ai_summary_es: 'Bug inventario tallas: pedidos en stock agotado, pérdida €400',
+    ai_suggested_reply_en: 'Elena, I identified the problem: the Shopify webhook wasn\'t updating stock after orders. Fix deployed and inventory realigned. Please verify that out-of-stock sizes are now blocked. Massimiliano',
+    ai_suggested_reply_es: 'Elena, identifiqué el problema: el webhook de Shopify no actualizaba el stock tras los pedidos. Fix aplicado e inventario realineado. Verifica que las tallas agotadas estén ahora bloqueadas. Massimiliano',
   },
   {
     from_name: 'Federica Ruggeri',
@@ -150,7 +236,17 @@ const PRIMARY_HIGH: EmailSpec[] = [
     ai_summary: 'Proposta partnership agenzia: sviluppo white-label, 3-4 progetti/anno',
     ai_suggested_reply: 'Ciao Federica, la proposta mi interessa molto. Collaboro già con alcune agenzie in modalità white-label e il modello funziona bene. Possiamo sentirci giovedì? Nel frattempo mi mandi il portfolio dei clienti enterprise per capire meglio lo scope. Massimiliano',
     subject: 'Proposta partnership sviluppo — clienti enterprise',
+    subject_en: 'Development partnership proposal — enterprise clients',
+    subject_es: 'Propuesta de asociación — clientes enterprise',
     body_plain: 'Ciao Massimiliano, siamo un\'agenzia creativa di Milano e stiamo cercando uno sviluppatore affidabile per il nostro team esteso. Gestiamo 3-4 progetti enterprise all\'anno con budget tra €15k-€50k. Ti interessa una collaborazione continuativa?',
+    body_en: 'Hi Massimiliano, we are a creative agency from Milan looking for a reliable developer for our extended team. We manage 3-4 enterprise projects per year with budgets between €15k-€50k. Are you interested in ongoing collaboration?',
+    body_es: 'Hola Massimiliano, somos una agencia creativa de Milán y buscamos un desarrollador fiable para nuestro equipo extendido. Gestionamos 3-4 proyectos enterprise al año con presupuestos entre €15k-€50k. ¿Te interesa una colaboración continua?',
+    intent_en: 'Agency proposes white-label partnership for enterprise development',
+    intent_es: 'Agencia propone asociación white-label para desarrollo enterprise',
+    ai_summary_en: 'Agency partnership proposal: white-label development, 3-4 projects/year',
+    ai_summary_es: 'Propuesta asociación agencia: desarrollo white-label, 3-4 proyectos/año',
+    ai_suggested_reply_en: 'Hi Federica, the proposal is very interesting. I already collaborate with some agencies in white-label mode and the model works well. Can we talk Thursday? In the meantime send me the enterprise client portfolio. Massimiliano',
+    ai_suggested_reply_es: 'Hola Federica, la propuesta me interesa mucho. Ya colaboro con algunas agencias en modo white-label y el modelo funciona bien. ¿Podemos hablar el jueves? Mientras tanto mándame el portfolio de clientes enterprise. Massimiliano',
   },
   {
     from_name: 'Daniele Greco',
@@ -162,7 +258,17 @@ const PRIMARY_HIGH: EmailSpec[] = [
     ai_summary: 'Webhook Stripe non funziona: ordini non confermati, €2k in sospeso',
     ai_suggested_reply: 'Daniele, il problema è nella firma del webhook — la chiave è stata ruotata su Stripe ma non aggiornata sul server. Fix in deploy adesso. Entro 15 minuti gli ordini si confermeranno. Massimiliano',
     subject: 'URGENTE: pagamenti Stripe non confermati',
+    subject_en: 'URGENT: Stripe payments not confirmed',
+    subject_es: 'URGENTE: pagos de Stripe no confirmados',
     body_plain: 'Massimiliano, abbiamo un problema critico: da stamattina gli ordini completati su Stripe non arrivano come "confermati" nel gestionale. Ci sono circa €2.000 di ordini in sospeso. I clienti sono preoccupati. Fix urgente!',
+    body_en: 'Massimiliano, we have a critical problem: since this morning, completed Stripe orders are not arriving as "confirmed" in the management system. There are about €2,000 in pending orders. Customers are worried. Urgent fix needed!',
+    body_es: 'Massimiliano, tenemos un problema crítico: desde esta mañana, los pedidos completados en Stripe no llegan como "confirmados" en el sistema de gestión. Hay unos €2.000 en pedidos pendientes. Los clientes están preocupados. ¡Fix urgente!',
+    intent_en: 'Stripe API integration: webhook not receiving order events',
+    intent_es: 'Integración API Stripe: webhook no recibe eventos de pedidos',
+    ai_summary_en: 'Stripe webhook broken: unconfirmed orders, €2k pending',
+    ai_summary_es: 'Webhook Stripe no funciona: pedidos sin confirmar, €2k pendientes',
+    ai_suggested_reply_en: 'Daniele, the problem is in the webhook signature — the key was rotated on Stripe but not updated on the server. Fix deploying now. Orders will be confirmed within 15 minutes. Massimiliano',
+    ai_suggested_reply_es: 'Daniele, el problema está en la firma del webhook — la clave fue rotada en Stripe pero no actualizada en el servidor. Fix en deploy ahora. En 15 minutos los pedidos se confirmarán. Massimiliano',
   },
   {
     from_name: 'Matteo De Santis',
@@ -174,7 +280,17 @@ const PRIMARY_HIGH: EmailSpec[] = [
     ai_summary: 'Escalation progetto: 3 sett ritardo, penali €500/giorno da venerdì',
     ai_suggested_reply: 'Matteo, capisco la gravità della situazione. Organizziamo una call domani mattina alle 9 con il tuo team per rivedere le priorità e tagliare le feature non essenziali per rispettare la deadline contrattuale. Posso garantire il modulo principale entro venerdì. Massimiliano',
     subject: 'Progetto in ritardo — penali da venerdì',
+    subject_en: 'Project delayed — penalties from Friday',
+    subject_es: 'Proyecto retrasado — penalizaciones desde el viernes',
     body_plain: 'Massimiliano, siamo a 3 settimane di ritardo sul gestionale cantieri. Il contratto prevede penali di €500 al giorno dal prossimo venerdì. Ho bisogno di un piano concreto e di una data di consegna certa. Chiamami appena puoi.',
+    body_en: 'Massimiliano, we are 3 weeks behind on the construction management system. The contract includes penalties of €500 per day from next Friday. I need a concrete plan and a certain delivery date. Call me as soon as you can.',
+    body_es: 'Massimiliano, llevamos 3 semanas de retraso en el sistema de gestión de obras. El contrato prevé penalizaciones de €500 al día desde el próximo viernes. Necesito un plan concreto y una fecha de entrega segura. Llámame en cuanto puedas.',
+    intent_en: 'Project 3 weeks behind schedule, client threatens contractual penalties',
+    intent_es: 'Proyecto con 3 semanas de retraso, cliente amenaza con penalizaciones contractuales',
+    ai_summary_en: 'Project escalation: 3 weeks late, €500/day penalties from Friday',
+    ai_summary_es: 'Escalada proyecto: 3 sem de retraso, penalizaciones €500/día desde el viernes',
+    ai_suggested_reply_en: 'Matteo, I understand the severity. Let\'s organize a call tomorrow morning at 9 with your team to review priorities and cut non-essential features to meet the contractual deadline. I can guarantee the main module by Friday. Massimiliano',
+    ai_suggested_reply_es: 'Matteo, entiendo la gravedad. Organicemos una llamada mañana a las 9 con tu equipo para revisar prioridades y reducir funciones no esenciales para cumplir el plazo contractual. Puedo garantizar el módulo principal para el viernes. Massimiliano',
   },
 ]
 
@@ -189,7 +305,17 @@ const PRIMARY_MEDIUM: EmailSpec[] = [
     ai_summary: 'Follow-up preventivo app prenotazioni studio dentistico',
     ai_suggested_reply: 'Buongiorno Roberto, scusi il ritardo. Il preventivo per l\'app prenotazioni è di €3.400 con timeline 4 settimane. Include integrazione Google Calendar, notifiche SMS e pannello admin. Possiamo fare una call questa settimana? Massimiliano',
     subject: 'Re: preventivo app prenotazioni — ancora aspetto',
+    subject_en: 'Re: booking app quote — still waiting',
+    subject_es: 'Re: presupuesto app de reservas — sigo esperando',
     body_plain: 'Buongiorno Massimiliano, la scorsa settimana le ho chiesto un preventivo per un\'app di prenotazioni per il mio studio dentistico. Non ho ancora ricevuto risposta. Può aggiornarmi? Ho bisogno di prendere una decisione entro fine settimana.',
+    body_en: 'Good morning Massimiliano, last week I asked you for a quote for a booking app for my dental practice. I haven\'t received a reply yet. Can you update me? I need to make a decision by the end of the week.',
+    body_es: 'Buenos días Massimiliano, la semana pasada le pedí un presupuesto para una app de reservas para mi clínica dental. Aún no he recibido respuesta. ¿Puede actualizarme? Necesito tomar una decisión antes del fin de semana.',
+    intent_en: 'Follow-up on booking app quote, still waiting for reply',
+    intent_es: 'Seguimiento presupuesto app reservas, aún esperando respuesta',
+    ai_summary_en: 'Follow-up booking app quote for dental practice',
+    ai_summary_es: 'Seguimiento presupuesto app reservas clínica dental',
+    ai_suggested_reply_en: 'Good morning Roberto, apologies for the delay. The quote for the booking app is €3,400 with a 4-week timeline. Includes Google Calendar integration, SMS notifications and admin panel. Can we have a call this week? Massimiliano',
+    ai_suggested_reply_es: 'Buenos días Roberto, disculpe la demora. El presupuesto para la app de reservas es €3.400 con un plazo de 4 semanas. Incluye integración Google Calendar, notificaciones SMS y panel de administración. ¿Podemos hacer una llamada esta semana? Massimiliano',
   },
   {
     from_name: 'Valentina Galli',
@@ -201,7 +327,17 @@ const PRIMARY_MEDIUM: EmailSpec[] = [
     ai_summary: 'Info sito web agriturismo con sistema prenotazioni: budget non definito',
     ai_suggested_reply: 'Buongiorno Valentina, per un sito agriturismo con prenotazioni online stimo €2.500-€3.500 in base alle funzionalità. Include galleria foto, descrizione camere, calendario disponibilità e pagamento online. Ha un logo o dei materiali grafici già pronti? Cordiali saluti, Massimiliano',
     subject: 'Informazioni sito web agriturismo',
+    subject_en: 'Agriturismo website information',
+    subject_es: 'Información sitio web agriturismo',
     body_plain: 'Buongiorno, ho un agriturismo in Toscana e vorrei finalmente creare un sito web che permettesse le prenotazioni online. Attualmente gestisco tutto per telefono. Può darmi informazioni su costi e tempi?',
+    body_en: 'Good morning, I have an agriturismo in Tuscany and I would finally like to create a website that allows online bookings. Currently I manage everything by phone. Can you give me information on costs and timelines?',
+    body_es: 'Buenos días, tengo un agriturismo en Toscana y me gustaría crear un sitio web que permitiera reservas online. Actualmente gestiono todo por teléfono. ¿Puede darme información sobre costes y plazos?',
+    intent_en: 'Agriturismo asks about website with online bookings',
+    intent_es: 'Agriturismo pregunta sobre sitio web con reservas online',
+    ai_summary_en: 'Agriturismo website with booking system info request: budget undefined',
+    ai_summary_es: 'Solicitud info sitio web agriturismo con sistema reservas: presupuesto indefinido',
+    ai_suggested_reply_en: 'Good morning Valentina, for an agriturismo website with online bookings I estimate €2,500-€3,500. Includes photo gallery, room descriptions, availability calendar and online payment. Do you have a logo or graphic materials ready? Best regards, Massimiliano',
+    ai_suggested_reply_es: 'Buenos días Valentina, para un sitio de agriturismo con reservas online estimo €2.500-€3.500. Incluye galería de fotos, descripción de habitaciones, calendario de disponibilidad y pago online. ¿Tiene un logo o materiales gráficos listos? Saludos, Massimiliano',
   },
   {
     from_name: 'Antonio Ferrara',
@@ -213,6 +349,12 @@ const PRIMARY_MEDIUM: EmailSpec[] = [
     ai_summary: 'Sprint 3 al 60%: tracking completato, notifiche in sviluppo',
     ai_suggested_reply: 'Ciao Antonio, lo sprint 3 è al 60%: il modulo tracking è completato e testato, le notifiche SMS sono in sviluppo (fine settimana). Rimane l\'integrazione con il CRM prevista per lunedì. Ti mando screenshot del tracking in azione. Massimiliano',
     subject: 'Aggiornamento progetto gestionale logistica',
+    subject_en: 'Logistics management project update',
+    subject_es: 'Actualización proyecto gestión logística',
+    intent_en: 'Shipment tracking module progress update request',
+    intent_es: 'Solicitud de actualización del módulo de seguimiento de envíos',
+    ai_summary_en: 'Sprint 3 at 60%: tracking complete, notifications in development',
+    ai_summary_es: 'Sprint 3 al 60%: tracking completado, notificaciones en desarrollo',
     body_plain: 'Ciao Massimiliano, come procede il modulo tracking spedizioni? Il responsabile operativo mi chiede aggiornamenti. Siamo in linea con la deadline del 20?',
   },
   {
@@ -225,6 +367,12 @@ const PRIMARY_MEDIUM: EmailSpec[] = [
     ai_summary: 'Call allineamento pre-presentazione: mercoledì o giovedì mattina',
     ai_suggested_reply: 'Ciao Cristina, sono disponibile mercoledì dalle 10 alle 12 o giovedì dalle 9 alle 11. Preferisce videochiamata o telefono? Mi preparo con un riepilogo della versione demo. Massimiliano',
     subject: 'Call allineamento pre-presentazione — disponibilità?',
+    subject_en: 'Pre-presentation alignment call — availability?',
+    subject_es: 'Llamada de alineación pre-presentación — ¿disponibilidad?',
+    intent_en: 'Scheduling call for alignment before final client presentation',
+    intent_es: 'Coordinar llamada de alineación antes de presentación al cliente final',
+    ai_summary_en: 'Pre-presentation alignment call: Wednesday or Thursday morning',
+    ai_summary_es: 'Llamada alineación pre-presentación: miércoles o jueves por la mañana',
     body_plain: 'Ciao Massimiliano, prima di presentare il portale al nostro cliente finale vorrei fare una call di allineamento con te. Sei disponibile mercoledì o giovedì mattina?',
   },
   {
@@ -237,6 +385,12 @@ const PRIMARY_MEDIUM: EmailSpec[] = [
     ai_summary: 'Proposta collaborazione tecnica AWS/DevOps: 2-3 progetti/anno',
     ai_suggested_reply: 'Ciao Andrea, collaborare su progetti AWS è qualcosa che mi interessa. Ho certificazione Solutions Architect e ho lavorato su infrastrutture per 10k+ utenti. Possiamo fare una call esplorativa la prossima settimana? Massimiliano',
     subject: 'Collaborazione tecnica — progetti cloud AWS',
+    subject_en: 'Technical collaboration — AWS cloud projects',
+    subject_es: 'Colaboración técnica — proyectos cloud AWS',
+    intent_en: 'Cloud company proposes technical collaboration on AWS projects',
+    intent_es: 'Empresa cloud propone colaboración técnica en proyectos AWS',
+    ai_summary_en: 'Technical AWS/DevOps collaboration proposal: 2-3 projects/year',
+    ai_summary_es: 'Propuesta colaboración técnica AWS/DevOps: 2-3 proyectos/año',
     body_plain: 'Ciao, siamo una società di cloud solutions e cerchiamo professionisti AWS per supportare i nostri clienti enterprise. Gestiamo 2-3 progetti grandi all\'anno. Hai esperienza con architetture cloud scalabili?',
   },
   {
@@ -249,6 +403,12 @@ const PRIMARY_MEDIUM: EmailSpec[] = [
     ai_summary: 'Feedback ottimo post-lancio: +23% conversioni. Richiesta piano manutenzione',
     ai_suggested_reply: 'Ottima notizia Simone! +23% conversioni è un risultato fantastico. Per il piano di manutenzione propongo €300/mese che include aggiornamenti, monitoraggio uptime e 4 ore di modifiche. Ti mando il contratto. Massimiliano',
     subject: 'Feedback progetto + proposta manutenzione',
+    subject_en: 'Project feedback + maintenance proposal',
+    subject_es: 'Feedback del proyecto + propuesta de mantenimiento',
+    intent_en: 'Positive post-delivery feedback, requesting maintenance plan',
+    intent_es: 'Feedback positivo post-entrega, solicita plan de mantenimiento',
+    ai_summary_en: 'Excellent post-launch feedback: +23% conversions. Maintenance plan requested',
+    ai_summary_es: 'Feedback excelente post-lanzamiento: +23% conversiones. Solicita plan mantenimiento',
     body_plain: 'Ciao Massimiliano, volevo aggiornarti: il nuovo e-commerce va benissimo! Abbiamo già il 23% in più di conversioni rispetto al vecchio sito. I clienti si lamentano molto meno. Hai un piano di manutenzione mensile? Vorremmo continuare a lavorare con te.',
   },
   {
@@ -261,6 +421,12 @@ const PRIMARY_MEDIUM: EmailSpec[] = [
     ai_summary: 'Richiesta portfolio e referenze per piattaforma booking viaggi',
     ai_suggested_reply: 'Buongiorno Giovanna, le invio il link al portfolio: angel1.dev/work — include 3 progetti e-commerce e una piattaforma prenotazioni. Per referenze posso mettere in contatto con 2 clienti del settore travel. Quando vuole fare una call di presentazione? Massimiliano',
     subject: 'Richiesta portfolio e referenze — progetto booking',
+    subject_en: 'Portfolio and references request — booking project',
+    subject_es: 'Solicitud de portfolio y referencias — proyecto de reservas',
+    intent_en: 'Travel agency requests portfolio and references for booking platform project',
+    intent_es: 'Agencia de viajes solicita portfolio y referencias para proyecto de plataforma de reservas',
+    ai_summary_en: 'Portfolio and references request for travel booking platform',
+    ai_summary_es: 'Solicitud portfolio y referencias para plataforma de reservas de viajes',
     body_plain: 'Buongiorno, stiamo valutando lo sviluppo di una piattaforma di booking per la nostra agenzia viaggi. Prima di procedere con i preventivi vorremmo vedere il suo portfolio e contattare qualche suo cliente come referenza.',
   },
   {
@@ -273,7 +439,15 @@ const PRIMARY_MEDIUM: EmailSpec[] = [
     ai_summary: 'Pagamento confermato: €1.200 da s.lombardi@ecommercepet.it',
     ai_suggested_reply: '',
     subject: 'Payment received: €1,200.00 from Simone Lombardi',
+    subject_it: 'Pagamento ricevuto: €1.200,00 da Simone Lombardi',
+    subject_es: 'Pago recibido: €1.200,00 de Simone Lombardi',
+    intent_it: 'Conferma pagamento ricevuto €1.200 da cliente Lombardi Simone',
+    intent_es: 'Confirmación de pago recibido €1.200 del cliente Simone Lombardi',
+    ai_summary_it: 'Pagamento confermato: €1.200 da s.lombardi@ecommercepet.it',
+    ai_summary_es: 'Pago confirmado: €1.200 de s.lombardi@ecommercepet.it',
     body_plain: 'A payment of €1,200.00 has been received from Simone Lombardi (s.lombardi@ecommercepet.it) for invoice INV-2024-041. Funds will be available in your Stripe account within 2 business days.',
+    body_it: 'È stato ricevuto un pagamento di €1.200,00 da Simone Lombardi (s.lombardi@ecommercepet.it) per la fattura INV-2024-041. I fondi saranno disponibili sul tuo account Stripe entro 2 giorni lavorativi.',
+    body_es: 'Se ha recibido un pago de €1.200,00 de Simone Lombardi (s.lombardi@ecommercepet.it) para la factura INV-2024-041. Los fondos estarán disponibles en tu cuenta de Stripe en 2 días hábiles.',
   },
   {
     from_name: 'Giorgio Rizzo',
@@ -285,6 +459,12 @@ const PRIMARY_MEDIUM: EmailSpec[] = [
     ai_summary: 'Onboarding Palestra 360: accesso CMS inviato, kickoff call giovedì',
     ai_suggested_reply: 'Ciao Giorgio, le ho inviato le credenziali CMS all\'indirizzo email. La nostra call di kickoff è confermata per giovedì alle 15:00. Prepari le foto della palestra e il testo dei corsi — lo usiamo come punto di partenza. Massimiliano',
     subject: 'Benvenuto — prossimi passi progetto sito web',
+    subject_en: 'Welcome — next steps for website project',
+    subject_es: 'Bienvenido — próximos pasos del proyecto web',
+    intent_en: 'New client onboarding: CMS access and initial briefing',
+    intent_es: 'Incorporación nuevo cliente: acceso CMS y briefing inicial',
+    ai_summary_en: 'Onboarding Palestra 360: CMS access sent, kickoff call Thursday',
+    ai_summary_es: 'Onboarding Palestra 360: acceso CMS enviado, llamada kickoff el jueves',
     body_plain: 'Ciao Massimiliano, oggi ho firmato il contratto. Non vedo l\'ora di iniziare! Come procediamo? Ho le foto della palestra e il testo per le pagine pronto. Quando facciamo la prima call?',
   },
   {
@@ -297,7 +477,15 @@ const PRIMARY_MEDIUM: EmailSpec[] = [
     ai_summary: 'Vercel Pro invoice: €20/mese — 3 deployment attivi',
     ai_suggested_reply: '',
     subject: 'Your Vercel invoice for November 2024',
+    subject_it: 'La tua fattura Vercel per Novembre 2024',
+    subject_es: 'Tu factura de Vercel para Noviembre 2024',
+    intent_it: 'Fattura mensile Vercel Pro: €20 per hosting progetti',
+    intent_es: 'Factura mensual Vercel Pro: €20 para hosting de proyectos',
+    ai_summary_it: 'Vercel Pro invoice: €20/mese — 3 deployment attivi',
+    ai_summary_es: 'Factura Vercel Pro: €20/mes — 3 proyectos activos',
     body_plain: 'Your Vercel Pro invoice for November 2024 is ready. Amount due: €20.00. This covers your Pro subscription with unlimited deployments, custom domains, and analytics for 3 active projects.',
+    body_it: 'La tua fattura Vercel Pro per Novembre 2024 è pronta. Importo dovuto: €20,00. Include abbonamento Pro con deployment illimitati, domini personalizzati e analytics per 3 progetti attivi.',
+    body_es: 'Tu factura Vercel Pro para Noviembre 2024 está lista. Importe: €20,00. Cubre tu suscripción Pro con despliegues ilimitados, dominios personalizados y analíticas para 3 proyectos activos.',
   },
   {
     from_name: 'Massimo Benedetti',
@@ -309,6 +497,12 @@ const PRIMARY_MEDIUM: EmailSpec[] = [
     ai_summary: 'Follow-up preventivo CRM personalizzato: €5.500, attesa risposta',
     ai_suggested_reply: 'Salve Massimo, il preventivo è ancora valido. Il CRM per la gestione interventi include: calendario tecnici, storico clienti, generazione preventivi PDF e app mobile per i tecnici sul campo. €5.500 tutto incluso, 8 settimane. Possiamo sentirci questa settimana? Massimiliano',
     subject: 'Re: preventivo CRM — ancora valido?',
+    subject_en: 'Re: CRM quote — still valid?',
+    subject_es: 'Re: presupuesto CRM — ¿sigue vigente?',
+    intent_en: 'Follow-up on CRM quote for client and technical intervention management',
+    intent_es: 'Seguimiento presupuesto CRM para gestión de clientes e intervenciones técnicas',
+    ai_summary_en: 'Follow-up custom CRM quote: €5,500, awaiting reply',
+    ai_summary_es: 'Seguimiento presupuesto CRM personalizado: €5.500, esperando respuesta',
     body_plain: 'Salve, due settimane fa avevo chiesto un preventivo per un CRM per la gestione dei miei tecnici e degli interventi di manutenzione impianti. È ancora valido? Ho avuto il via libera dal commercialista.',
   },
   {
@@ -321,6 +515,12 @@ const PRIMARY_MEDIUM: EmailSpec[] = [
     ai_summary: 'Consulenza digitalizzazione studio: gestione pratiche, firma digitale',
     ai_suggested_reply: 'Buongiorno Silvana, la digitalizzazione di uno studio professionale è un processo che conosco bene. Le propongo un\'analisi iniziale gratuita di 1 ora per capire i flussi attuali e identificare le priorità. Quando è disponibile? Cordiali saluti, Massimiliano',
     subject: 'Consulenza digitalizzazione studio professionale',
+    subject_en: 'Professional practice digitalization consultation',
+    subject_es: 'Consultoría digitalización estudio profesional',
+    intent_en: 'Professional practice requests consultation for internal process digitalization',
+    intent_es: 'Estudio profesional solicita consultoría para digitalización de procesos internos',
+    ai_summary_en: 'Digitalization consultation: case management, digital signatures',
+    ai_summary_es: 'Consultoría digitalización: gestión expedientes, firma digital',
     body_plain: 'Buongiorno, gestisco uno studio di consulenza con 8 professionisti. Siamo ancora molto cartacei e vorremmo digitalizzare la gestione delle pratiche, le firme e la comunicazione con i clienti. Da dove si comincia?',
   },
   {
@@ -333,6 +533,12 @@ const PRIMARY_MEDIUM: EmailSpec[] = [
     ai_summary: 'Milestone M3 completata: pagamenti live. M4 (calendario) in sviluppo',
     ai_suggested_reply: 'Claudia, ottimo! Il modulo pagamento è live e ho già 3 prenotazioni di test completate con successo. Inizio la M4 (calendario disponibilità) da domani. Prevedo di finire entro venerdì. Massimiliano',
     subject: 'Update milestone M3 — piattaforma eventi',
+    subject_en: 'Milestone M3 update — events platform',
+    subject_es: 'Actualización milestone M3 — plataforma de eventos',
+    intent_en: 'Events platform booking milestone update: payment module done',
+    intent_es: 'Actualización milestone plataforma eventos: módulo de pago completado',
+    ai_summary_en: 'Milestone M3 complete: payments live. M4 (calendar) in development',
+    ai_summary_es: 'Milestone M3 completada: pagos en producción. M4 (calendario) en desarrollo',
     body_plain: 'Ciao Massimiliano, come siamo messi con la milestone M3? Il cliente chiede aggiornamenti per la call di domani pomeriggio.',
   },
   {
@@ -345,7 +551,15 @@ const PRIMARY_MEDIUM: EmailSpec[] = [
     ai_summary: 'Supabase Pro invoice: $25/mese — database principale progetti',
     ai_suggested_reply: '',
     subject: 'Supabase Invoice — November 2024',
+    subject_it: 'Fattura Supabase — Novembre 2024',
+    subject_es: 'Factura Supabase — Noviembre 2024',
+    intent_it: 'Fattura mensile Supabase Pro: $25 per database e auth',
+    intent_es: 'Factura mensual Supabase Pro: $25 para base de datos y autenticación',
+    ai_summary_it: 'Supabase Pro invoice: $25/mese — database principale progetti',
+    ai_summary_es: 'Factura Supabase Pro: $25/mes — base de datos principal proyectos',
     body_plain: 'Your Supabase Pro invoice for November 2024: $25.00. Your project has processed 2.3M database requests this month with 99.99% uptime. Thank you for being a Pro subscriber.',
+    body_it: 'La tua fattura Supabase Pro per Novembre 2024: $25,00. Il tuo progetto ha elaborato 2,3M richieste al database questo mese con uptime del 99,99%. Grazie per essere un subscriber Pro.',
+    body_es: 'Tu factura Supabase Pro para Noviembre 2024: $25,00. Tu proyecto ha procesado 2,3M solicitudes a la base de datos este mes con un uptime del 99,99%. Gracias por ser suscriptor Pro.',
   },
   {
     from_name: 'Marco Pellegrini',
@@ -357,6 +571,12 @@ const PRIMARY_MEDIUM: EmailSpec[] = [
     ai_summary: 'Proposta collaborazione continuativa: 2 giorni/sett, retail/fashion',
     ai_suggested_reply: 'Ciao Marco, una collaborazione continuativa nel settore retail mi interessa. Ho lavorato su diversi e-commerce fashion negli ultimi 2 anni. Sono disponibile per 2 giorni/settimana. Possiamo fare una call esplorativa? Massimiliano',
     subject: 'Collaborazione continuativa — sviluppatori esterni',
+    subject_en: 'Ongoing collaboration — external developers',
+    subject_es: 'Colaboración continua — desarrolladores externos',
+    intent_en: 'Digital agency proposes ongoing collaboration on retail clients',
+    intent_es: 'Agencia digital propone colaboración continua en clientes retail',
+    ai_summary_en: 'Ongoing collaboration proposal: 2 days/week, retail/fashion',
+    ai_summary_es: 'Propuesta colaboración continua: 2 días/semana, retail/moda',
     body_plain: 'Ciao Massimiliano, siamo una digital agency specializzata nel retail e cerchiamo uno sviluppatore affidabile per supportarci su base continuativa (circa 2 giorni/settimana). Hai esperienza con e-commerce nel settore fashion?',
   },
 ]
@@ -372,6 +592,8 @@ const PRIMARY_LOW: EmailSpec[] = [
     ai_summary: 'Laravel News: novità v11.x, Livewire 3.5, top pacchetti settimana',
     ai_suggested_reply: '',
     subject: 'Laravel News — Week of November 2024',
+    subject_it: 'Laravel News — Settimana di Novembre 2024',
+    subject_es: 'Laravel News — Semana de Noviembre 2024',
     body_plain: 'This week in Laravel: v11.3 released with improved rate limiting, Livewire 3.5 brings new persistence features, and the most popular packages of the week. Plus: an in-depth tutorial on Laravel Reverb for real-time apps.',
   },
   {
@@ -384,6 +606,8 @@ const PRIMARY_LOW: EmailSpec[] = [
     ai_summary: 'PR #47 merged: fix filtro ordini dashboard — repo costafashion/admin',
     ai_suggested_reply: '',
     subject: '[costafashion/admin] PR #47 merged: fix order filter',
+    subject_it: '[costafashion/admin] PR #47 unita: fix filtro ordini',
+    subject_es: '[costafashion/admin] PR #47 fusionada: fix filtro de pedidos',
     body_plain: 'Pull request #47 "fix: order filter not showing archived orders" has been merged into main by @elena-costa. 3 files changed, 42 additions, 8 deletions.',
   },
   {
@@ -396,6 +620,8 @@ const PRIMARY_LOW: EmailSpec[] = [
     ai_summary: 'Deploy success: palestra360.it — build 2m 14s, 0 error',
     ai_suggested_reply: '',
     subject: '✓ Deployment successful — palestra360.it',
+    subject_it: '✓ Deployment riuscito — palestra360.it',
+    subject_es: '✓ Deployment exitoso — palestra360.it',
     body_plain: 'Your deployment to palestra360.it is live. Build duration: 2m 14s. 0 errors, 0 warnings. The latest commit "feat: add class booking calendar" is now in production.',
   },
   {
@@ -408,6 +634,8 @@ const PRIMARY_LOW: EmailSpec[] = [
     ai_summary: 'Richiesta collegamento: Luca V., junior dev, interessato AI/ML',
     ai_suggested_reply: '',
     subject: 'Luca Venezia vorrebbe collegarsi con te su LinkedIn',
+    subject_en: 'Luca Venezia wants to connect with you on LinkedIn',
+    subject_es: 'Luca Venezia quiere conectar contigo en LinkedIn',
     body_plain: 'Luca Venezia, Junior Frontend Developer @ Startup Milano, vuole connettersi con te. "Ciao Massimiliano, seguo i tuoi post sull\'AI da mesi. Mi piacerebbe connettermi e imparare dalla tua esperienza nel settore."',
   },
   {
@@ -420,6 +648,8 @@ const PRIMARY_LOW: EmailSpec[] = [
     ai_summary: 'Stripe payout: €2.340 in arrivo entro 2 giorni lavorativi',
     ai_suggested_reply: '',
     subject: 'Your Stripe payout of €2,340.00 is on its way',
+    subject_it: 'Il tuo payout Stripe di €2.340,00 è in arrivo',
+    subject_es: 'Tu pago de Stripe de €2.340,00 está en camino',
     body_plain: 'A payout of €2,340.00 has been initiated to your bank account ending in 4821. It should arrive within 2 business days. This includes payments from 4 customers processed between Nov 1-7.',
   },
   {
@@ -432,6 +662,8 @@ const PRIMARY_LOW: EmailSpec[] = [
     ai_summary: 'Google Workspace invoice: €12 — account massi@angel1.dev',
     ai_suggested_reply: '',
     subject: 'Il tuo estratto conto Google Workspace — Novembre 2024',
+    subject_en: 'Your Google Workspace statement — November 2024',
+    subject_es: 'Tu extracto de Google Workspace — Noviembre 2024',
     body_plain: 'Estratto conto novembre 2024 per il tuo account Google Workspace Business Starter. Importo addebitato: €12,00 per 1 utente (massi@angel1.dev). Il pagamento verrà elaborato il 5 dicembre.',
   },
   {
@@ -444,6 +676,8 @@ const PRIMARY_LOW: EmailSpec[] = [
     ai_summary: 'Cloudflare weekly: 45k req, 98% cached, 0 threats blocked',
     ai_suggested_reply: '',
     subject: 'Cloudflare Weekly Analytics — 3 siti monitorati',
+    subject_en: 'Cloudflare Weekly Analytics — 3 monitored sites',
+    subject_es: 'Cloudflare Weekly Analytics — 3 sitios monitoreados',
     body_plain: 'Il tuo report settimanale Cloudflare: 45.230 richieste totali, 98% servite dalla cache, 0 minacce bloccate. Risparmio banda stimato: 4.2 GB. Siti: nextweb.it, costafashion.it, palestra360.it.',
   },
 ]
@@ -459,6 +693,8 @@ const PRIMARY_SPAM: EmailSpec[] = [
     ai_summary: 'Spam SEO: promesse irrealistiche posizionamento garantito',
     ai_suggested_reply: '',
     subject: 'Porta il tuo sito in PRIMA PAGINA GOOGLE garantito!',
+    subject_en: 'Get your site on GOOGLE FIRST PAGE guaranteed!',
+    subject_es: '¡Lleva tu sitio a la PRIMERA PÁGINA DE GOOGLE garantizado!',
     body_plain: 'Siamo i leader del SEO italiano! Ti portiamo in PRIMA PAGINA GOOGLE in 30 GIORNI o RIMBORSO TOTALE! Centinaia di clienti soddisfatti. Offerta lancio esclusiva: solo €99/mese. Non perdere questa opportunità UNICA! Clicca ora!',
   },
   {
@@ -471,6 +707,8 @@ const PRIMARY_SPAM: EmailSpec[] = [
     ai_summary: 'Spam: falsa vincita iPhone — phishing per dati personali',
     ai_suggested_reply: '',
     subject: '🎉 Hai vinto un iPhone 15 Pro — ritira il tuo premio!',
+    subject_en: '🎉 You won an iPhone 15 Pro — claim your prize!',
+    subject_es: '🎉 ¡Has ganado un iPhone 15 Pro — reclama tu premio!',
     body_plain: 'COMPLIMENTI! Sei stato selezionato come vincitore di un iPhone 15 Pro del valore di €1.299! Per ritirare il tuo premio clicca sul link entro 24 ore e inserisci i tuoi dati. Offerta non trasferibile. ATTENZIONE: scade oggi!',
   },
   {
@@ -483,6 +721,8 @@ const PRIMARY_SPAM: EmailSpec[] = [
     ai_summary: 'Spam crypto: rendimento 300% garantito — truffa investimento',
     ai_suggested_reply: '',
     subject: 'Investi €500 e guadagna €15.000 in 30 giorni — GARANTITO',
+    subject_en: 'Invest €500 and earn €15,000 in 30 days — GUARANTEED',
+    subject_es: 'Invierte €500 y gana €15.000 en 30 días — GARANTIZADO',
     body_plain: 'Il nostro algoritmo di trading AI ha generato rendimenti del 300% negli ultimi 6 mesi. Investi solo €500 e guadagna fino a €15.000 in 30 giorni. Metodo GARANTITO usato da 50.000 persone. Posti limitati — iscriviti ora prima che sia troppo tardi!',
   },
 ]
@@ -502,7 +742,17 @@ const WORK_HIGH: EmailSpec[] = [
     ai_summary: 'Upwork contract: AI dashboard, full-time this week, +$500 budget available',
     ai_suggested_reply: 'Hi James, I understand the urgency. I can dedicate full time starting tomorrow morning EU time. Please share the current codebase status and the specific features still pending. I\'ll send you a revised timeline by end of day today. Massimiliano',
     subject: 'Upwork contract — AI dashboard urgent delivery',
+    subject_it: 'Contratto Upwork — consegna urgente AI dashboard',
+    subject_es: 'Contrato Upwork — entrega urgente AI dashboard',
     body_plain: 'Hi Massimiliano, we\'re behind on our AI dashboard project. The client is pushing hard for delivery by Friday. Can you dedicate full time this week? We can increase the budget by $500 if needed.',
+    body_it: 'Ciao Massimiliano, siamo indietro sul progetto AI dashboard. Il cliente spinge forte per la consegna entro venerdì. Puoi dedicarti a tempo pieno questa settimana? Possiamo aumentare il budget di $500 se necessario.',
+    body_es: 'Hola Massimiliano, estamos atrasados en el proyecto AI dashboard. El cliente presiona mucho para entregarlo el viernes. ¿Puedes dedicarte a tiempo completo esta semana? Podemos aumentar el presupuesto en $500 si hace falta.',
+    intent_it: 'Cliente spinge per consegna AI dashboard entro venerdì, richiede impegno a tempo pieno',
+    intent_es: 'Cliente presiona para entrega AI dashboard para el viernes, solicita dedicación completa',
+    ai_summary_it: 'Contratto Upwork: AI dashboard, tempo pieno questa settimana, +$500 budget',
+    ai_summary_es: 'Contrato Upwork: AI dashboard, tiempo completo esta semana, +$500 presupuesto',
+    ai_suggested_reply_it: 'Ciao James, capisco l\'urgenza. Posso dedicarmi a tempo pieno a partire da domani mattina ora EU. Condividi lo stato attuale del codebase e le funzionalità ancora pendenti. Ti mando una timeline aggiornata entro fine giornata. Massimiliano',
+    ai_suggested_reply_es: 'Hola James, entiendo la urgencia. Puedo dedicarme a tiempo completo a partir de mañana por la mañana hora EU. Comparte el estado actual del codebase y las funcionalidades pendientes. Te envío un timeline actualizado antes de que acabe el día. Massimiliano',
   },
   {
     from_name: 'Sarah Chen',
@@ -514,7 +764,17 @@ const WORK_HIGH: EmailSpec[] = [
     ai_summary: 'Senior AI Engineer contract: $95/h, 6 months, fully remote',
     ai_suggested_reply: 'Dear Sarah, thank you for reaching out. A 6-month AI engineering contract is very interesting. I\'m available for a technical interview Tuesday or Wednesday next week, preferably between 2-5 PM CET. Could you share more details about the tech stack and the project scope? Best regards, Massimiliano',
     subject: 'Technical interview — Senior AI Engineer role $95/h',
+    subject_it: 'Colloquio tecnico — ruolo Senior AI Engineer $95/h',
+    subject_es: 'Entrevista técnica — rol Senior AI Engineer $95/h',
     body_plain: 'Dear Massimiliano, we found your profile on Upwork and we\'re impressed by your AI projects. We\'re looking for a senior AI engineer for a 6-month contract, $95/hour, fully remote. Are you available for a technical interview next week?',
+    body_it: 'Gentile Massimiliano, abbiamo trovato il suo profilo su Upwork e siamo rimasti colpiti dai suoi progetti AI. Cerchiamo un senior AI engineer per un contratto di 6 mesi, $95/ora, completamente da remoto. È disponibile per un colloquio tecnico la prossima settimana?',
+    body_es: 'Estimado Massimiliano, encontramos su perfil en Upwork y nos impresionaron sus proyectos de AI. Buscamos un senior AI engineer para un contrato de 6 meses, $95/hora, completamente remoto. ¿Está disponible para una entrevista técnica la próxima semana?',
+    intent_it: 'Startup VC-backed offre contratto senior AI engineer a $95/h per 6 mesi',
+    intent_es: 'Startup financiada por VC ofrece contrato senior AI engineer a $95/h por 6 meses',
+    ai_summary_it: 'Contratto Senior AI Engineer: $95/h, 6 mesi, completamente remoto',
+    ai_summary_es: 'Contrato Senior AI Engineer: $95/h, 6 meses, completamente remoto',
+    ai_suggested_reply_it: 'Gentile Sarah, grazie per avermi contattato. Un contratto di 6 mesi da AI engineer è molto interessante. Sono disponibile per un colloquio tecnico martedì o mercoledì prossimo, preferibilmente tra le 14 e le 17 CET. Può condividere più dettagli sullo stack tecnico? Cordiali saluti, Massimiliano',
+    ai_suggested_reply_es: 'Estimada Sarah, gracias por contactarme. Un contrato de 6 meses como AI engineer es muy interesante. Estoy disponible para una entrevista técnica el martes o miércoles próximo, preferiblemente entre las 14 y las 17 CET. ¿Puede compartir más detalles sobre el stack técnico? Saludos, Massimiliano',
   },
   {
     from_name: 'Mike Rodriguez',
@@ -526,7 +786,17 @@ const WORK_HIGH: EmailSpec[] = [
     ai_summary: 'React app blank screen post-deploy: 500+ users affected, join call now',
     ai_suggested_reply: 'Hi Mike, I\'m available now. Send me the Vercel/deployment logs and repo access. I\'ll join the call — share the link. Massimiliano',
     subject: 'URGENT: React app broken in production',
+    subject_it: 'URGENTE: app React rotta in produzione',
+    subject_es: 'URGENTE: app React rota en producción',
     body_plain: 'Massimiliano, our React app is showing a blank screen after the latest deployment. We have 500+ active users affected. Can you join a call in 30 minutes?',
+    body_it: 'Massimiliano, la nostra app React mostra una schermata bianca dopo l\'ultimo deployment. Abbiamo 500+ utenti attivi coinvolti. Puoi unirti a una call tra 30 minuti?',
+    body_es: 'Massimiliano, nuestra app React muestra una pantalla en blanco tras el último deployment. Tenemos 500+ usuarios activos afectados. ¿Puedes unirte a una llamada en 30 minutos?',
+    intent_it: 'App React con schermata bianca in produzione, 500+ utenti coinvolti',
+    intent_es: 'App React con pantalla en blanco en producción, 500+ usuarios afectados',
+    ai_summary_it: 'App React schermata bianca post-deploy: 500+ utenti coinvolti, entra nella call ora',
+    ai_summary_es: 'App React pantalla blanca post-deploy: 500+ usuarios afectados, únete a la llamada',
+    ai_suggested_reply_it: 'Ciao Mike, sono disponibile ora. Mandami i log Vercel/deployment e l\'accesso al repository. Mi unisco alla call — condividi il link. Massimiliano',
+    ai_suggested_reply_es: 'Hola Mike, estoy disponible ahora. Mándame los logs de Vercel/deployment y acceso al repositorio. Me uno a la llamada — comparte el enlace. Massimiliano',
   },
   {
     from_name: 'Emma Williams',
@@ -538,7 +808,17 @@ const WORK_HIGH: EmailSpec[] = [
     ai_summary: 'UK agency partnership: AI projects £8-15k avg, long-term',
     ai_suggested_reply: 'Hi Emma, a long-term partnership with an AI-focused agency sounds very interesting. I specialize in Next.js + AI integrations and have delivered projects for RAI and Fileni Group. I\'d love to learn more — can we schedule a call this week? Best, Massimiliano',
     subject: 'Long-term partnership proposal — AI projects',
+    subject_it: 'Proposta partnership a lungo termine — progetti AI',
+    subject_es: 'Propuesta de asociación a largo plazo — proyectos AI',
     body_plain: 'Hi, we\'re a UK-based agency specializing in AI solutions. We\'re looking for reliable developers for ongoing projects. Our average project is £8-15k. Interested in a partnership?',
+    body_it: 'Ciao, siamo un\'agenzia con sede nel Regno Unito specializzata in soluzioni AI. Cerchiamo sviluppatori affidabili per progetti continuativi. Il nostro progetto medio è £8-15k. Ti interessa una partnership?',
+    body_es: 'Hola, somos una agencia con sede en el Reino Unido especializada en soluciones AI. Buscamos desarrolladores fiables para proyectos continuos. Nuestro proyecto medio es de £8-15k. ¿Te interesa una asociación?',
+    intent_it: 'Agenzia AI UK propone partnership sviluppatore a lungo termine, £8-15k media progetto',
+    intent_es: 'Agencia AI UK propone asociación con desarrollador a largo plazo, £8-15k media proyecto',
+    ai_summary_it: 'Proposta partnership agenzia UK: progetti AI £8-15k media, lungo termine',
+    ai_summary_es: 'Propuesta asociación agencia UK: proyectos AI £8-15k media, largo plazo',
+    ai_suggested_reply_it: 'Ciao Emma, una partnership a lungo termine con un\'agenzia focalizzata sull\'AI mi interessa molto. Mi specializzo in Next.js + integrazioni AI. Possiamo programmare una call questa settimana? Cordiali saluti, Massimiliano',
+    ai_suggested_reply_es: 'Hola Emma, una asociación a largo plazo con una agencia enfocada en AI me interesa mucho. Me especializo en Next.js + integraciones AI. ¿Podemos programar una llamada esta semana? Saludos, Massimiliano',
   },
 ]
 
@@ -553,6 +833,12 @@ const WORK_MEDIUM: EmailSpec[] = [
     ai_summary: 'Upwork interview invite: full-stack AI dev, $75/h, 3 months',
     ai_suggested_reply: 'Hi, I\'m very interested in this role. I have 5+ years of full-stack experience with a focus on AI integrations. Available for an interview this week. Massimiliano',
     subject: 'You\'ve been invited to interview — Full-Stack AI Developer',
+    subject_it: 'Sei stato invitato a un colloquio — Full-Stack AI Developer',
+    subject_es: 'Has sido invitado a una entrevista — Full-Stack AI Developer',
+    intent_it: 'Invito Upwork a colloquio per ruolo full-stack AI developer',
+    intent_es: 'Invitación Upwork a entrevista para rol full-stack AI developer',
+    ai_summary_it: 'Invito colloquio Upwork: full-stack AI dev, $75/h, 3 mesi',
+    ai_summary_es: 'Invitación entrevista Upwork: full-stack AI dev, $75/h, 3 meses',
     body_plain: 'A client has invited you to interview for "Full-Stack AI Developer" ($75/hr, 3 months). The client has a 4.9 rating and has spent $47,000 on Upwork. Respond within 48 hours to keep your response rate high.',
   },
   {
@@ -565,6 +851,12 @@ const WORK_MEDIUM: EmailSpec[] = [
     ai_summary: 'Excellent feedback: project delivered on time, client very satisfied',
     ai_suggested_reply: 'Hi David, thank you so much — it was a pleasure working with your team! I\'ll be happy to leave a 5-star review on your Upwork profile as well. Looking forward to future collaborations. Massimiliano',
     subject: 'Project feedback — great work on the e-commerce!',
+    subject_it: 'Feedback progetto — ottimo lavoro sull\'e-commerce!',
+    subject_es: 'Feedback del proyecto — ¡gran trabajo en el e-commerce!',
+    intent_it: 'Cliente invia feedback positivo sul progetto e-commerce consegnato',
+    intent_es: 'Cliente envía feedback positivo sobre el proyecto e-commerce entregado',
+    ai_summary_it: 'Feedback eccellente: progetto consegnato in tempo, cliente molto soddisfatto',
+    ai_summary_es: 'Feedback excelente: proyecto entregado a tiempo, cliente muy satisfecho',
     body_plain: 'Hi Massimiliano, I wanted to take a moment to say how impressed we are with the final result. The e-commerce platform looks great and works perfectly. You delivered on time and the code quality is excellent. I\'ll leave you a 5-star review on Upwork.',
   },
   {
@@ -577,6 +869,12 @@ const WORK_MEDIUM: EmailSpec[] = [
     ai_summary: 'Payment confirmed: $2,400 — TechVentures milestone 2 of 3',
     ai_suggested_reply: '',
     subject: 'Payment confirmed: $2,400.00 from TechVentures Inc.',
+    subject_it: 'Pagamento confermato: $2.400,00 da TechVentures Inc.',
+    subject_es: 'Pago confirmado: $2.400,00 de TechVentures Inc.',
+    intent_it: 'Conferma pagamento fattura: $2.400 da TechVentures milestone progetto AI',
+    intent_es: 'Confirmación pago factura: $2.400 de TechVentures milestone proyecto AI',
+    ai_summary_it: 'Pagamento confermato: $2.400 — TechVentures milestone 2 di 3',
+    ai_summary_es: 'Pago confirmado: $2.400 — TechVentures milestone 2 de 3',
     body_plain: 'Payment of $2,400.00 has been successfully processed from TechVentures Inc. (james@techventures.io) for milestone 2/3 of the AI Dashboard project. Funds will appear in your account within 1-2 business days.',
   },
   {
@@ -589,6 +887,12 @@ const WORK_MEDIUM: EmailSpec[] = [
     ai_summary: 'Ex-client question: rate limiting on /classify endpoint',
     ai_suggested_reply: 'Hi Tom, great to hear from you. The /classify endpoint has a default rate limit of 100 req/min per API key. You can increase it in your dashboard under Settings → API → Rate Limits. Let me know if you need any other help. Massimiliano',
     subject: 'Quick technical question about the API',
+    subject_it: 'Domanda tecnica veloce sull\'API',
+    subject_es: 'Pregunta técnica rápida sobre la API',
+    intent_it: 'Ex-cliente ha domanda tecnica sull\'integrazione API che abbiamo sviluppato',
+    intent_es: 'Ex-cliente tiene pregunta técnica sobre la integración API que desarrollamos',
+    ai_summary_it: 'Domanda ex-cliente: rate limiting sull\'endpoint /classify',
+    ai_summary_es: 'Pregunta ex-cliente: límite de velocidad en el endpoint /classify',
     body_plain: 'Hi Massimiliano, hope you\'re doing well. We\'re still using the API integration you built for us. Quick question: we\'re hitting the rate limit on the /classify endpoint. Is there a way to increase it or do we need to upgrade our plan?',
   },
   {
@@ -601,6 +905,12 @@ const WORK_MEDIUM: EmailSpec[] = [
     ai_summary: 'Testimonial request: B2B SaaS platform project, 3-4 sentences',
     ai_suggested_reply: 'Hi Claire, of course! Here\'s a testimonial: "Working with Claire\'s team at B2B SaaS was an excellent experience. Clear requirements, fast feedback cycles, and a genuine focus on business outcomes. The platform we built together has been running smoothly for 6 months with zero major issues." Use it however you like! Massimiliano',
     subject: 'Testimonial request for our website',
+    subject_it: 'Richiesta testimonianza per il nostro sito',
+    subject_es: 'Solicitud de testimonio para nuestro sitio web',
+    intent_it: 'Cliente chiede testimonianza scritta per il suo sito web',
+    intent_es: 'Cliente solicita testimonio escrito para su sitio web',
+    ai_summary_it: 'Richiesta testimonianza: piattaforma SaaS B2B, 3-4 frasi',
+    ai_summary_es: 'Solicitud testimonio: plataforma SaaS B2B, 3-4 frases',
     body_plain: 'Hi Massimiliano, we\'re updating our website and would love to include a short testimonial from you about working with us. Just 3-4 sentences about the collaboration would be perfect. No rush — whenever you have 5 minutes.',
   },
   {
@@ -613,6 +923,12 @@ const WORK_MEDIUM: EmailSpec[] = [
     ai_summary: 'Linear Pro renewal: $96/year — project management tool',
     ai_suggested_reply: '',
     subject: 'Your Linear Pro subscription has been renewed',
+    subject_it: 'Il tuo abbonamento Linear Pro è stato rinnovato',
+    subject_es: 'Tu suscripción Linear Pro ha sido renovada',
+    intent_it: 'Rinnovo abbonamento annuale Linear Pro: $96/anno',
+    intent_es: 'Renovación suscripción anual Linear Pro: $96/año',
+    ai_summary_it: 'Rinnovo Linear Pro: $96/anno — strumento gestione progetti',
+    ai_summary_es: 'Renovación Linear Pro: $96/año — herramienta de gestión de proyectos',
     body_plain: 'Your Linear Pro subscription has been renewed for another year. Amount charged: $96.00 to your card ending in 7823. Your workspace has 1 active project with 47 open issues. Thank you for being a Pro subscriber.',
   },
   {
@@ -625,6 +941,12 @@ const WORK_MEDIUM: EmailSpec[] = [
     ai_summary: 'PR review requested: #23 JWT refresh token logic — techventures/ai-dashboard',
     ai_suggested_reply: 'On it — will review by end of day. Massimiliano',
     subject: '[techventures/ai-dashboard] Review requested on PR #23',
+    subject_it: '[techventures/ai-dashboard] Richiesta review su PR #23',
+    subject_es: '[techventures/ai-dashboard] Revisión solicitada en PR #23',
+    intent_it: 'Collaboratore richiede code review su PR #23 per modulo autenticazione API',
+    intent_es: 'Colaborador solicita revisión de código en PR #23 para módulo de autenticación API',
+    ai_summary_it: 'Review richiesta PR #23: logica JWT refresh token — techventures/ai-dashboard',
+    ai_summary_es: 'Revisión solicitada PR #23: lógica JWT refresh token — techventures/ai-dashboard',
     body_plain: 'james-morrison requested your review on pull request #23: "feat: add JWT refresh token rotation". 4 files changed, 127 additions, 43 deletions. Please review before merging to main.',
   },
   {
@@ -637,6 +959,12 @@ const WORK_MEDIUM: EmailSpec[] = [
     ai_summary: 'New Upwork job: Next.js + OpenAI integration, $4,000 fixed price',
     ai_suggested_reply: 'Hi, I\'m very interested in this project. I have extensive experience with Next.js and OpenAI API integrations. Available to start immediately. Massimiliano',
     subject: 'New job invitation matches your skills — Next.js + AI',
+    subject_it: 'Nuova offerta di lavoro corrisponde alle tue competenze — Next.js + AI',
+    subject_es: 'Nueva oferta de trabajo coincide con tus habilidades — Next.js + AI',
+    intent_it: 'Nuova offerta Upwork che corrisponde alle competenze AI',
+    intent_es: 'Nueva oferta Upwork que coincide con habilidades de AI',
+    ai_summary_it: 'Nuovo lavoro Upwork: generatore contenuti AI Next.js + OpenAI, $4.000 fisso',
+    ai_summary_es: 'Nuevo trabajo Upwork: generador contenido AI Next.js + OpenAI, $4.000 fijo',
     body_plain: 'A client has posted a job that matches your skills: "Build AI-powered content generator with Next.js and OpenAI". Fixed price: $4,000. Timeline: 4 weeks. Client rating: 5.0 ⭐ (12 reviews, $180k spent).',
   },
 ]
@@ -652,6 +980,8 @@ const WORK_LOW: EmailSpec[] = [
     ai_summary: 'Upwork Weekly: AI/ML skills demand up 34%, avg rate $85/h',
     ai_suggested_reply: '',
     subject: 'Upwork Weekly Insights — AI Skills in High Demand',
+    subject_it: 'Upwork Weekly Insights — Competenze AI in alta richiesta',
+    subject_es: 'Upwork Weekly Insights — Habilidades de AI en alta demanda',
     body_plain: 'This week on Upwork: AI/ML development skills saw a 34% increase in job postings. Average hourly rate for senior AI developers reached $85/h. Top skills: Python, LangChain, Next.js, OpenAI API. Your profile is in the top 10% for AI Development.',
   },
   {
@@ -664,6 +994,8 @@ const WORK_LOW: EmailSpec[] = [
     ai_summary: 'GitHub security: lodash 4.17.20 moderate vuln — auto-PR available',
     ai_suggested_reply: '',
     subject: '[security] Dependabot alert on massiangelone/email-triage',
+    subject_it: '[sicurezza] Avviso Dependabot su massiangelone/email-triage',
+    subject_es: '[seguridad] Alerta Dependabot en massiangelone/email-triage',
     body_plain: 'Dependabot has detected a moderate severity vulnerability in lodash (4.17.20) used by massiangelone/email-triage. A pull request to update to 4.17.21 has been automatically created. Review and merge when ready.',
   },
   {
@@ -676,6 +1008,8 @@ const WORK_LOW: EmailSpec[] = [
     ai_summary: 'Stripe payout: $3,140 — 2 US clients, arriving in 2 business days',
     ai_suggested_reply: '',
     subject: 'Your Stripe payout of $3,140.00 is on its way',
+    subject_it: 'Il tuo payout Stripe di $3.140,00 è in arrivo',
+    subject_es: 'Tu pago de Stripe de $3.140,00 está en camino',
     body_plain: 'A payout of $3,140.00 has been initiated to your bank account ending in 4821. Expected arrival: 2 business days. This payout includes payments from 2 international customers processed Nov 4-10.',
   },
 ]
@@ -695,7 +1029,17 @@ const SUPPORT_HIGH: EmailSpec[] = [
     ai_summary: 'Error crítico: plataforma caída 2h, 200 clientes sin acceso, €800 presupuesto',
     ai_suggested_reply: 'Hola Carlos, entiendo la urgencia. Estoy disponible ahora mismo. Por favor comparte acceso al repositorio y los logs de error. Te contacto en 15 minutos con una primera evaluación. Massimiliano',
     subject: 'Error crítico en la plataforma — clientes afectados',
+    subject_it: 'Errore critico sulla piattaforma — clienti coinvolti',
+    subject_en: 'Critical platform error — customers affected',
     body_plain: 'Hola Massimiliano, llevamos 2 horas con la plataforma caída. Tenemos 200 clientes que no pueden acceder. ¿Puedes ayudarnos urgentemente? Presupuesto para solución inmediata: €800.',
+    body_it: 'Ciao Massimiliano, sono 2 ore che la piattaforma è giù. Abbiamo 200 clienti che non riescono ad accedere. Puoi aiutarci urgentemente? Budget per soluzione immediata: €800.',
+    body_en: 'Hi Massimiliano, our platform has been down for 2 hours. We have 200 customers who cannot access it. Can you help us urgently? Budget for immediate solution: €800.',
+    intent_it: 'Piattaforma giù da 2 ore, 200 clienti coinvolti, budget €800 per soluzione',
+    intent_en: 'Platform down 2 hours, 200 customers affected, €800 budget for solution',
+    ai_summary_it: 'Errore critico: piattaforma giù 2h, 200 clienti senza accesso, €800 budget',
+    ai_summary_en: 'Critical error: platform down 2h, 200 customers without access, €800 budget',
+    ai_suggested_reply_it: 'Ciao Carlos, capisco l\'urgenza. Sono disponibile adesso. Condividi l\'accesso al repository e i log degli errori. Ti ricontatto in 15 minuti con una prima valutazione. Massimiliano',
+    ai_suggested_reply_en: 'Hi Carlos, I understand the urgency. I\'m available right now. Please share repository access and error logs. I\'ll contact you in 15 minutes with a first assessment. Massimiliano',
   },
   {
     from_name: 'Ana García',
@@ -707,7 +1051,17 @@ const SUPPORT_HIGH: EmailSpec[] = [
     ai_summary: 'Lead app móvil React Native, €10k presupuesto, startup México',
     ai_suggested_reply: 'Buenos días Ana, muchas gracias por contactarme. React Native con AI es mi especialidad. ¿Podríamos agendar una llamada esta semana para definir los requisitos del proyecto? Estoy disponible martes o jueves por la tarde. Saludos, Massimiliano',
     subject: 'Propuesta proyecto — App móvil €10k',
+    subject_it: 'Proposta progetto — App mobile €10k',
+    subject_en: 'Project proposal — Mobile app €10k',
     body_plain: 'Buenos días, encontré tu perfil en LinkedIn y me impresionaron tus proyectos de AI. Necesitamos desarrollar una app móvil con React Native para nuestro negocio de logística. Presupuesto: €10.000. ¿Disponible para una llamada esta semana?',
+    body_it: 'Buongiorno, ho trovato il tuo profilo su LinkedIn e mi hanno impressionato i tuoi progetti AI. Abbiamo bisogno di sviluppare un\'app mobile con React Native per la nostra azienda di logistica. Budget: €10.000. Disponibile per una call questa settimana?',
+    body_en: 'Good morning, I found your profile on LinkedIn and was impressed by your AI projects. We need to develop a mobile app with React Native for our logistics business. Budget: €10,000. Available for a call this week?',
+    intent_it: 'Startup messicana propone sviluppo app mobile React Native con budget €10k',
+    intent_en: 'Mexican startup proposes React Native mobile app development with €10k budget',
+    ai_summary_it: 'Lead app mobile React Native, €10k budget, startup Messico',
+    ai_summary_en: 'React Native mobile app lead, €10k budget, Mexican startup',
+    ai_suggested_reply_it: 'Buongiorno Ana, grazie per avermi contattato. React Native con AI è la mia specializzazione. Potremmo programmare una call questa settimana per definire i requisiti del progetto? Sono disponibile martedì o giovedì pomeriggio. Cordiali saluti, Massimiliano',
+    ai_suggested_reply_en: 'Good morning Ana, thank you for contacting me. React Native with AI is my specialty. Could we schedule a call this week to define the project requirements? I\'m available Tuesday or Thursday afternoon. Best regards, Massimiliano',
   },
   {
     from_name: 'Roberto Silva',
@@ -719,7 +1073,17 @@ const SUPPORT_HIGH: EmailSpec[] = [
     ai_summary: 'Integración AI urgente: clasificación documentos para cliente enterprise Colombia',
     ai_suggested_reply: 'Hola Roberto, con tan poco tiempo necesito entender el alcance exacto del trabajo. ¿Puedes compartir más detalles sobre la integración de AI que necesitan? ¿Qué tipo de documentos, qué volumen y qué output esperan? Así evalúo si es factible para mañana. Massimiliano',
     subject: 'Colaboración urgente — cliente importante AI',
+    subject_it: 'Collaborazione urgente — cliente importante AI',
+    subject_en: 'Urgent collaboration — important AI client',
     body_plain: 'Hola, somos una agencia creativa en Colombia. Tenemos un cliente enterprise que necesita integración de AI para clasificación automática de documentos. El cliente necesita una demo para mañana. ¿Puedes ayudar?',
+    body_it: 'Ciao, siamo un\'agenzia creativa in Colombia. Abbiamo un cliente enterprise che ha bisogno di un\'integrazione AI per la classificazione automatica di documenti. Il cliente ha bisogno di una demo per domani. Puoi aiutare?',
+    body_en: 'Hi, we are a creative agency in Colombia. We have an enterprise client that needs AI integration for automatic document classification. The client needs a demo for tomorrow. Can you help?',
+    intent_it: 'Agenzia colombiana ha bisogno di integrazione AI urgente per cliente importante',
+    intent_en: 'Colombian agency needs urgent AI integration for important enterprise client',
+    ai_summary_it: 'Integrazione AI urgente: classificazione documenti per cliente enterprise Colombia',
+    ai_summary_en: 'Urgent AI integration: document classification for Colombian enterprise client',
+    ai_suggested_reply_it: 'Ciao Roberto, con così poco tempo ho bisogno di capire l\'esatto scopo del lavoro. Puoi condividere più dettagli sull\'integrazione AI? Che tipo di documenti, che volume e quale output si aspettano? Così valuto se è fattibile per domani. Massimiliano',
+    ai_suggested_reply_en: 'Hi Roberto, with so little time I need to understand the exact scope of the work. Can you share more details about the AI integration? What type of documents, what volume, and what output do they expect? This way I can assess if it\'s feasible for tomorrow. Massimiliano',
   },
 ]
 
@@ -734,6 +1098,12 @@ const SUPPORT_MEDIUM: EmailSpec[] = [
     ai_summary: 'Follow-up presupuesto portal RRHH: €6.500, aún esperando respuesta',
     ai_suggested_reply: 'Hola Miguel, el presupuesto de €6.500 para el portal de RRHH sigue vigente. Incluye módulo de vacaciones, control horario y generación de nóminas en PDF. ¿Han tomado una decisión? Podría empezar la próxima semana. Saludos, Massimiliano',
     subject: 'Re: presupuesto portal RRHH — ¿alguna novedad?',
+    subject_it: 'Re: preventivo portale HR — qualche novità?',
+    subject_en: 'Re: HR portal quote — any news?',
+    intent_it: 'Follow-up preventivo inviato 10 giorni fa, cliente chiede aggiornamento',
+    intent_en: 'Follow-up on quote sent 10 days ago, client requests update',
+    ai_summary_it: 'Follow-up preventivo portale HR: €6.500, ancora in attesa risposta',
+    ai_summary_en: 'Follow-up HR portal quote: €6,500, still awaiting reply',
     body_plain: 'Hola Massimiliano, hace 10 días recibimos tu presupuesto para el portal de gestión de RRHH. Hemos estado evaluando opciones. ¿El presupuesto sigue siendo válido? ¿Cuándo podrías empezar si lo aprobamos?',
   },
   {
@@ -746,6 +1116,12 @@ const SUPPORT_MEDIUM: EmailSpec[] = [
     ai_summary: 'Kickoff CRM: jueves 15:00 CDMX (22:00 CET) — 5 participantes',
     ai_suggested_reply: 'Hola Laura, confirmado para el jueves a las 15:00 hora de México (22:00 CET para mí). Antes de la reunión compárteme el organigrama del equipo y los procesos actuales de gestión de clientes. Así llegamos más preparados. Massimiliano',
     subject: 'Kickoff meeting proyecto CRM — confirmación',
+    subject_it: 'Kickoff meeting progetto CRM — conferma',
+    subject_en: 'CRM project kickoff meeting — confirmation',
+    intent_it: 'Coordinamento kickoff meeting progetto CRM per consulente messicana',
+    intent_en: 'CRM project kickoff meeting coordination for Mexican consultancy',
+    ai_summary_it: 'Kickoff CRM: giovedì 15:00 CDMX (22:00 CET) — 5 partecipanti',
+    ai_summary_en: 'CRM kickoff: Thursday 15:00 CDMX (22:00 CET) — 5 participants',
     body_plain: 'Hola Massimiliano, ¿podemos hacer el kickoff del proyecto CRM el jueves a las 3pm hora de México? Participarán el director comercial, dos vendedores y el equipo de TI. Queremos arrancar cuanto antes.',
   },
   {
@@ -758,6 +1134,12 @@ const SUPPORT_MEDIUM: EmailSpec[] = [
     ai_summary: 'Feedback excelente tienda online Chile: +31% ventas. Solicita mantenimiento €250/mes',
     ai_suggested_reply: 'Hola Pedro, ¡excelente noticia! +31% en ventas es un resultado fantástico. Para el mantenimiento mensual propongo €250/mes que incluye actualizaciones, monitoreo y 3 horas de modificaciones. ¿Te parece bien? Massimiliano',
     subject: 'Feedback proyecto + mantenimiento mensual',
+    subject_it: 'Feedback progetto + manutenzione mensile',
+    subject_en: 'Project feedback + monthly maintenance',
+    intent_it: 'Cliente cileno molto soddisfatto, richiede piano manutenzione mensile',
+    intent_en: 'Satisfied Chilean client requests monthly maintenance plan',
+    ai_summary_it: 'Feedback eccellente tienda online Cile: +31% vendite. Richiede manutenzione €250/mese',
+    ai_summary_en: 'Excellent feedback Chilean online store: +31% sales. Requests maintenance €250/month',
     body_plain: 'Hola Massimiliano, quería contarte que desde que lanzamos la nueva tienda las ventas han subido un 31%. Los clientes navegan mucho más fácil. ¿Tienes un plan de mantenimiento mensual? No queremos perder el contacto contigo.',
   },
   {
@@ -770,6 +1152,12 @@ const SUPPORT_MEDIUM: EmailSpec[] = [
     ai_summary: 'Solicitud referencia: proyecto e-commerce moda, resultados y metodología',
     ai_suggested_reply: 'Hola Isabella, por supuesto. Aquí una referencia breve: "Massimiliano Angelone desarrolló nuestra plataforma e-commerce en 8 semanas, dentro del presupuesto y con calidad excelente. Código limpio, comunicación fluida y resolución rápida de problemas." Úsala libremente. Massimiliano',
     subject: 'Solicitud de referencia profesional',
+    subject_it: 'Richiesta di referenza professionale',
+    subject_en: 'Professional reference request',
+    intent_it: 'Agenzia colombiana richiede referenza professionale per cliente enterprise',
+    intent_en: 'Colombian agency requests professional reference for enterprise client',
+    ai_summary_it: 'Richiesta referenza: progetto e-commerce moda, risultati e metodologia',
+    ai_summary_en: 'Reference request: fashion e-commerce project, results and methodology',
     body_plain: 'Hola Massimiliano, estamos licitando un proyecto grande con un cliente enterprise y nos piden referencias de desarrolladores con los que hemos trabajado. ¿Podrías escribirnos una breve referencia sobre nuestra colaboración?',
   },
   {
@@ -782,6 +1170,12 @@ const SUPPORT_MEDIUM: EmailSpec[] = [
     ai_summary: 'Consulta técnica: integración MercadoPago en Next.js — ex cliente',
     ai_suggested_reply: 'Hola Diego, sí, tengo experiencia con MercadoPago. Para Next.js la integración más limpia es usando el SDK oficial con webhooks para confirmación de pagos. El proceso toma 2-3 días. ¿Quieres que te prepare un presupuesto? Massimiliano',
     subject: 'Consulta técnica — integración MercadoPago',
+    subject_it: 'Consulenza tecnica — integrazione MercadoPago',
+    subject_en: 'Technical question — MercadoPago integration',
+    intent_it: 'Ex-cliente argentino chiede informazioni sull\'integrazione pagamenti locali MercadoPago',
+    intent_en: 'Argentine ex-client asks about MercadoPago local payment integration',
+    ai_summary_it: 'Consulenza tecnica: integrazione MercadoPago in Next.js — ex cliente',
+    ai_summary_en: 'Technical consultation: MercadoPago integration in Next.js — ex-client',
     body_plain: 'Hola Massimiliano, espero que estés bien. Necesito integrar MercadoPago en el sitio que me hiciste. Tenemos muchos clientes argentinos que prefieren pagar con MercadoPago. ¿Tienes experiencia con esa plataforma?',
   },
 ]
@@ -797,6 +1191,8 @@ const SUPPORT_LOW: EmailSpec[] = [
     ai_summary: 'Newsletter TecnoEmpresa: IA en PYMEs, automatización RPA, cloud adoption España',
     ai_suggested_reply: '',
     subject: 'TecnoEmpresa — IA en las PYMEs españolas: estado actual',
+    subject_it: 'TecnoEmpresa — AI nelle PMI spagnole: stato attuale',
+    subject_en: 'TecnoEmpresa — AI in Spanish SMEs: current status',
     body_plain: 'En este número: cómo están adoptando la IA las pequeñas y medianas empresas españolas, casos de éxito de automatización RPA, y los 5 errores más comunes al migrar al cloud. Además: entrevista con el CTO de una startup de Barcelona que triplicó su productividad con IA.',
   },
   {
@@ -809,7 +1205,11 @@ const SUPPORT_LOW: EmailSpec[] = [
     ai_summary: 'Pago confirmado: €1.800 depósito inicial proyecto CRM — Consultoría México',
     ai_suggested_reply: '',
     subject: 'Pago recibido: €1.800,00 de Laura Sánchez',
+    subject_it: 'Pagamento ricevuto: €1.800,00 da Laura Sánchez',
+    subject_en: 'Payment received: €1,800.00 from Laura Sánchez',
     body_plain: 'Se ha recibido un pago de €1.800,00 de Laura Sánchez (l.sanchez@consultoramexico.com) como depósito inicial para el proyecto CRM. Los fondos estarán disponibles en tu cuenta de Stripe en 2 días hábiles.',
+    body_it: 'È stato ricevuto un pagamento di €1.800,00 da Laura Sánchez (l.sanchez@consultoramexico.com) come deposito iniziale per il progetto CRM. I fondi saranno disponibili sul tuo account Stripe entro 2 giorni lavorativi.',
+    body_en: 'A payment of €1,800.00 has been received from Laura Sánchez (l.sanchez@consultoramexico.com) as initial deposit for the CRM project. Funds will be available in your Stripe account within 2 business days.',
   },
 ]
 
@@ -818,7 +1218,7 @@ async function seed() {
 
   // Delete existing emails (idempotent re-run)
   const { error: deleteError } = await supabase
-    .from('emails')
+    .from('emails_mock')
     .delete()
     .eq('user_id', USER_ID)
   if (deleteError) {
@@ -855,25 +1255,34 @@ async function seed() {
     process.stdout.write('gmail_accounts rows upserted (3 accounts)\n')
   }
 
-  // Upsert users_settings with classification rules for primary account
+  // Upsert users_settings — classification_rules keyed by account_id
   const { error: settingsError } = await supabase.from('users_settings').upsert({
     user_id: USER_ID,
     email_address: USER_ID,
     google_refresh_token: null,
-    classification_rules: [
-      { from_contains: 'fileni.it', force_priority: 'high' },
-      { from_contains: 'rai.it', force_priority: 'high' },
-    ],
+    classification_rules: {
+      [ACCOUNT_PRIMARY]: [
+        { from_contains: 'fileni.it', force_priority: 'high' },
+        { from_contains: 'rai.it', force_priority: 'high' },
+      ],
+      [ACCOUNT_WORK]: [],
+      [ACCOUNT_SUPPORT]: [
+        { from_contains: 'empresatech.es', force_priority: 'high' },
+        { from_contains: '@agencia', force_priority: 'medium' },
+        { from_contains: 'newsletter', force_priority: 'low' },
+      ],
+    },
     active_account_id: ACCOUNT_PRIMARY,
   })
   if (settingsError) {
     process.stderr.write(`Failed to upsert users_settings: ${settingsError.message}\n`)
     process.exit(1)
   }
-  process.stdout.write('users_settings row created (active_account_id = account-001, 2 rules)\n')
+  process.stdout.write('users_settings row created (rules per account: 2/0/3)\n')
 
   function makeRows(specs: EmailSpec[], accountId: string, prefix: string, daysAgo: number) {
     return specs.map((spec, i) => ({
+      id: randomUUID(),
       user_id: USER_ID,
       account_id: accountId,
       gmail_message_id: `mock-${prefix}-${i + 1}-${Date.now()}`,
@@ -881,15 +1290,30 @@ async function seed() {
       from_address: spec.from_address,
       from_name: spec.from_name,
       subject: spec.subject,
+      subject_it: spec.subject_it ?? spec.subject,
+      subject_en: spec.subject_en ?? spec.subject,
+      subject_es: spec.subject_es ?? spec.subject,
       snippet: spec.body_plain.slice(0, 100),
       body_plain: spec.body_plain,
+      body_it: spec.body_it ?? spec.body_plain,
+      body_en: spec.body_en ?? spec.body_plain,
+      body_es: spec.body_es ?? spec.body_plain,
       received_at: randomDate(daysAgo),
       priority: spec.priority,
       category: spec.category,
       urgency_hours: spec.urgency_hours,
       intent: spec.intent,
+      intent_it: spec.intent_it ?? spec.intent,
+      intent_en: spec.intent_en ?? spec.intent,
+      intent_es: spec.intent_es ?? spec.intent,
       ai_summary: spec.ai_summary,
+      ai_summary_it: spec.ai_summary_it ?? spec.ai_summary,
+      ai_summary_en: spec.ai_summary_en ?? spec.ai_summary,
+      ai_summary_es: spec.ai_summary_es ?? spec.ai_summary,
       ai_suggested_reply: spec.ai_suggested_reply,
+      ai_suggested_reply_it: spec.ai_suggested_reply_it ?? spec.ai_suggested_reply,
+      ai_suggested_reply_en: spec.ai_suggested_reply_en ?? spec.ai_suggested_reply,
+      ai_suggested_reply_es: spec.ai_suggested_reply_es ?? spec.ai_suggested_reply,
       is_processed: true,
       is_handled: false,
     }))
@@ -904,7 +1328,7 @@ async function seed() {
   const supportRows = makeRows(supportSpecs, ACCOUNT_SUPPORT, 'support', 14)
 
   const allRows = [...primaryRows, ...workRows, ...supportRows]
-  const { error: emailsError } = await supabase.from('emails').insert(allRows)
+  const { error: emailsError } = await supabase.from('emails_mock').insert(allRows)
   if (emailsError) {
     process.stderr.write(`Failed to insert emails: ${emailsError.message}\n`)
     process.exit(1)

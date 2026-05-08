@@ -1,7 +1,7 @@
 'use server'
 import { getAppSession } from '@/lib/auth/get-session'
 import { ClassificationRulesSchema } from '@/lib/validations/settings'
-import { saveClassificationRules } from '@/lib/db/settings'
+import { getUserSettings, saveClassificationRules } from '@/lib/db/settings'
 import { deleteAccount } from '@/lib/db/gmail-accounts'
 import {
   fetchMessages,
@@ -134,6 +134,7 @@ export async function sendEmailAction(
 }
 
 export async function saveRulesAction(
+  accountId: string,
   rulesJson: string,
 ): Promise<{ success: boolean; error?: string }> {
   const session = await getAppSession()
@@ -146,7 +147,9 @@ export async function saveRulesAction(
   }
   const result = ClassificationRulesSchema.safeParse(parsed)
   if (!result.success) return { success: false, error: 'Struttura regole non valida' }
-  await saveClassificationRules(session.user.email, result.data)
+  const settings = await getUserSettings(session.user.email)
+  const updatedMap = { ...settings.classification_rules, [accountId]: result.data }
+  await saveClassificationRules(session.user.email, updatedMap)
   return { success: true }
 }
 
