@@ -40,13 +40,13 @@ async function streamReply(
 
 const PRIORITY_BORDER: Record<string, string> = {
   high: 'border-l-4 border-l-red-500',
-  medium: 'border-l-4 border-l-yellow-500',
+  medium: 'border-l-4 border-l-amber-500',
   low: 'border-l-4 border-l-white/20',
 }
 
 const PRIORITY_CHIP: Record<string, string> = {
   high: 'bg-red-500/20 text-red-400 border border-red-500/30',
-  medium: 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30',
+  medium: 'bg-amber-500/20 text-amber-400 border border-amber-500/30',
   low: 'bg-white/5 text-white/40 border border-white/10',
   spam: 'bg-white/5 text-white/40 border border-white/10',
 }
