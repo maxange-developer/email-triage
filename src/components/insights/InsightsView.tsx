@@ -100,7 +100,7 @@ export default function InsightsView({
               href={`/app/insights?days=${d}`}
               className={`h-9 px-4 text-xs font-semibold uppercase tracking-wider border transition-all duration-200 flex items-center ${
                 days === d
-                  ? 'border-neon-green bg-neon-green text-black'
+                  ? 'border-neon-green bg-neon-green text-white'
                   : 'border-white/20 text-white/60 hover:border-neon-green hover:text-white'
               }`}
             >

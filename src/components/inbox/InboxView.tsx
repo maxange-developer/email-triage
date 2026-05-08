@@ -132,7 +132,7 @@ export default function InboxView({ initialEmails, userId }: InboxViewProps) {
             onClick={handleSync}
             disabled={syncing}
             aria-label={syncing ? 'Syncing...' : 'Sync emails'}
-            className="h-9 px-4 border-2 border-neon-green text-white text-xs font-semibold uppercase tracking-wider relative overflow-hidden hover:text-black transition-all duration-300 group disabled:opacity-50"
+            className="h-9 px-4 border-2 border-neon-green text-white text-xs font-semibold uppercase tracking-wider relative overflow-hidden hover:text-white transition-all duration-300 group disabled:opacity-50"
           >
             <span className="absolute inset-0 bg-neon-green scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
             <span className="relative z-10 flex items-center gap-1.5">

@@ -126,7 +126,7 @@ export default function LoginPage() {
             {/* Connect button */}
             <button
               onClick={handleSignIn}
-              className="w-full h-12 border-2 border-neon-green text-white text-sm font-semibold uppercase tracking-wider relative overflow-hidden hover:text-black transition-all duration-300 group mt-6"
+              className="w-full h-12 border-2 border-neon-green text-white text-sm font-semibold uppercase tracking-wider relative overflow-hidden hover:text-white transition-all duration-300 group mt-6"
             >
               <span className="absolute inset-0 bg-neon-green scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
               <span className="relative z-10">{t.login.cta}</span>
