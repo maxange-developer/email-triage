@@ -141,8 +141,8 @@ export default function InsightsView({
                   />
                   <Tooltip content={<VolumeTooltip />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
                   <Bar dataKey="high" stackId="a" fill="#ef4444" name="High" />
-                  <Bar dataKey="medium" stackId="a" fill="#eab308" name="Medium" />
-                  <Bar dataKey="low" stackId="a" fill="rgba(255,255,255,0.2)" name="Low" />
+                  <Bar dataKey="medium" stackId="a" fill="#f59e0b" name="Medium" />
+                  <Bar dataKey="low" stackId="a" fill="rgba(255,255,255,0.25)" name="Low" />
                 </BarChart>
               </ResponsiveContainer>
             </div>

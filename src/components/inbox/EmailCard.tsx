@@ -15,7 +15,7 @@ interface EmailCardProps {
 
 const PRIORITY_BORDER: Record<string, string> = {
   high: 'border-l-4 border-l-red-500',
-  medium: 'border-l-4 border-l-yellow-500',
+  medium: 'border-l-4 border-l-amber-500',
   low: 'border-l-4 border-l-white/20',
 }
 

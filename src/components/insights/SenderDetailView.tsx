@@ -7,14 +7,14 @@ import { useI18n } from '@/i18n/client'
 
 const PRIORITY_BORDER: Record<string, string> = {
   high: 'border-l-red-500',
-  medium: 'border-l-yellow-500',
+  medium: 'border-l-amber-500',
   low: 'border-l-white/20',
   spam: 'border-l-white/10',
 }
 
 const PRIORITY_BADGE: Record<string, string> = {
   high: 'bg-red-500/20 text-red-400 border border-red-500/30',
-  medium: 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30',
+  medium: 'bg-amber-500/20 text-amber-400 border border-amber-500/30',
   low: 'bg-white/5 text-white/40 border border-white/10',
   spam: 'bg-white/5 text-white/30 border border-white/10',
 }
@@ -80,8 +80,8 @@ export default function SenderDetailView({
       {/* Stat cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard label={t.insights.totalEmails} value={stats.total} />
-        <StatCard label="High priority" value={`${highPct}%`} />
-        <StatCard label="Top category" value={stats.topCategory?.replace(/_/g, ' ') ?? '—'} />
+        <StatCard label={t.insights.highPriority} value={`${highPct}%`} />
+        <StatCard label={t.insights.topCategory} value={stats.topCategory?.replace(/_/g, ' ') ?? '—'} />
         <StatCard label={t.insights.avgUrgency} value={`${stats.avgUrgencyHours}h`} />
       </div>
 
@@ -89,7 +89,7 @@ export default function SenderDetailView({
       <div className="glass border-2 border-white/10">
         <div className="px-5 py-4 border-b border-white/10">
           <h3 className="text-xs font-semibold text-white/40 uppercase tracking-widest">
-            Emails
+            {t.insights.emailList}
           </h3>
         </div>
         {emails.length === 0 ? (
