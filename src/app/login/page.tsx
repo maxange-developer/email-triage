@@ -41,11 +41,11 @@ export default function LoginPage() {
         <div className="glass border border-neon-green/30 w-full max-w-md p-8 animate-fade-up space-y-6">
           {/* Logo */}
           <Image
-            src="/images/logo-angel1.webp"
+            src="/images/logo-a1-w.webp"
             alt="Angel1"
             width={180}
             height={72}
-            className="object-contain w-auto mx-auto my-0"
+            className="object-contain w-auto mx-auto mb-6 mt-3"
             priority
           />
 

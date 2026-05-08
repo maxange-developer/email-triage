@@ -39,7 +39,7 @@ export function SidebarNav({ onNavigate }: SidebarNavProps) {
       {/* Logo */}
       <div className="h-16 flex items-center justify-center border-b border-white/10 shrink-0">
         <Image
-          src="/images/logo-angel1.webp"
+          src="/images/logo-a1-w.webp"
           alt="Angel1"
           width={120}
           height={48}
