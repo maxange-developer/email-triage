@@ -16,7 +16,9 @@
     "noEmails": "Sin correos",
     "noResults": "Sin resultados para",
     "done": "Hecho",
-    "classifying": "Clasificación en curso..."
+    "classifying": "Clasificación en curso...",
+    "syncComplete": "Sincronización completada",
+    "syncError": "Error de sincronización"
   },
   "insights": {
     "title": "Análisis",
@@ -31,13 +33,27 @@
     "sender": "Remitente",
     "email": "Correo",
     "total": "Total",
-    "date": "Fecha"
+    "date": "Fecha",
+    "highPriority": "Prioridad alta",
+    "topCategory": "Categoría principal",
+    "emailList": "Correos"
   },
   "settings": {
     "title": "Configuración",
     "account": "Cuenta",
     "connectedEmail": "Correo conectado",
+    "connectedAccounts": "Cuentas conectadas",
+    "primary": "Principal",
+    "active": "Activa",
+    "switchAccount": "Cambiar",
+    "removeAccount": "Eliminar",
+    "addAccount": "Añadir cuenta",
+    "rulesFor": "Reglas para",
     "disconnect": "Desconectar",
+    "demoNotAvailable": "No disponible en modo demo",
+    "accountRemoved": "Cuenta eliminada",
+    "rulesSaved": "Reglas guardadas",
+    "syncComplete": "Sincronización completa",
     "classificationRules": "Reglas de clasificación",
     "rulesDescription": "Los correos que coincidan con estas reglas tendrán su prioridad sobreescrita.",
     "ifFromContains": "Si el remitente contiene",
@@ -63,13 +79,41 @@
     "send": "Enviar por Gmail",
     "sending": "Enviando...",
     "aiSummary": "Resumen AI",
-    "back": "Bandeja de entrada"
+    "aiSummaryLabel": "Resumen AI:",
+    "back": "Bandeja de entrada",
+    "sent": "Correo enviado",
+    "sendFailed": "Error al enviar",
+    "generateError": "Error al generar la respuesta",
+    "copied": "¡Copiado!",
+    "replyPlaceholder": "La respuesta generada aparecerá aquí...",
+    "subjectLabel": "Asunto",
+    "subjectPlaceholder": "Re: ..."
   },
   "auth": {
     "signOut": "Cerrar sesión",
     "signIn": "Iniciar sesión con Google",
     "title": "Email Triage",
     "subtitle": "Gestión inteligente del correo con IA"
+  },
+  "modal": {
+    "title": "Añadir cuenta Gmail",
+    "oauthTitle": "Conexión OAuth segura",
+    "oauthDesc": "Solicitamos acceso de lectura y envío a tu Gmail. Puedes revocar el acceso en cualquier momento desde la configuración de Google.",
+    "permissionsLabel": "Permisos solicitados",
+    "permissions": ["Leer tus correos", "Enviar correos en tu nombre", "Acceder a las etiquetas de Gmail"],
+    "cta": "Conectar con Google",
+    "privacy": "Solo accedemos a tus correos. No se comparte ningún dato.",
+    "demoLimit": {
+      "eyebrow": "MODO DEMO",
+      "title": "Tres cuentas, por ahora.",
+      "body": "Esta demo incluye 3 cuentas de Gmail preconfiguradas para mostrar la experiencia multi-cuenta. En la app completa puedes conectar cualquier número de cuentas de Gmail vía OAuth — cada una con reglas de clasificación y respuestas AI independientes.",
+      "viewSource": "Ver fuente",
+      "close": "Cerrar"
+    }
+  },
+  "switcher": {
+    "accounts": "Cuentas",
+    "addAccount": "Añadir cuenta"
   },
   "login": {
     "title": "Email Triage",
@@ -87,6 +131,12 @@
     "demo_label": "o",
     "demo_cta": "Entrar a la Demo (sin login)",
     "demo_note": "Solo vista previa — sin datos reales",
-    "privacy": "Solo accedemos a tus correos. No se comparte ningún dato."
+    "privacy": "Solo accedemos a tus correos. No se comparte ningún dato.",
+    "demo_primary_cta": "Entrar a la demo",
+    "demo_description": "Una demo en vivo de una herramienta de triage de Gmail con IA. Sin registro — explora con datos de ejemplo en varias cuentas e idiomas.",
+    "demo_features_label": "Lo que puedes probar",
+    "demo_feature_1": "Clasificación IA en 3 bandejas de ejemplo",
+    "demo_feature_2": "Soporte multilingüe (EN · IT · ES)",
+    "demo_feature_3": "Analytics en tiempo real y borradores de respuesta"
   }
 }

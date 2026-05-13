@@ -16,7 +16,9 @@
     "noEmails": "No emails",
     "noResults": "No results for",
     "done": "Done",
-    "classifying": "Classification in progress..."
+    "classifying": "Classification in progress...",
+    "syncComplete": "Sync complete",
+    "syncError": "Sync failed"
   },
   "insights": {
     "title": "Insights",
@@ -31,13 +33,27 @@
     "sender": "Sender",
     "email": "Email",
     "total": "Total",
-    "date": "Date"
+    "date": "Date",
+    "highPriority": "High priority",
+    "topCategory": "Top category",
+    "emailList": "Emails"
   },
   "settings": {
     "title": "Settings",
     "account": "Account",
     "connectedEmail": "Connected email",
+    "connectedAccounts": "Connected Accounts",
+    "primary": "Primary",
+    "active": "Active",
+    "switchAccount": "Switch",
+    "removeAccount": "Remove",
+    "addAccount": "Add Account",
+    "rulesFor": "Rules for",
     "disconnect": "Disconnect",
+    "demoNotAvailable": "Not available in demo mode",
+    "accountRemoved": "Account removed",
+    "rulesSaved": "Rules saved",
+    "syncComplete": "Sync complete",
     "classificationRules": "Classification Rules",
     "rulesDescription": "Emails matching these rules will have their priority overridden.",
     "ifFromContains": "If from contains",
@@ -63,13 +79,41 @@
     "send": "Send via Gmail",
     "sending": "Sending...",
     "aiSummary": "AI Summary",
-    "back": "Inbox"
+    "aiSummaryLabel": "AI Summary:",
+    "back": "Inbox",
+    "sent": "Email sent",
+    "sendFailed": "Send failed",
+    "generateError": "Error generating reply",
+    "copied": "Copied!",
+    "replyPlaceholder": "Generated reply will appear here...",
+    "subjectLabel": "Subject",
+    "subjectPlaceholder": "Re: ..."
   },
   "auth": {
     "signOut": "Sign out",
     "signIn": "Sign in with Google",
     "title": "Email Triage",
     "subtitle": "AI-powered Gmail inbox triage"
+  },
+  "modal": {
+    "title": "Add Gmail Account",
+    "oauthTitle": "Secure OAuth connection",
+    "oauthDesc": "We request read + send access to your Gmail. You can revoke access anytime from Google settings.",
+    "permissionsLabel": "Permissions requested",
+    "permissions": ["Read your emails", "Send emails on your behalf", "Access Gmail labels"],
+    "cta": "Connect with Google",
+    "privacy": "Only your emails are accessed. No data is shared.",
+    "demoLimit": {
+      "eyebrow": "DEMO MODE",
+      "title": "Three accounts, for now.",
+      "body": "This demo includes 3 pre-configured Gmail accounts to showcase the multi-account experience. In the full app, you can connect any number of Gmail accounts via OAuth — each with independent classification rules and AI replies.",
+      "viewSource": "View source",
+      "close": "Close"
+    }
+  },
+  "switcher": {
+    "accounts": "Accounts",
+    "addAccount": "Add account"
   },
   "login": {
     "title": "Email Triage",
@@ -87,6 +131,12 @@
     "demo_label": "or",
     "demo_cta": "Enter Demo (no login required)",
     "demo_note": "Preview only — no real data",
-    "privacy": "Only your emails are accessed. No data is shared."
+    "privacy": "Only your emails are accessed. No data is shared.",
+    "demo_primary_cta": "Enter demo",
+    "demo_description": "A live demo of an AI-powered Gmail triage tool. No signup required — explore with sample data across multiple accounts and languages.",
+    "demo_features_label": "What you can try",
+    "demo_feature_1": "AI classification across 3 mock inboxes",
+    "demo_feature_2": "Multi-language support (EN · IT · ES)",
+    "demo_feature_3": "Real-time analytics and reply drafting"
   }
 }
