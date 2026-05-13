@@ -1,6 +1,6 @@
-﻿'use client'
+'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useEffect, useTransition } from 'react'
 import { ArrowLeft, Copy, Send, RefreshCw } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
@@ -9,17 +9,19 @@ import { formatRelative } from '@/lib/utils/time'
 import { sendEmailAction } from '@/app/app/actions'
 import { useI18n } from '@/i18n/client'
 import { getLocalizedEmail } from '@/lib/utils/email-locale'
+import { buildReplySubject } from '@/lib/utils/reply-subject'
 import { CustomSelect } from '@/components/ui/custom-select'
 
 async function streamReply(
   emailId: string,
   tone: string,
+  locale: string,
   onChunk: (t: string) => void,
 ): Promise<void> {
   const res = await fetch(`/api/emails/${emailId}/suggest-reply`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ tone }),
+    body: JSON.stringify({ tone, locale }),
   })
   if (!res.ok || !res.body) throw new Error('Stream failed')
   const reader = res.body.getReader()
@@ -39,16 +41,16 @@ async function streamReply(
 }
 
 const PRIORITY_BORDER: Record<string, string> = {
-  high: 'border-l-4 border-l-red-500',
-  medium: 'border-l-4 border-l-amber-500',
-  low: 'border-l-4 border-l-white/20',
+  high: 'border-l-[3px] border-l-[var(--priority-high)]',
+  medium: 'border-l-[3px] border-l-[var(--priority-medium)]',
+  low: 'border-l-[3px] border-l-[var(--ink-4)]',
 }
 
 const PRIORITY_CHIP: Record<string, string> = {
-  high: 'bg-red-500/20 text-red-400 border border-red-500/30',
-  medium: 'bg-amber-500/20 text-amber-400 border border-amber-500/30',
-  low: 'bg-white/5 text-white/40 border border-white/10',
-  spam: 'bg-white/5 text-white/40 border border-white/10',
+  high: 'bg-[var(--priority-high-bg)] border border-[var(--priority-high)]/40 text-[var(--priority-high)]',
+  medium: 'bg-[var(--priority-medium-bg)] border border-[var(--priority-medium)]/40 text-[var(--priority-medium)]',
+  low: 'bg-transparent border border-[var(--hairline)] text-[var(--ink-3)]',
+  spam: 'bg-transparent border border-[var(--hairline)] text-[var(--ink-3)]',
 }
 
 export default function EmailDetail({ email: rawEmail }: { email: EmailRow }) {
@@ -56,6 +58,9 @@ export default function EmailDetail({ email: rawEmail }: { email: EmailRow }) {
   const { t, locale } = useI18n()
   const email = getLocalizedEmail(rawEmail, locale)
   const [reply, setReply] = useState('')
+  const [replySubject, setReplySubject] = useState<string>(() =>
+    buildReplySubject(email.subject),
+  )
   const [tone, setTone] = useState('professional')
   const [streaming, setStreaming] = useState(false)
   const [sending, setSending] = useState(false)
@@ -63,11 +68,24 @@ export default function EmailDetail({ email: rawEmail }: { email: EmailRow }) {
 
   const priorityBorder = email.priority ? (PRIORITY_BORDER[email.priority] ?? '') : ''
 
+  // Map i18n locale ('gb') to email locale column ('en')
+  const apiLocale = locale === 'gb' ? 'en' : locale
+
+  // Rebuild subject when email or its localized subject changes
+  useEffect(() => {
+    setReplySubject(buildReplySubject(email.subject))
+  }, [email.id, email.subject])
+
+  // Clear stale generated reply when locale changes (was generated in previous language)
+  useEffect(() => {
+    setReply('')
+  }, [locale])
+
   async function handleGenerate() {
     setReply('')
     setStreaming(true)
     try {
-      await streamReply(email.id, tone, (chunk) => setReply((prev) => prev + chunk))
+      await streamReply(email.id, tone, apiLocale, (chunk) => setReply((prev) => prev + chunk))
     } catch {
       toast.error(t.email.generateError)
     } finally {
@@ -80,9 +98,10 @@ export default function EmailDetail({ email: rawEmail }: { email: EmailRow }) {
       setSending(true)
       const result = await sendEmailAction({
         to: email.from_address ?? '',
-        subject: email.subject ?? '',
+        subject: replySubject,
         body: reply,
         threadId: email.thread_id ?? undefined,
+        inReplyTo: email.gmail_message_id ?? undefined,
       })
       setSending(false)
       if (result.success) toast.success(t.email.sent)
@@ -90,63 +109,101 @@ export default function EmailDetail({ email: rawEmail }: { email: EmailRow }) {
     })
   }
 
+  const monoFont = { fontFamily: "var(--font-mono)" }
+  const serifFont = { fontFamily: "var(--font-serif)" }
+
   return (
-    <div className="space-y-6 animate-fade-up">
-      {/* Back button — Angel1 style */}
+    <div className="max-w-[1200px] mx-auto space-y-6 animate-fade-up">
+      {/* Back button */}
       <button
         onClick={() => router.back()}
-        className="flex items-center gap-2 text-white/60 text-sm uppercase tracking-wider px-3 py-1.5 border border-transparent hover:border-white/40 hover:text-white transition-all duration-200"
+        className="flex items-center gap-2 h-8 px-3 rounded-[4px] border border-[var(--hairline)] text-[var(--ink-2)] text-[12px] hover:border-[var(--hairline-strong)] hover:bg-[var(--surface-2)] transition-colors duration-200"
       >
-        <ArrowLeft size={14} aria-hidden />
+        <ArrowLeft size={13} strokeWidth={1.5} aria-hidden />
         {t.email.back}
       </button>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* LEFT: email content */}
-        <article className={`glass p-5 border-2 border-white/10 ${priorityBorder}`}>
+        <article className={`card-editorial p-5 ${priorityBorder}`}>
           <header className="space-y-3 mb-4">
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
-              <span className="font-bold text-white">{email.from_name ?? email.from_address}</span>
+              <span className="font-medium text-[var(--ink-1)]">{email.from_name ?? email.from_address}</span>
               {email.from_name && (
-                <span className="text-white/40">&lt;{email.from_address}&gt;</span>
+                <span className="text-[var(--ink-3)]">&lt;{email.from_address}&gt;</span>
               )}
-              <span className="text-white/30 ml-auto text-xs">{formatRelative(email.received_at)}</span>
+              <span className="text-[var(--ink-3)] ml-auto text-[11px] tabular-nums" style={monoFont}>
+                {formatRelative(email.received_at)}
+              </span>
             </div>
 
-            <h2 className="text-lg font-bold text-white">{email.subject ?? '(no subject)'}</h2>
+            <h2
+              className="text-[24px] leading-[1.2] font-medium text-[var(--ink-1)]"
+              style={serifFont}
+            >
+              {email.subject ?? '(no subject)'}
+            </h2>
 
             {/* Badge row */}
             <div className="flex flex-wrap gap-2">
               {email.priority && (
-                <span className={`text-[10px] px-2 py-0.5 uppercase tracking-wider ${PRIORITY_CHIP[email.priority] ?? ''}`}>
+                <span
+                  className={`text-[10px] px-2 py-0.5 rounded-full uppercase tracking-[0.06em] ${PRIORITY_CHIP[email.priority] ?? ''}`}
+                  style={monoFont}
+                >
                   {email.priority}
                 </span>
               )}
               {email.category && (
-                <span className="text-[10px] px-2 py-0.5 border border-white/10 text-white/40 uppercase tracking-wider">
+                <span
+                  className="text-[10px] px-2 py-0.5 rounded-full border border-[var(--hairline)] text-[var(--ink-3)] uppercase tracking-[0.06em]"
+                  style={monoFont}
+                >
                   {email.category.replace(/_/g, ' ')}
                 </span>
               )}
               {email.urgency_hours != null && (
-                <span className="text-[10px] px-2 py-0.5 border border-neon-green/20 text-neon-green/60 uppercase tracking-wider">
+                <span
+                  className="text-[10px] px-2 py-0.5 rounded-full border border-[var(--accent-line)] text-[var(--accent)] uppercase tracking-[0.06em]"
+                  style={monoFont}
+                >
                   {email.urgency_hours}h
                 </span>
               )}
             </div>
           </header>
 
-          <div className="border-t border-white/10 pt-4">
-            <div className="text-sm text-white/70 whitespace-pre-wrap leading-relaxed max-h-80 overflow-y-auto scrollbar-hide">
+          <div className="border-t border-[var(--hairline)] pt-4">
+            <div className="text-[14px] text-[var(--ink-2)] whitespace-pre-wrap leading-relaxed max-h-80 overflow-y-auto scrollbar-hide">
               {email.body_plain ?? ''}
             </div>
           </div>
         </article>
 
         {/* RIGHT: reply generation */}
-        <aside className="glass p-5 border-2 border-white/10 space-y-4">
-          <h3 className="text-sm font-bold text-neon-green uppercase tracking-wider">
+        <aside className="card-editorial p-5 space-y-4">
+          <h3 className="text-[14px] font-medium text-[var(--ink-1)]">
             {t.email.aiReply}
           </h3>
+
+          {/* Reply subject (editable) */}
+          <div className="flex flex-col gap-1.5">
+            <label
+              htmlFor="reply-subject"
+              className="text-[11px] uppercase tracking-[0.08em] text-[var(--ink-3)]"
+              style={monoFont}
+            >
+              {t.email.subjectLabel}
+            </label>
+            <input
+              id="reply-subject"
+              type="text"
+              value={replySubject}
+              onChange={(e) => setReplySubject(e.target.value)}
+              placeholder={t.email.subjectPlaceholder}
+              className="h-10 px-3 rounded-[4px] bg-[var(--surface)] border border-[var(--hairline)] hover:border-[var(--hairline-strong)] focus:border-[var(--accent)] focus:outline-none transition-colors duration-200 text-[var(--ink-1)] text-sm placeholder:text-[var(--ink-3)]"
+            />
+          </div>
 
           {/* Tone selector + generate button */}
           <div className="flex items-center gap-2">
@@ -163,13 +220,10 @@ export default function EmailDetail({ email: rawEmail }: { email: EmailRow }) {
             <button
               onClick={handleGenerate}
               disabled={streaming}
-              className="h-9 px-4 border-2 border-neon-green text-white text-xs font-semibold uppercase tracking-wider relative overflow-hidden hover:text-white transition-all duration-300 group disabled:opacity-50 shrink-0"
+              className="h-9 px-4 rounded-[4px] bg-[var(--accent)] text-white text-[12px] font-medium flex items-center gap-1.5 hover:bg-[var(--accent-2)] transition-colors duration-200 disabled:opacity-50 shrink-0"
             >
-              <span className="absolute inset-0 bg-neon-green scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
-              <span className="relative z-10 flex items-center gap-1.5">
-                <RefreshCw size={11} className={streaming ? 'animate-spin' : ''} aria-hidden />
-                {t.email.generate}
-              </span>
+              <RefreshCw size={12} strokeWidth={1.5} className={streaming ? 'animate-spin' : ''} aria-hidden />
+              {t.email.generate}
             </button>
           </div>
 
@@ -180,14 +234,14 @@ export default function EmailDetail({ email: rawEmail }: { email: EmailRow }) {
               onChange={(e) => setReply(e.target.value)}
               rows={8}
               placeholder={t.email.replyPlaceholder}
-              className="w-full bg-white/5 border border-white/10 p-3 text-white text-sm placeholder-white/20 focus:outline-none focus:border-neon-green transition-colors duration-200 resize-none scrollbar-hide min-h-32"
+              className="w-full bg-[var(--surface)] border border-[var(--hairline)] rounded-[4px] p-3 text-[var(--ink-1)] text-[14px] placeholder:text-[var(--ink-3)] focus:outline-none focus:border-[var(--accent)] transition-colors duration-200 resize-none scrollbar-hide min-h-32"
             />
             {streaming && (
               <div className="absolute bottom-3 right-3 flex gap-1">
                 {[0, 1, 2].map((i) => (
                   <span
                     key={i}
-                    className="w-1.5 h-1.5 rounded-full bg-neon-green animate-pulse"
+                    className="w-1.5 h-1.5 rounded-full bg-[var(--accent)] animate-pulse"
                     style={{ animationDelay: `${i * 150}ms` }}
                   />
                 ))}
@@ -203,28 +257,25 @@ export default function EmailDetail({ email: rawEmail }: { email: EmailRow }) {
                 navigator.clipboard.writeText(reply)
                 toast.success(t.email.copied)
               }}
-              className="h-9 px-3 border border-neon-green/40 text-white/60 text-xs uppercase tracking-wider hover:bg-neon-green/10 hover:text-neon-green transition-all duration-200 disabled:opacity-30 flex items-center gap-1.5"
+              className="h-9 px-3 rounded-[4px] border border-[var(--hairline)] text-[var(--ink-2)] text-[12px] hover:border-[var(--hairline-strong)] hover:bg-[var(--surface-2)] transition-colors duration-200 disabled:opacity-30 flex items-center gap-1.5"
             >
-              <Copy size={11} aria-hidden />
+              <Copy size={12} strokeWidth={1.5} aria-hidden />
               {t.email.copy}
             </button>
             <button
               disabled={sending || !reply || streaming}
               onClick={handleSend}
-              className="h-9 px-3 border-2 border-neon-pink text-white text-xs font-semibold uppercase tracking-wider relative overflow-hidden hover:text-black transition-all duration-300 group disabled:opacity-30 flex items-center gap-1.5"
+              className="h-9 px-3 rounded-[4px] bg-[var(--accent)] text-white text-[12px] font-medium flex items-center gap-1.5 hover:bg-[var(--accent-2)] transition-colors duration-200 disabled:opacity-30"
             >
-              <span className="absolute inset-0 bg-neon-pink scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
-              <span className="relative z-10 flex items-center gap-1.5">
-                <Send size={11} aria-hidden />
-                {sending ? t.email.sending : t.email.send}
-              </span>
+              <Send size={12} strokeWidth={1.5} aria-hidden />
+              {sending ? t.email.sending : t.email.send}
             </button>
           </div>
 
           {email.ai_summary && (
-            <div className="border-t border-white/10 pt-3">
-              <p className="text-xs text-white/30">
-                <span className="font-medium text-white/50">{t.email.aiSummaryLabel}</span>{' '}
+            <div className="border-t border-[var(--hairline)] pt-3">
+              <p className="text-[12px] text-[var(--ink-3)]">
+                <span className="font-medium text-[var(--ink-2)]">{t.email.aiSummaryLabel}</span>{' '}
                 {email.ai_summary}
               </p>
             </div>

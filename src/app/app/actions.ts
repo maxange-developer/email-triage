@@ -139,6 +139,7 @@ export async function saveRulesAction(
 ): Promise<{ success: boolean; error?: string }> {
   const session = await getAppSession()
   if (!session?.user?.email) return { success: false, error: 'Unauthorized' }
+  if (process.env.USE_MOCK_AUTH === 'true') return { success: true }
   let parsed: unknown
   try {
     parsed = JSON.parse(rulesJson)

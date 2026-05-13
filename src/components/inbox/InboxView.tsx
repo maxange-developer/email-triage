@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useTransition } from 'react'
 import { Search, RefreshCw } from 'lucide-react'
+import { toast } from 'sonner'
 import { getBrowserClient } from '@/lib/supabase/client'
 import { initialSync } from '@/app/app/actions'
 import { type EmailRow } from '@/lib/validations/email'
@@ -80,7 +81,9 @@ export default function InboxView({ initialEmails, userId }: InboxViewProps) {
 
   function handleSync() {
     startSyncTransition(async () => {
-      await initialSync()
+      const result = await initialSync()
+      if (result.success) toast.success(t.inbox.syncComplete)
+      else toast.error(result.error ?? t.inbox.syncError)
     })
   }
 
@@ -99,16 +102,19 @@ export default function InboxView({ initialEmails, userId }: InboxViewProps) {
   }, [search, grouped])
 
   return (
-    <div className="space-y-6 animate-fade-up">
+    <div className="max-w-[1200px] mx-auto space-y-6 animate-fade-up">
       {/* Page header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="font-bold text-neon-green" style={{ fontSize: 'var(--fs-page)' }}>
-            {t.inbox.title}<span className="text-white">.</span>
+          <h1
+            className="text-[32px] font-medium text-[var(--ink-1)]"
+            style={{ letterSpacing: '-0.03em' }}
+          >
+            {t.inbox.title}<span className="text-[var(--accent)]">.</span>
           </h1>
           {live && (
-            <span className="flex items-center gap-1.5 text-neon-green text-xs mt-0.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-neon-green animate-pulse" />
+            <span className="flex items-center gap-1.5 text-[var(--accent)] text-xs mt-0.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)] animate-pulse" />
               {t.inbox.live}
             </span>
           )}
@@ -117,12 +123,12 @@ export default function InboxView({ initialEmails, userId }: InboxViewProps) {
         <div className="flex items-center gap-2">
           {/* Search */}
           <div className="relative">
-            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" aria-hidden />
+            <Search size={13} strokeWidth={1.5} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ink-3)]" aria-hidden />
             <input
               placeholder={t.inbox.search}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-48 h-9 bg-white/5 border border-white/20 pl-8 pr-3 text-white text-sm placeholder-white/30 focus:outline-none focus:border-neon-green transition-colors duration-200"
+              className="w-48 h-9 bg-[var(--surface)] border border-[var(--hairline)] rounded-[4px] pl-8 pr-3 text-[var(--ink-1)] text-[14px] placeholder:text-[var(--ink-3)] focus:outline-none focus:border-[var(--accent)] transition-colors duration-200"
               aria-label={t.inbox.search}
             />
           </div>
@@ -132,13 +138,10 @@ export default function InboxView({ initialEmails, userId }: InboxViewProps) {
             onClick={handleSync}
             disabled={syncing}
             aria-label={syncing ? 'Syncing...' : 'Sync emails'}
-            className="h-9 px-4 border-2 border-neon-green text-white text-xs font-semibold uppercase tracking-wider relative overflow-hidden hover:text-white transition-all duration-300 group disabled:opacity-50"
+            className="h-9 px-4 rounded-[4px] bg-[var(--accent)] text-white text-[12px] font-medium flex items-center gap-1.5 hover:bg-[var(--accent-2)] transition-colors duration-200 disabled:opacity-50"
           >
-            <span className="absolute inset-0 bg-neon-green scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
-            <span className="relative z-10 flex items-center gap-1.5">
-              <RefreshCw size={12} className={syncing ? 'animate-spin' : ''} aria-hidden />
-              {syncing ? t.inbox.syncing : t.inbox.sync}
-            </span>
+            <RefreshCw size={13} strokeWidth={1.5} className={syncing ? 'animate-spin' : ''} aria-hidden />
+            {syncing ? t.inbox.syncing : t.inbox.sync}
           </button>
         </div>
       </div>
@@ -147,7 +150,7 @@ export default function InboxView({ initialEmails, userId }: InboxViewProps) {
       {search.trim() ? (
         <section aria-label="Search results">
           {filteredEmails.length === 0 ? (
-            <p className="text-sm text-white/40 py-8 text-center">
+            <p className="text-sm text-[var(--ink-3)] py-8 text-center">
               {t.inbox.noResults} &ldquo;{search}&rdquo;
             </p>
           ) : (

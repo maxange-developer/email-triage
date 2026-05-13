@@ -1,27 +1,36 @@
-﻿'use client'
+"use client";
 
-import { useState } from 'react'
-import { useAccount } from '@/contexts/AccountContext'
-import { ChevronDown, Plus, Check } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { useAccount } from "@/contexts/AccountContext";
+import { ChevronDown, Plus, Check } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n/client";
 
 export default function AccountSwitcher() {
-  const { accounts, activeAccount, switchAccount, addAccount } = useAccount()
-  const [open, setOpen] = useState(false)
+  const { accounts, activeAccount, switchAccount, addAccount } = useAccount();
+  const { t } = useI18n();
+  const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
 
   return (
     <div className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 px-3 py-1.5 glass border border-white/10 hover:border-neon-green/50 transition-all duration-200 group"
+        className="flex items-center gap-2 h-9 px-3 rounded-[4px] bg-[var(--surface)] border border-[var(--hairline)] hover:border-[var(--hairline-strong)] transition-colors duration-200"
       >
-        <span className="w-1.5 h-1.5 rounded-full bg-neon-green animate-pulse shrink-0" />
-        <span className="text-white/70 text-sm max-w-[180px] truncate">
-          {activeAccount?.emailAddress ?? 'Select account'}
+        <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)] animate-pulse shrink-0" />
+        <span className="text-[var(--ink-1)] text-sm max-w-[180px] truncate">
+          {activeAccount?.emailAddress ?? "Select account"}
         </span>
         <ChevronDown
           size={14}
-          className={cn('text-white/40 transition-transform duration-200 shrink-0', open && 'rotate-180')}
+          strokeWidth={1.5}
+          className={cn(
+            "text-[var(--ink-3)] transition-transform duration-200 shrink-0",
+            open && "rotate-180",
+          )}
         />
       </button>
 
@@ -29,68 +38,82 @@ export default function AccountSwitcher() {
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
 
-          <div className="absolute right-0 top-full mt-2 z-50 bg-[#0a0a0a] border border-white/15 min-w-[260px] animate-fade-up shadow-[0_20px_60px_rgba(0,0,0,0.8)]">
+          <div
+            className="absolute right-0 top-full mt-2 z-50 bg-[var(--surface)] border border-[var(--hairline)] rounded-[4px] min-w-[260px] animate-fade-up"
+            style={{ boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }}
+          >
             <div className="p-2">
-              <p className="text-white/30 text-xs uppercase tracking-widest px-3 py-2">Accounts</p>
+              <p className="eyebrow px-3 py-2">{t.switcher.accounts}</p>
 
               {accounts.map((account) => (
                 <button
                   key={account.id}
                   onClick={async () => {
-                    await switchAccount(account.id)
-                    setOpen(false)
+                    await switchAccount(account.id);
+                    setOpen(false);
+                    if (pathname.startsWith("/app/email/")) {
+                      router.push("/app");
+                    } else {
+                      router.refresh();
+                    }
                   }}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-white/5 transition-colors duration-150 group"
+                  className={cn(
+                    "w-full flex items-center gap-3 px-3 py-2.5 rounded-[4px] text-left transition-colors duration-150",
+                    account.id === activeAccount?.id
+                      ? "bg-[var(--accent-soft)]"
+                      : "hover:bg-[var(--surface-2)]",
+                  )}
                 >
-                  <div
-                    className={cn(
-                      'w-8 h-8 flex items-center justify-center text-xs font-bold shrink-0 border',
-                      account.id === activeAccount?.id
-                        ? 'border-neon-green text-neon-green bg-neon-green/10'
-                        : 'border-white/20 text-white/50 bg-white/5',
-                    )}
-                  >
+                  <div className="w-8 h-8 rounded-[4px] flex items-center justify-center text-xs font-medium shrink-0 border border-[var(--accent-line)] bg-[var(--accent-soft)] text-[var(--accent)]">
                     {account.emailAddress[0].toUpperCase()}
                   </div>
 
                   <div className="flex-1 min-w-0">
                     <p
                       className={cn(
-                        'text-sm truncate',
-                        account.id === activeAccount?.id ? 'text-white' : 'text-white/60',
+                        "text-sm truncate",
+                        account.id === activeAccount?.id
+                          ? "text-[var(--ink-1)] font-medium"
+                          : "text-[var(--ink-2)]",
                       )}
                     >
                       {account.emailAddress}
                     </p>
                     {account.displayName && (
-                      <p className="text-white/30 text-xs truncate">{account.displayName}</p>
+                      <p className="text-[var(--ink-3)] text-xs truncate">
+                        {account.displayName}
+                      </p>
                     )}
                   </div>
 
                   {account.id === activeAccount?.id && (
-                    <Check size={14} className="text-neon-green shrink-0" />
+                    <Check
+                      size={14}
+                      strokeWidth={1.5}
+                      className="text-[var(--accent)] shrink-0"
+                    />
                   )}
                 </button>
               ))}
             </div>
 
-            <div className="border-t border-white/10 p-2">
+            <div className="border-t border-[var(--hairline)] p-2">
               <button
                 onClick={() => {
-                  setOpen(false)
-                  addAccount()
+                  setOpen(false);
+                  addAccount();
                 }}
-                className="w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-white/5 transition-colors duration-150 text-neon-green/70 hover:text-neon-green"
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-[4px] text-left hover:bg-[var(--surface-2)] transition-colors duration-150 text-[var(--accent)]"
               >
-                <div className="w-8 h-8 flex items-center justify-center border border-dashed border-neon-green/40">
-                  <Plus size={14} />
+                <div className="w-8 h-8 rounded-[4px] flex items-center justify-center border border-dashed border-[var(--accent-line)]">
+                  <Plus size={14} strokeWidth={1.5} />
                 </div>
-                <span className="text-sm">Add account</span>
+                <span className="text-sm">{t.switcher.addAccount}</span>
               </button>
             </div>
           </div>
         </>
       )}
     </div>
-  )
+  );
 }
