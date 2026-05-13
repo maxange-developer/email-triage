@@ -1,64 +1,114 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import type { EmailForClassification } from '@/lib/validations/email'
 
 const { mockCreate } = vi.hoisted(() => ({ mockCreate: vi.fn() }))
-vi.mock('@anthropic-ai/sdk', () => ({
+
+vi.mock('openai', () => ({
   default: vi.fn().mockImplementation(function () {
-    return { messages: { create: mockCreate } }
+    return { chat: { completions: { create: mockCreate } } }
   }),
 }))
 
 import { classifyEmail } from '@/lib/ai/classify'
 
-const baseEmail = {
+const baseEmail: EmailForClassification = {
   id: 'email-1',
   from_name: 'Mario Rossi',
   from_address: 'mario@example.com',
-  subject: 'Test',
-  body_plain: 'Hello world',
+  subject: 'Bug report',
+  body_plain: 'There is a critical bug in checkout',
 }
 
-const validToolUseBlock = {
-  type: 'tool_use',
-  id: 'tu_1',
-  name: 'classify_email',
-  input: {
-    priority: 'high',
-    category: 'client_request',
-    urgency_hours: 2,
-    intent: 'Needs help',
-    summary: 'Client needs help with project',
-  },
+function makeResponse(payload: object, usage = { prompt_tokens: 120, completion_tokens: 40 }) {
+  return {
+    choices: [{ message: { content: JSON.stringify(payload) } }],
+    usage,
+  }
 }
 
 describe('classifyEmail', () => {
   beforeEach(() => mockCreate.mockReset())
 
-  it('happy path — returns Classification from valid tool_use', async () => {
-    mockCreate.mockResolvedValue({ content: [validToolUseBlock] })
+  it('parses a valid response into a typed Classification', async () => {
+    mockCreate.mockResolvedValue(makeResponse({
+      priority: 'high',
+      category: 'client_request',
+      urgency_hours: 4,
+      intent: 'Reports a critical bug',
+      summary: 'Critical checkout bug needs immediate attention',
+    }))
+
     const result = await classifyEmail(baseEmail)
     expect(result.priority).toBe('high')
     expect(result.category).toBe('client_request')
-    expect(result.urgency_hours).toBe(2)
+    expect(result.urgency_hours).toBe(4)
+    expect(mockCreate).toHaveBeenCalledOnce()
   })
 
-  it('API error — propagates thrown error', async () => {
-    mockCreate.mockImplementationOnce(() => { throw new Error('Network error') })
-    await expect(classifyEmail(baseEmail)).rejects.toThrow('Network error')
+  it('calls OpenAI with the cost-pinned gpt-4o-mini model and JSON response format', async () => {
+    mockCreate.mockResolvedValue(makeResponse({
+      priority: 'low',
+      category: 'newsletter',
+      urgency_hours: 168,
+      intent: 'x',
+      summary: 'x',
+    }))
+
+    await classifyEmail(baseEmail)
+    const args = mockCreate.mock.calls[0][0]
+    expect(args.model).toBe('gpt-4o-mini-2024-07-18')
+    expect(args.response_format).toEqual({ type: 'json_object' })
   })
 
-  it('no tool_use block — throws with "no tool_use block"', async () => {
-    mockCreate.mockResolvedValue({ content: [{ type: 'text', text: 'some text' }] })
-    await expect(classifyEmail(baseEmail)).rejects.toThrow(/no tool_use block/i)
-  })
+  it('truncates body to 1500 chars before sending to OpenAI', async () => {
+    mockCreate.mockResolvedValue(makeResponse({
+      priority: 'medium',
+      category: 'support',
+      urgency_hours: 24,
+      intent: 'x',
+      summary: 'x',
+    }))
 
-  it('body truncated — calls API with body sliced to 2000 chars', async () => {
-    mockCreate.mockResolvedValue({ content: [validToolUseBlock] })
     const longBody = 'x'.repeat(3000)
     await classifyEmail({ ...baseEmail, body_plain: longBody })
-    const call = mockCreate.mock.calls[0][0]
-    const prompt: string = call.messages[0].content
-    // The sliced body should appear, not the full 3000 chars
-    const bodySection = prompt.split('Body:\n')[1]
-    expect(bodySection.length).toBeLessThanOrEqual(2000)
+
+    const userMessage: string = mockCreate.mock.calls[0][0].messages[1].content
+    const bodySection = userMessage.split('Body:\n')[1] ?? ''
+    expect(bodySection.length).toBeLessThanOrEqual(1500)
+  })
+
+  it('throws when OpenAI returns empty content', async () => {
+    mockCreate.mockResolvedValue({
+      choices: [{ message: { content: null } }],
+      usage: { prompt_tokens: 10, completion_tokens: 0 },
+    })
+
+    await expect(classifyEmail(baseEmail)).rejects.toThrow(/empty response/i)
+  })
+
+  it('throws when OpenAI returns malformed JSON', async () => {
+    mockCreate.mockResolvedValue({
+      choices: [{ message: { content: 'not valid json {{{' } }],
+      usage: { prompt_tokens: 10, completion_tokens: 5 },
+    })
+
+    await expect(classifyEmail(baseEmail)).rejects.toThrow()
+  })
+
+  it('throws via Zod when priority is outside the allowed enum', async () => {
+    mockCreate.mockResolvedValue(makeResponse({
+      priority: 'super-urgent',
+      category: 'client_request',
+      urgency_hours: 4,
+      intent: 'x',
+      summary: 'x',
+    }))
+
+    await expect(classifyEmail(baseEmail)).rejects.toThrow()
+  })
+
+  it('propagates network errors from the OpenAI client', async () => {
+    mockCreate.mockRejectedValueOnce(new Error('Network error'))
+    await expect(classifyEmail(baseEmail)).rejects.toThrow('Network error')
   })
 })
