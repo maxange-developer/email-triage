@@ -1,5 +1,6 @@
 import OpenAI from 'openai'
 import type { EmailRow } from '@/lib/validations/email'
+import { logger } from '@/lib/logger'
 
 let _client: OpenAI | null = null
 function getClient() {
@@ -65,9 +66,12 @@ export async function* generateReply(
   }
 
   if (promptTokens > 0) {
-    console.info(
-      `[suggest-reply] email=${email.id} in=${promptTokens} out=${completionTokens} ` +
-      `cost~$${((promptTokens * 0.00015 + completionTokens * 0.0006) / 1000).toFixed(6)}`,
-    )
+    const cost_usd = (promptTokens * 0.00015 + completionTokens * 0.0006) / 1000
+    logger.info('suggest-reply.cost', {
+      email: email.id,
+      tokens_in: promptTokens,
+      tokens_out: completionTokens,
+      cost_usd,
+    })
   }
 }

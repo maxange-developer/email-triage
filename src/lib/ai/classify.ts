@@ -1,6 +1,7 @@
 import OpenAI from 'openai'
 import { ClassificationSchema } from '@/lib/validations/email'
 import type { Classification, EmailForClassification } from '@/lib/validations/email'
+import { logger } from '@/lib/logger'
 
 let _client: OpenAI | null = null
 function getClient() {
@@ -40,10 +41,13 @@ export async function classifyEmail(email: EmailForClassification): Promise<Clas
 
   const usage = completion.usage
   if (usage) {
-    console.info(
-      `[classify] email=${email.id} in=${usage.prompt_tokens} out=${usage.completion_tokens} ` +
-      `cost~$${((usage.prompt_tokens * 0.00015 + usage.completion_tokens * 0.0006) / 1000).toFixed(6)}`,
-    )
+    const cost_usd = (usage.prompt_tokens * 0.00015 + usage.completion_tokens * 0.0006) / 1000
+    logger.info('classify.cost', {
+      email: email.id,
+      tokens_in: usage.prompt_tokens,
+      tokens_out: usage.completion_tokens,
+      cost_usd,
+    })
   }
 
   return ClassificationSchema.parse(JSON.parse(raw))
