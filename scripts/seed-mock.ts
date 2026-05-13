@@ -49,6 +49,12 @@ interface EmailSpec {
   ai_suggested_reply_it?: string
   ai_suggested_reply_en?: string
   ai_suggested_reply_es?: string
+  // New: structured replies — populated later by generate script
+  replies?: {
+    it?: { professional?: string; friendly?: string; formal?: string }
+    en?: { professional?: string; friendly?: string; formal?: string }
+    es?: { professional?: string; friendly?: string; formal?: string }
+  }
   subject: string
   subject_it?: string
   subject_en?: string
@@ -1314,6 +1320,24 @@ async function seed() {
       ai_suggested_reply_it: spec.ai_suggested_reply_it ?? spec.ai_suggested_reply,
       ai_suggested_reply_en: spec.ai_suggested_reply_en ?? spec.ai_suggested_reply,
       ai_suggested_reply_es: spec.ai_suggested_reply_es ?? spec.ai_suggested_reply,
+      // NEW: structured replies matrix (friendly/formal start empty, populated later)
+      ai_suggested_replies: {
+        it: {
+          professional: spec.replies?.it?.professional ?? spec.ai_suggested_reply_it ?? spec.ai_suggested_reply ?? '',
+          friendly: spec.replies?.it?.friendly ?? '',
+          formal: spec.replies?.it?.formal ?? '',
+        },
+        en: {
+          professional: spec.replies?.en?.professional ?? spec.ai_suggested_reply_en ?? spec.ai_suggested_reply ?? '',
+          friendly: spec.replies?.en?.friendly ?? '',
+          formal: spec.replies?.en?.formal ?? '',
+        },
+        es: {
+          professional: spec.replies?.es?.professional ?? spec.ai_suggested_reply_es ?? spec.ai_suggested_reply ?? '',
+          friendly: spec.replies?.es?.friendly ?? '',
+          formal: spec.replies?.es?.formal ?? '',
+        },
+      },
       is_processed: true,
       is_handled: false,
     }))
