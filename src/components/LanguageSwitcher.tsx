@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
@@ -10,7 +10,7 @@ const LANGS: { code: Locale; label: string }[] = [
   { code: 'es', label: 'Spanish' },
 ]
 
-export default function LanguageSwitcher({ flagPriority }: { flagPriority?: boolean }) {
+export default function LanguageSwitcher() {
   const { locale, setLocale } = useI18n()
 
   return (
@@ -23,8 +23,8 @@ export default function LanguageSwitcher({ flagPriority }: { flagPriority?: bool
           className={cn(
             'w-7 h-7 rounded-full overflow-hidden border-2 transition-all duration-200',
             locale === code
-              ? 'border-neon-green opacity-100'
-              : 'border-white/20 opacity-50 hover:opacity-80',
+              ? 'border-[var(--accent)] opacity-100'
+              : 'border-[var(--hairline)] opacity-50 hover:opacity-80',
           )}
         >
           <Image
@@ -34,7 +34,6 @@ export default function LanguageSwitcher({ flagPriority }: { flagPriority?: bool
             height={28}
             className="w-full h-full object-cover"
             unoptimized
-            priority={flagPriority && locale === code}
           />
         </button>
       ))}

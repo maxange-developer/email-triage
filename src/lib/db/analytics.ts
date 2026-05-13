@@ -1,5 +1,7 @@
 import { createServiceClient } from '@/lib/supabase/service'
 
+const EMAIL_TABLE = process.env.USE_MOCK_DATA === 'true' ? 'emails_mock' : 'emails'
+
 export interface DayCount { date: string; high: number; medium: number; low: number }
 export interface CategoryCount { category: string; count: number }
 export interface SenderRow {
@@ -24,7 +26,7 @@ function sinceDate(days: number): string {
 export async function getVolumeByDayByAccount(accountId: string, days = 30): Promise<DayCount[]> {
   const db = createServiceClient()
   const { data, error } = await db
-    .from('emails')
+    .from(EMAIL_TABLE)
     .select('received_at, priority')
     .eq('account_id', accountId)
     .gte('received_at', sinceDate(days))
@@ -56,7 +58,7 @@ export async function getVolumeByDayByAccount(accountId: string, days = 30): Pro
 export async function getVolumeByDay(userId: string, days = 30): Promise<DayCount[]> {
   const db = createServiceClient()
   const { data, error } = await db
-    .from('emails')
+    .from(EMAIL_TABLE)
     .select('received_at, priority')
     .eq('user_id', userId)
     .gte('received_at', sinceDate(days))
@@ -91,7 +93,7 @@ export async function getVolumeByDay(userId: string, days = 30): Promise<DayCoun
 export async function getCategoryBreakdownByAccount(accountId: string, days = 30): Promise<CategoryCount[]> {
   const db = createServiceClient()
   const { data, error } = await db
-    .from('emails')
+    .from(EMAIL_TABLE)
     .select('category')
     .eq('account_id', accountId)
     .eq('is_processed', true)
@@ -112,7 +114,7 @@ export async function getCategoryBreakdownByAccount(accountId: string, days = 30
 export async function getCategoryBreakdown(userId: string, days = 30): Promise<CategoryCount[]> {
   const db = createServiceClient()
   const { data, error } = await db
-    .from('emails')
+    .from(EMAIL_TABLE)
     .select('category')
     .eq('user_id', userId)
     .eq('is_processed', true)
@@ -134,7 +136,7 @@ export async function getCategoryBreakdown(userId: string, days = 30): Promise<C
 export async function getTopSendersByAccount(accountId: string, days = 30, limit = 10): Promise<SenderRow[]> {
   const db = createServiceClient()
   const { data, error } = await db
-    .from('emails')
+    .from(EMAIL_TABLE)
     .select('from_address, from_name, priority')
     .eq('account_id', accountId)
     .gte('received_at', sinceDate(days))
@@ -173,7 +175,7 @@ export async function getTopSendersByAccount(accountId: string, days = 30, limit
 export async function getTopSenders(userId: string, days = 30, limit = 10): Promise<SenderRow[]> {
   const db = createServiceClient()
   const { data, error } = await db
-    .from('emails')
+    .from(EMAIL_TABLE)
     .select('from_address, from_name, priority')
     .eq('user_id', userId)
     .gte('received_at', sinceDate(days))
@@ -229,7 +231,7 @@ export async function getTopSenders(userId: string, days = 30, limit = 10): Prom
 export async function getAnalyticsSummaryByAccount(accountId: string, days = 30): Promise<AnalyticsSummary> {
   const db = createServiceClient()
   const { data, error } = await db
-    .from('emails')
+    .from(EMAIL_TABLE)
     .select('is_handled, priority, urgency_hours')
     .eq('account_id', accountId)
     .gte('received_at', sinceDate(days))
@@ -267,7 +269,7 @@ export interface SenderStats {
 export async function getSenderStatsByAccount(accountId: string, fromAddress: string): Promise<SenderStats> {
   const db = createServiceClient()
   const { data, error } = await db
-    .from('emails')
+    .from(EMAIL_TABLE)
     .select('priority, category, urgency_hours')
     .eq('account_id', accountId)
     .eq('from_address', fromAddress)
@@ -298,7 +300,7 @@ export async function getSenderStatsByAccount(accountId: string, fromAddress: st
 export async function getSenderDetailByAccount(accountId: string, fromAddress: string): Promise<SenderEmail[]> {
   const db = createServiceClient()
   const { data, error } = await db
-    .from('emails')
+    .from(EMAIL_TABLE)
     .select('id, subject, ai_summary, priority, category, received_at, from_name, from_address')
     .eq('account_id', accountId)
     .eq('from_address', fromAddress)
@@ -310,7 +312,7 @@ export async function getSenderDetailByAccount(accountId: string, fromAddress: s
 export async function getAnalyticsSummary(userId: string, days = 30): Promise<AnalyticsSummary> {
   const db = createServiceClient()
   const { data, error } = await db
-    .from('emails')
+    .from(EMAIL_TABLE)
     .select('is_handled, priority, urgency_hours')
     .eq('user_id', userId)
     .gte('received_at', sinceDate(days))

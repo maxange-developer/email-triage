@@ -52,7 +52,7 @@ function parseRulesMap(json: string): RulesMap {
   }
 }
 
-export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps) {
+export default function SettingsView({ rulesJson }: SettingsViewProps) {
   const router = useRouter()
   const { accounts, activeAccount, switchAccount, addAccount } = useAccount()
   const rulesMapRef = useRef<RulesMap>(parseRulesMap(rulesJson))
@@ -93,7 +93,6 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
       const result = await saveRulesAction(activeAccount.id, payload)
       if (result?.error) toast.error(result.error)
       else {
-        // Update local ref so account switch after save shows correct rules
         rulesMapRef.current = { ...rulesMapRef.current, [activeAccount.id]: rules }
         toast.success(t.settings.rulesSaved)
       }
@@ -123,49 +122,44 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
   }
 
   return (
-    <div className="space-y-6 animate-fade-up max-w-2xl">
+    <div className="max-w-2xl mx-auto space-y-6 animate-fade-up">
       <div>
-        <h1 className="font-bold text-neon-green" style={{ fontSize: 'var(--fs-page)' }}>
-          {t.settings.title}<span className="text-white">.</span>
+        <h1
+          className="text-[32px] font-medium text-[var(--ink-1)]"
+          style={{ letterSpacing: '-0.03em' }}
+        >
+          {t.settings.title}<span className="text-[var(--accent)]">.</span>
         </h1>
       </div>
 
       {/* Connected accounts card */}
-      <div className="glass p-6 border-2 border-white/10 space-y-4">
-        <h2 className="text-xs font-semibold uppercase tracking-widest text-white/40">{t.settings.account}</h2>
+      <div className="card-editorial p-6 space-y-4">
+        <h2 className="eyebrow">{t.settings.account}</h2>
 
         <div className="space-y-3">
-          <p className="text-white/40 text-xs uppercase tracking-widest">{t.settings.connectedAccounts}</p>
+          <p className="eyebrow">{t.settings.connectedAccounts}</p>
 
           {accounts.map((account) => (
             <div
               key={account.id}
               className={cn(
-                'glass border-2 p-4 flex items-center gap-4 transition-all duration-200',
-                account.id === activeAccount?.id
-                  ? 'border-neon-green/60'
-                  : 'border-white/10 hover:border-white/20',
+                'card-editorial p-4 flex items-center gap-4',
+                account.id === activeAccount?.id &&
+                  'border-l-2 border-l-[var(--accent)] bg-[var(--accent-soft)]',
               )}
             >
-              <div
-                className={cn(
-                  'w-10 h-10 flex items-center justify-center text-sm font-bold border shrink-0',
-                  account.id === activeAccount?.id
-                    ? 'border-neon-green text-neon-green bg-neon-green/10'
-                    : 'border-white/20 text-white/50 bg-white/5',
-                )}
-              >
+              <div className="w-10 h-10 rounded-[4px] flex items-center justify-center text-sm font-medium border border-[var(--accent-line)] bg-[var(--accent-soft)] text-[var(--accent)] shrink-0">
                 {account.emailAddress[0].toUpperCase()}
               </div>
 
               <div className="flex-1 min-w-0">
-                <p className="text-white text-sm truncate font-medium">{account.emailAddress}</p>
+                <p className="text-[var(--ink-1)] text-sm truncate font-medium">{account.emailAddress}</p>
                 <div className="flex items-center gap-2 mt-0.5">
                   {account.isPrimary && (
-                    <span className="text-neon-green text-xs">{t.settings.primary}</span>
+                    <span className="text-[var(--accent)] text-xs">{t.settings.primary}</span>
                   )}
                   {account.id === activeAccount?.id && (
-                    <span className="text-neon-green text-xs">● {t.settings.active}</span>
+                    <span className="text-[var(--accent)] text-xs">● {t.settings.active}</span>
                   )}
                 </div>
               </div>
@@ -174,7 +168,7 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
                 {account.id !== activeAccount?.id && (
                   <button
                     onClick={() => switchAccount(account.id)}
-                    className="h-8 px-3 border border-neon-green/40 text-neon-green text-xs hover:bg-neon-green/10 transition-all duration-200"
+                    className="h-8 px-3 rounded-[4px] bg-[var(--accent)] text-white text-[12px] font-medium hover:bg-[var(--accent-2)] transition-colors duration-200"
                   >
                     {t.settings.switchAccount}
                   </button>
@@ -182,7 +176,7 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
                 {!account.isPrimary && (
                   <button
                     onClick={() => handleDeleteAccount(account.id)}
-                    className="h-8 px-3 border border-red-500/40 text-red-400 text-xs hover:bg-red-500/10 transition-all duration-200"
+                    className="h-8 px-3 rounded-[4px] border border-[var(--priority-high)]/40 text-[var(--priority-high)] text-[12px] hover:bg-[var(--priority-high-bg)] transition-colors duration-200"
                   >
                     {t.settings.removeAccount}
                   </button>
@@ -193,50 +187,54 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
 
           <button
             onClick={addAccount}
-            className="w-full py-3 border border-dashed border-white/20 text-white/40 text-sm hover:border-neon-green hover:text-neon-green transition-all duration-200 flex items-center justify-center gap-2"
+            className="w-full py-3 rounded-[4px] border border-dashed border-[var(--hairline-strong)] text-[var(--ink-3)] text-sm hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors duration-200 flex items-center justify-center gap-2"
           >
-            <Plus size={14} /> {t.settings.addAccount}
+            <Plus size={14} strokeWidth={1.5} /> {t.settings.addAccount}
           </button>
         </div>
 
-        <div className="pt-2 border-t border-white/10 flex justify-end">
+        <div className="pt-2 border-t border-[var(--hairline)] flex justify-end">
           <button
             onClick={() => signOut({ callbackUrl: '/login' })}
-            className="h-9 px-4 border-2 border-red-500/60 text-red-400 text-xs font-semibold uppercase tracking-wider hover:bg-red-500 hover:text-black transition-all duration-300 flex items-center gap-1.5"
+            className="h-9 px-4 rounded-[4px] border border-[var(--priority-high)]/40 text-[var(--priority-high)] text-[12px] font-medium hover:bg-[var(--priority-high-bg)] transition-colors duration-200 flex items-center gap-1.5"
           >
-            <LogOut size={12} aria-hidden />
+            <LogOut size={12} strokeWidth={1.5} aria-hidden />
             {t.settings.disconnect}
           </button>
         </div>
       </div>
 
       {/* Classification rules card */}
-      <div className="glass p-6 border-2 border-white/10 space-y-4">
-        <h2 className="text-xs font-semibold uppercase tracking-widest text-white/40">
-          {t.settings.classificationRules}
-        </h2>
-        <p className="text-xs text-white/30">{t.settings.rulesDescription}</p>
+      <div className="card-editorial p-6 space-y-4">
+        <h2 className="eyebrow">{t.settings.classificationRules}</h2>
+        <p className="text-[12px] text-[var(--ink-3)]">{t.settings.rulesDescription}</p>
         {activeAccount && (
-          <p className="text-xs text-white/40">
+          <p className="text-[12px] text-[var(--ink-3)]">
             {t.settings.rulesFor}{' '}
-            <span className="text-neon-green">{activeAccount.emailAddress}</span>
+            <span className="text-[var(--accent)]">{activeAccount.emailAddress}</span>
           </p>
         )}
 
         <div className="space-y-2">
           {rules.map((rule) => (
-            <div key={rule.id} className="glass border border-white/10 p-4 flex items-center gap-4">
+            <div key={rule.id} className="card-editorial p-4 flex items-center gap-4">
               <div className="flex-1 flex items-center gap-3 flex-wrap min-w-0">
-                <span className="text-white/40 text-xs uppercase tracking-widest shrink-0">
+                <span
+                  className="text-[var(--ink-3)] text-[11px] uppercase tracking-[0.08em] shrink-0"
+                  style={{ fontFamily: "var(--font-mono)" }}
+                >
                   {t.settings.ifFromContains}
                 </span>
                 <input
                   value={rule.from_contains}
                   onChange={(e) => updateRule(rule.id, 'from_contains', e.target.value)}
-                  className="flex-1 min-w-0 h-8 bg-white/5 border border-white/20 px-3 text-white text-sm focus:outline-none focus:border-neon-green transition-colors"
+                  className="flex-1 min-w-0 h-8 bg-[var(--surface)] border border-[var(--hairline)] rounded-[4px] px-3 text-[var(--ink-1)] text-sm focus:outline-none focus:border-[var(--accent)] transition-colors duration-200"
                   placeholder="boss@company.com"
                 />
-                <span className="text-white/40 text-xs uppercase tracking-widest shrink-0">
+                <span
+                  className="text-[var(--ink-3)] text-[11px] uppercase tracking-[0.08em] shrink-0"
+                  style={{ fontFamily: "var(--font-mono)" }}
+                >
                   → {t.settings.priority}
                 </span>
                 <CustomSelect
@@ -252,9 +250,9 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
               <button
                 onClick={() => removeRule(rule.id)}
                 aria-label="Remove rule"
-                className="text-white/30 hover:text-red-400 transition-colors duration-200 shrink-0"
+                className="text-[var(--ink-3)] hover:text-[var(--priority-high)] transition-colors duration-200 shrink-0"
               >
-                <X size={16} />
+                <X size={16} strokeWidth={1.5} />
               </button>
             </div>
           ))}
@@ -262,41 +260,35 @@ export default function SettingsView({ userEmail, rulesJson }: SettingsViewProps
 
         <button
           onClick={addRule}
-          className="w-full py-2.5 border border-dashed border-white/20 text-white/40 text-sm hover:border-neon-green hover:text-neon-green transition-all duration-200 flex items-center justify-center gap-2"
+          className="w-full py-2.5 rounded-[4px] border border-dashed border-[var(--hairline-strong)] text-[var(--ink-3)] text-sm hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors duration-200 flex items-center justify-center gap-2"
         >
-          <Plus size={14} />
+          <Plus size={14} strokeWidth={1.5} />
           {t.settings.addRule}
         </button>
 
         <button
           disabled={saving}
           onClick={handleSave}
-          className="w-full h-10 border-2 border-neon-green text-white text-xs font-semibold uppercase tracking-wider relative overflow-hidden hover:text-white transition-all duration-300 group disabled:opacity-40 flex items-center justify-center gap-2"
+          className="w-full h-10 rounded-[4px] bg-[var(--accent)] text-white text-[12px] font-medium hover:bg-[var(--accent-2)] transition-colors duration-200 disabled:opacity-40 flex items-center justify-center gap-2"
         >
-          <span className="absolute inset-0 bg-neon-green scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
-          <span className="relative z-10 flex items-center gap-2">
-            <Save size={12} aria-hidden />
-            {saving ? t.settings.saving : t.settings.saveRules}
-          </span>
+          <Save size={12} strokeWidth={1.5} aria-hidden />
+          {saving ? t.settings.saving : t.settings.saveRules}
         </button>
       </div>
 
       {/* Sync card */}
-      <div className="glass p-6 border-2 border-white/10 space-y-4">
-        <h2 className="text-xs font-semibold uppercase tracking-widest text-white/40">{t.settings.sync}</h2>
-        <p className="text-xs text-white/40">
+      <div className="card-editorial p-6 space-y-4">
+        <h2 className="eyebrow">{t.settings.sync}</h2>
+        <p className="text-[12px] text-[var(--ink-3)]">
           {t.settings.syncDescription}
         </p>
         <button
           disabled={syncing}
           onClick={handleSync}
-          className="h-10 px-6 border-2 border-neon-green text-white text-xs font-semibold uppercase tracking-wider relative overflow-hidden hover:text-white transition-all duration-300 group disabled:opacity-40 flex items-center gap-2"
+          className="h-10 px-6 rounded-[4px] bg-[var(--accent)] text-white text-[12px] font-medium hover:bg-[var(--accent-2)] transition-colors duration-200 disabled:opacity-40 flex items-center gap-2"
         >
-          <span className="absolute inset-0 bg-neon-green scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
-          <span className="relative z-10 flex items-center gap-2">
-            <RefreshCw size={12} className={syncing ? 'animate-spin' : ''} aria-hidden />
-            {syncing ? t.settings.syncing : t.settings.syncNow}
-          </span>
+          <RefreshCw size={12} strokeWidth={1.5} className={syncing ? 'animate-spin' : ''} aria-hidden />
+          {syncing ? t.settings.syncing : t.settings.syncNow}
         </button>
       </div>
     </div>

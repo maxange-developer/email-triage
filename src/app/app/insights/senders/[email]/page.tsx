@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic'
 
 import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 import { getAppSession } from '@/lib/auth/get-session'
 import { getActiveAccountId } from '@/lib/db/gmail-accounts'
 import {
@@ -24,7 +25,8 @@ export default async function SenderDetailPage({
   let accountId: string
 
   if (process.env.NEXT_PUBLIC_USE_MOCK === 'true') {
-    accountId = 'account-001'
+    const cookieStore = await cookies()
+    accountId = cookieStore.get('mock_account_id')?.value ?? 'account-001'
   } else {
     accountId = (await getActiveAccountId(userId)) ?? ''
   }

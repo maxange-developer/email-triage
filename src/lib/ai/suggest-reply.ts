@@ -31,7 +31,10 @@ export async function* generateReply(
   let completionTokens = 0
 
   const stream = await getClient().chat.completions.create({
-    model: 'gpt-4o-mini',
+    // COST GUARD: hardcoded to gpt-4o-mini.
+    // Do NOT change to gpt-4o or higher without explicit approval.
+    // See OpenAI cost incident 2026-05-12.
+    model: 'gpt-4o-mini-2024-07-18',
     max_tokens: 300,
     stream: true,
     stream_options: { include_usage: true },
