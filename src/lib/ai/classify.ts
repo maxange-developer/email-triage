@@ -23,7 +23,10 @@ export async function classifyEmail(email: EmailForClassification): Promise<Clas
   ].join('\n')
 
   const completion = await getClient().chat.completions.create({
-    model: 'gpt-4o-mini',
+    // COST GUARD: hardcoded to gpt-4o-mini.
+    // Do NOT change to gpt-4o or higher without explicit approval.
+    // See OpenAI cost incident 2026-05-12.
+    model: 'gpt-4o-mini-2024-07-18',
     max_tokens: 150,
     response_format: { type: 'json_object' },
     messages: [

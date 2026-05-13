@@ -2,6 +2,8 @@ import { createServiceClient } from '@/lib/supabase/service'
 import type { ParsedEmail } from '@/lib/gmail/sync'
 import type { Classification, EmailForClassification, EmailRow } from '@/lib/validations/email'
 
+const EMAIL_TABLE = process.env.USE_MOCK_DATA === 'true' ? 'emails_mock' : 'emails'
+
 export async function upsertEmails(userId: string, emails: ParsedEmail[]): Promise<void> {
   if (emails.length === 0) return
   const db = createServiceClient()
@@ -103,7 +105,7 @@ export async function getEmailsGrouped(
 ): Promise<{ high: EmailRow[]; medium: EmailRow[]; low: EmailRow[] }> {
   const db = createServiceClient()
   const { data, error } = await db
-    .from('emails')
+    .from(EMAIL_TABLE)
     .select('*')
     .eq('user_id', userId)
     .eq('is_handled', false)
@@ -123,7 +125,7 @@ export async function getEmailsGroupedByAccount(
 ): Promise<{ high: EmailRow[]; medium: EmailRow[]; low: EmailRow[] }> {
   const db = createServiceClient()
   const { data, error } = await db
-    .from('emails')
+    .from(EMAIL_TABLE)
     .select('*')
     .eq('account_id', accountId)
     .eq('is_handled', false)
@@ -150,7 +152,7 @@ export async function markHandled(emailId: string): Promise<void> {
 export async function searchEmails(userId: string, query: string): Promise<EmailRow[]> {
   const db = createServiceClient()
   const { data, error } = await db
-    .from('emails')
+    .from(EMAIL_TABLE)
     .select('*')
     .eq('user_id', userId)
     .eq('is_handled', false)
@@ -163,7 +165,7 @@ export async function searchEmails(userId: string, query: string): Promise<Email
 export async function getEmailById(emailId: string): Promise<EmailRow | null> {
   const db = createServiceClient()
   const { data, error } = await db
-    .from('emails')
+    .from(EMAIL_TABLE)
     .select('*')
     .eq('id', emailId)
     .single()
