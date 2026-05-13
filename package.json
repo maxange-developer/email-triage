@@ -10,7 +10,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "seed": "tsx scripts/seed-mock.ts"
+    "seed": "tsx scripts/seed-mock.ts",
+    "demo:export": "tsx scripts/export-demo-data.ts",
+    "demo:seed": "tsx scripts/seed-from-json.ts"
   },
   "dependencies": {
     "@auth/supabase-adapter": "^1.11.2",
