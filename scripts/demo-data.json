@@ -3277,7 +3277,7 @@
   "users_settings": [
     {
       "user_id": "massiangelone01@gmail.com",
-      "google_refresh_token": "REDACTED_TOKEN",
+      "google_refresh_token": "null",
       "email_address": "massiangelone01@gmail.com",
       "classification_rules": [],
       "history_id": null,

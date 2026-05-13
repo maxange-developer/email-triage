@@ -52,11 +52,21 @@ async function main(): Promise<void> {
     process.stderr.write(`users_settings fetch warning: ${setErr.message}\n`);
   }
 
+  const redactedSettings = Array.isArray(settings)
+    ? settings.map((s) => ({
+        ...s,
+        google_refresh_token: null,
+        google_access_token: null,
+      }))
+    : settings
+      ? { ...settings, google_refresh_token: null, google_access_token: null }
+      : null;
+
   const payload = {
     exported_at: new Date().toISOString(),
     emails_mock: emails ?? [],
     gmail_accounts: accounts ?? [],
-    users_settings: settings ?? [],
+    users_settings: redactedSettings,
   };
 
   const outPath = path.join(process.cwd(), "scripts/demo-data.json");
@@ -66,7 +76,7 @@ async function main(): Promise<void> {
   process.stdout.write(`Wrote ${outPath} (${sizeKB} KB)\n`);
   process.stdout.write(`  emails_mock:     ${emails?.length ?? 0}\n`);
   process.stdout.write(`  gmail_accounts:  ${accounts?.length ?? 0}\n`);
-  process.stdout.write(`  users_settings:  ${settings?.length ?? 0}\n`);
+  process.stdout.write(`  users_settings:  ${redactedSettings?.length ?? 0}\n`);
 }
 
 main().catch((err) => {
