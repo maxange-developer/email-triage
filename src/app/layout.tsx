@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter, Newsreader, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 import Providers from './providers'
@@ -29,6 +29,11 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: 'Email Triage',
   description: 'AI-powered Gmail inbox triage',
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
 }
 
 export default function RootLayout({
