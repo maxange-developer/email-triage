@@ -95,7 +95,7 @@ flow.
 - **OpenAI** `gpt-4o-mini` — classification + reply generation
 - **Gmail API** — read + send with thread headers
 - **Recharts** — analytics charts
-- **Vitest + Playwright** — 27 unit tests + e2e stub
+- **Vitest** — unit tests for pure utils and helpers
 
 ## Cost
 
@@ -125,8 +125,8 @@ src/
 scripts/                  # demo data export/seed/audit
 supabase/migrations/      # database schema (001-006)
 tests/
-  unit/                   # Vitest, 27 tests
-  e2e/                    # Playwright stub
+  unit/                   # Vitest unit tests
+  e2e/                    # E2E tests
 ```
 
 ## License
