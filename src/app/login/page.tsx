@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
+import AngelLogo from "@/components/AngelLogo";
 import { ArrowRight } from "lucide-react";
 import { useI18n } from "@/i18n/client";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
@@ -111,14 +111,7 @@ export default function LoginPage() {
             <div className="bg-[var(--surface)] border border-[var(--hairline)] rounded-[4px] p-8 md:p-10 space-y-6">
               {/* Logo */}
               <div className="flex justify-center mb-2">
-                <Image
-                  src="/images/angel1-black.webp"
-                  alt="Angel1"
-                  width={140}
-                  height={56}
-                  className="object-contain w-auto"
-                  priority
-                />
+                <AngelLogo size="footer" />
               </div>
 
               {/* Demo description */}

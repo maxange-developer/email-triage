@@ -1,8 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { usePathname } from 'next/navigation'
+import AngelLogo from '@/components/AngelLogo'
 import { Home, BarChart2, Settings } from 'lucide-react'
 import { useI18n } from '@/i18n/client'
 import { cn } from '@/lib/utils'
@@ -39,14 +39,7 @@ export function SidebarNav({ onNavigate }: SidebarNavProps) {
     <div className="flex h-full flex-col">
       {/* Logo */}
       <div className="h-16 flex items-center justify-center border-b border-[var(--hairline)] shrink-0">
-        <Image
-          src="/images/angel1-black.webp"
-          alt="Angel1"
-          width={120}
-          height={48}
-          className="object-contain w-auto h-auto"
-          priority
-        />
+        <AngelLogo size="header" />
       </div>
 
       {/* Nav */}

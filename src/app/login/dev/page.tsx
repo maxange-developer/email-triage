@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import AngelLogo from "@/components/AngelLogo";
 import { signIn } from "next-auth/react";
 import { Check, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -49,14 +49,7 @@ export default function LoginDevPage() {
 
         <div className="bg-[var(--surface)] border border-[var(--hairline)] rounded-[4px] p-8 md:p-10 space-y-6">
           <div className="flex justify-center mb-2">
-            <Image
-              src="/images/angel1-black.webp"
-              alt="Angel1"
-              width={140}
-              height={56}
-              className="object-contain w-auto"
-              priority
-            />
+            <AngelLogo size="footer" />
           </div>
 
           <div className="text-center space-y-1">
