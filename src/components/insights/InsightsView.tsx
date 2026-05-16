@@ -11,7 +11,7 @@ import type { DayCount, CategoryCount, SenderRow, AnalyticsSummary } from '@/lib
 import { useI18n } from '@/i18n/client'
 
 const EDITORIAL_COLORS = [
-  '#3B5BDB', // accent indigo
+  '#1F8BFF', // accent blue (Angel1 brand)
   '#9B2226', // deep red
   '#B8860B', // mustard
   '#1E5F5A', // teal
