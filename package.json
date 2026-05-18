@@ -12,7 +12,8 @@
     "test:e2e": "playwright test",
     "seed": "tsx scripts/seed-mock.ts",
     "demo:export": "tsx scripts/export-demo-data.ts",
-    "demo:seed": "tsx scripts/seed-from-json.ts"
+    "demo:seed": "tsx scripts/seed-from-json.ts",
+    "favicons": "node ./scripts/generate-favicons.mjs"
   },
   "dependencies": {
     "@auth/supabase-adapter": "^1.11.2",
@@ -45,6 +46,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
     "playwright": "^1.59.1",
+    "sharp": "^0.34.5",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
     "typescript": "^5",
